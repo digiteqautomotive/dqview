@@ -219,23 +219,26 @@ void GUI::play(bool enable)
 			startStreaming();
 	} else {
 		stopStreaming();
-		if (_recordAction->isChecked())
-			stopRecording();
 	}
 }
 
 void GUI::startStreaming()
 {
 	_playAction->setEnabled(false);
+	_deviceActionGroup->setEnabled(false);
+	_openStreamAction->setEnabled(false);
+
 	_player->startStreaming();
+
 	_screenshotAction->setEnabled(true);
 }
 
 void GUI::startStreamingAndRecording()
 {
-	QString path;
-
 	_playAction->setEnabled(false);
+	_deviceActionGroup->setEnabled(false);
+	_openStreamAction->setEnabled(false);
+
 	_player->startStreamingAndRecording();
 
 	_screenshotAction->setEnabled(true);
@@ -244,10 +247,8 @@ void GUI::startStreamingAndRecording()
 void GUI::stopStreaming()
 {
 	_player->stopStreaming();
-	_playAction->setChecked(false);
+	_playAction->setEnabled(false);
 	_screenshotAction->setEnabled(false);
-
-	_resolutionLabel->setText(QString());
 }
 
 void GUI::startRecording()
@@ -271,7 +272,12 @@ void GUI::streamError(const QString &error)
 
 	QMessageBox::critical(this, tr("Stream Error"), error);
 
+	/* Force the play action state as in case of an error, stateChange() may not
+	   be called. */
+	_playAction->setChecked(false);
 	_playAction->setEnabled(true);
+	_deviceActionGroup->setEnabled(true);
+	_openStreamAction->setEnabled(true);
 }
 
 void GUI::stateChange(bool playing)
@@ -282,12 +288,16 @@ void GUI::stateChange(bool playing)
 		window()->resize(_player->resolution() + diff);
 	}
 
-	if (playing)
+	if (playing) {
 		_resolutionLabel->setText(QString("%1x%2").arg(
 		  QString::number(_player->resolution().width()),
 		  QString::number(_player->resolution().height())));
-	else
+	} else {
+		_deviceActionGroup->setEnabled(true);
+		_openStreamAction->setEnabled(true);
+		_resolutionLabel->setText(QString());
 		_recordAction->setEnabled(true);
+	}
 
 	_playAction->setEnabled(true);
 }
@@ -302,8 +312,6 @@ void GUI::recordingStateChange(bool recording)
 
 void GUI::openDevice(QObject *device)
 {
-	stopStreaming();
-
 	Video *video = qobject_cast<Video *>(device);
 	_player->setVideo(video);
 
