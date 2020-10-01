@@ -22,7 +22,7 @@ public:
 
 private:
 	StreamInfo _streamInfo;
-	QStringList _sdp;
+	QString _sdp;
 };
 
 #endif // STREAM_H

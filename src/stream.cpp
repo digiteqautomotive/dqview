@@ -1,4 +1,5 @@
 #include <QTemporaryFile>
+#include <QDir>
 #include "stream.h"
 
 #define ARRAY_SIZE(a) ((int)(sizeof(a) / sizeof(*(a))))
@@ -18,8 +19,9 @@ Stream::Stream(const StreamInfo &streamInfo, QObject *parent)
   : Video(parent), _streamInfo(streamInfo)
 {
 	for (int i = 0; i < ARRAY_SIZE(formats); i++) {
-		if (formats[i].sdp) {
-			QString tpl(QString(formats[i].name) + QString("-XXXXXX.sdp"));
+		if (_streamInfo.type() == formats[i].name && formats[i].sdp) {
+			QString tpl(QDir::tempPath() + "/" + QString(formats[i].name)
+			  + QString("-XXXXXX.sdp"));
 			QTemporaryFile *tmp = new QTemporaryFile(tpl, this);
 			QString sdp(QString(formats[i].sdp).arg(_streamInfo.address(),
 			  QString::number(_streamInfo.port())));
@@ -29,9 +31,10 @@ Stream::Stream(const StreamInfo &streamInfo, QObject *parent)
 			tmp->write(ba);
 			tmp->close();
 
-			_sdp.append(tmp->fileName());
-		} else
-			_sdp.append(QString());
+			_sdp = tmp->fileName();
+
+			break;
+		}
 	}
 }
 
@@ -43,7 +46,7 @@ QString Stream::url() const
 				return QString(formats[i].url).arg(_streamInfo.address(),
 				  QString::number(_streamInfo.port()));
 			else
-				return _sdp.at(i);
+				return _sdp;
 		}
 	}
 
