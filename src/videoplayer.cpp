@@ -5,8 +5,6 @@
 #include "video.h"
 #include "videoplayer.h"
 
-#include <QDebug>
-
 
 #define ARRAY_SIZE(array) \
   (sizeof(array) / sizeof(array[0]))
