@@ -38,7 +38,7 @@ void VideoPlayer::handleEvent(const libvlc_event_t *event, void *userData)
 			/* The resolution is ready AFTER the callback, so add some
 			   additional time. The callback runs in a VLC thread context,
 			   so we can not use a QTimer. */
-			msleep(100);
+			msleep(250);
 			player->videoOutputReady();
 			break;
 
@@ -69,8 +69,6 @@ void VideoPlayer::setVideo(Video *video)
 	if (_media)
 		libvlc_media_release(_media);
 	_media = libvlc_media_new_location(_vlc, video->url().toLatin1().constData());
-
-	libvlc_media_parse_with_options(_media, libvlc_media_parse_network, 5000);
 }
 
 void VideoPlayer::startStreaming()
