@@ -19,6 +19,7 @@
 #include "optionsdialog.h"
 #include "gui.h"
 
+#include <QDebug>
 
 #define COMPANY_NAME "Digiteq Automotive"
 #define APP_NAME "MGB Viewer"
@@ -53,6 +54,8 @@ GUI::GUI()
 	connect(_player, &VideoPlayer::stateChanged, this, &GUI::stateChange);
 	connect(_player, &VideoPlayer::recordingStateChanged, this,
 	  &GUI::recordingStateChange);
+	connect(_player, &VideoPlayer::videoOutputReady, this,
+	  &GUI::resolutionReady);
 
 	createActions();
 	createMenus();
@@ -229,8 +232,6 @@ void GUI::startStreaming()
 	_openStreamAction->setEnabled(false);
 
 	_player->startStreaming();
-
-	_screenshotAction->setEnabled(true);
 }
 
 void GUI::startStreamingAndRecording()
@@ -240,15 +241,14 @@ void GUI::startStreamingAndRecording()
 	_openStreamAction->setEnabled(false);
 
 	_player->startStreamingAndRecording();
-
-	_screenshotAction->setEnabled(true);
 }
 
 void GUI::stopStreaming()
 {
-	_player->stopStreaming();
 	_playAction->setEnabled(false);
 	_screenshotAction->setEnabled(false);
+
+	_player->stopStreaming();
 }
 
 void GUI::startRecording()
@@ -282,16 +282,10 @@ void GUI::streamError(const QString &error)
 
 void GUI::stateChange(bool playing)
 {
-	if (playing && _resizeAction->isChecked()) {
-		QSize diff(window()->size() - _player->size());
-		qDebug() << "RESOLUTION" << _player->resolution();
-		window()->resize(_player->resolution() + diff);
-	}
+	qDebug() << "stateChange" << playing;
 
 	if (playing) {
-		_resolutionLabel->setText(QString("%1x%2").arg(
-		  QString::number(_player->resolution().width()),
-		  QString::number(_player->resolution().height())));
+		_screenshotAction->setEnabled(true);
 	} else {
 		_deviceActionGroup->setEnabled(true);
 		_openStreamAction->setEnabled(true);
@@ -300,6 +294,19 @@ void GUI::stateChange(bool playing)
 	}
 
 	_playAction->setEnabled(true);
+}
+
+#include <unistd.h>
+void GUI::resolutionReady()
+{
+	if (_resizeAction->isChecked()) {
+		QSize diff(window()->size() - _player->size());
+		window()->resize(_player->resolution() + diff);
+	}
+
+	_resolutionLabel->setText(QString("%1x%2").arg(
+	  QString::number(_player->resolution().width()),
+	  QString::number(_player->resolution().height())));
 }
 
 void GUI::recordingStateChange(bool recording)

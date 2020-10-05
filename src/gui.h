@@ -27,6 +27,7 @@ private slots:
 	void streamError(const QString &error);
 	void stateChange(bool playing);
 	void recordingStateChange(bool recording);
+	void resolutionReady();
 
 private:
 	void readSettings();

@@ -1,7 +1,7 @@
 TARGET = mgbview
 TEMPLATE = app
 
-QT      += core gui widgets av avwidgets
+QT      += core gui widgets
 VERSION = 1.1
 DEFINES += APP_VERSION=\\\"$$VERSION\\\" \
 
@@ -30,6 +30,8 @@ HEADERS += src/application.h \
     src/timer.h \
     src/videoplayer.h \
     src/camerainfo.h \
-    src/options.h
+    src/options.h \
+    src/sleep.h
 
 RESOURCES += mgbview.qrc
+LIBS += -lvlc

@@ -46,7 +46,7 @@ QString Stream::url() const
 				return QString(formats[i].url).arg(_streamInfo.address(),
 				  QString::number(_streamInfo.port()));
 			else
-				return _sdp;
+				return QString("file://%1").arg(_sdp);
 		}
 	}
 

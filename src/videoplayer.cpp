@@ -1,134 +1,153 @@
 #include <QVBoxLayout>
 #include <QFileInfo>
 #include <QDate>
+#include <QTimer>
+#include "sleep.h"
 #include "video.h"
 #include "videoplayer.h"
 
 
-VideoPlayer::VideoPlayer(QWidget *parent) : QWidget(parent)
+#define ARRAY_SIZE(array) \
+  (sizeof(array) / sizeof(array[0]))
+
+static const char *vlcArguments[] = {
+	"--intf=dummy",
+	"--ignore-config",
+	"--no-media-library",
+	"--no-one-instance",
+	"--no-osd",
+	"--no-snapshot-preview",
+	"--no-stats",
+	"--no-video-title-show",
+//	"-vvv"
+};
+
+
+void VideoPlayer::handleEvent(const libvlc_event_t *event, void *userData)
 {
-	_video = 0;
-	_player = new QtAV::AVPlayer(this);
-	_vo = new QtAV::VideoOutput(this);
-	_player->setRenderer(_vo);
-	_player->setBufferMode(QtAV::BufferTime);
-	_player->setBufferValue(1000);
+	VideoPlayer *player = static_cast<VideoPlayer*>(userData);
 
-	QVBoxLayout *layout = new QVBoxLayout();
-	layout->setContentsMargins(0, 0, 0, 0);
-	layout->setSpacing(0);
-	layout->addWidget(_vo->widget());
-	setLayout(layout);
+	switch (event->type) {
+		case libvlc_MediaPlayerPlaying:
+			player->stateChanged(true);
+			break;
+		case libvlc_MediaPlayerStopped:
+			player->stateChanged(false);
+			break;
+		case libvlc_MediaPlayerVout:
+			/* The resolution is ready AFTER the callback, so add some
+			   additional time. The callback runs in a VLC thread context,
+			   so we can not use a QTimer. */
+			msleep(100);
+			player->videoOutputReady();
+			break;
 
-	QVariantHash opt;
-	opt["protocol_whitelist"] = "file,udp,tcp,rtp";
-	_player->setOptionsForFormat(opt);
+		case libvlc_MediaPlayerEncounteredError:
+			player->error("Error");
+			break;
+	}
+}
 
-	_avt = new QtAV::AVTranscoder(this);
-	_avt->setMediaSource(_player);
-	//_avt->setOutputOptions(muxopt);
-	//_avt->setOutputFormat(fmt);
-	_avt->createVideoEncoder();
-	QtAV::VideoEncoder *venc = _avt->videoEncoder();
-	venc->setCodecName("libx264");
-	venc->setBitRate(1024*1024);
+VideoPlayer::VideoPlayer(QWidget *parent) : QWidget(parent),
+  _vlc(libvlc_new(ARRAY_SIZE(vlcArguments), vlcArguments)),
+  _mediaPlayer(0), _media(0)
+{
+	setAutoFillBackground(true);
 
-	connect(_avt, &QtAV::AVTranscoder::started, this,
-	  &VideoPlayer::emitRecordingStart);
-	connect(_avt, &QtAV::AVTranscoder::stopped, this,
-	  &VideoPlayer::emitRecordingStop);
+	QPalette palette = this->palette();
+	palette.setColor(QPalette::Window, Qt::black);
+	setPalette(palette);
+}
 
-	_player->videoCapture()->setAutoSave(false);
-	connect(_player->videoCapture(), &QtAV::VideoCapture::imageCaptured, this,
-	  &VideoPlayer::saveImage);
-
-	connect(_player, &QtAV::AVPlayer::error, this, &VideoPlayer::emitError);
-	connect(_player, &QtAV::AVPlayer::stateChanged, this,
-	  &VideoPlayer::emitStateChange);
+VideoPlayer::~VideoPlayer()
+{
+	libvlc_release(_vlc);
 }
 
 void VideoPlayer::setVideo(Video *video)
 {
-	_video = video;
+	if (_media)
+		libvlc_media_release(_media);
+	_media = libvlc_media_new_location(_vlc, video->url().toLatin1().constData());
+
+	libvlc_media_parse_with_options(_media, libvlc_media_parse_network, 5000);
 }
 
 void VideoPlayer::startStreaming()
 {
-	qDebug() << "URL" << _video->url();
-	_player->play(_video->url());
+	Q_ASSERT(!_mediaPlayer);
+
+	_mediaPlayer = libvlc_media_player_new_from_media(_media);
+
+	libvlc_event_manager_t* eventManager = libvlc_media_player_event_manager(
+	  _mediaPlayer);
+	libvlc_event_attach(eventManager, libvlc_MediaPlayerPlaying, handleEvent,
+	  this);
+	libvlc_event_attach(eventManager, libvlc_MediaPlayerStopped, handleEvent,
+	  this);
+	libvlc_event_attach(eventManager, libvlc_MediaPlayerVout, handleEvent,
+	  this);
+
+	libvlc_event_attach(eventManager, libvlc_MediaPlayerEncounteredError,
+	  handleEvent, this);
+
+#if defined(Q_OS_LINUX)
+	libvlc_media_player_set_xwindow(_mediaPlayer, winId());
+#elif defined(Q_OS_WIN)
+	libvlc_media_player_set_hwnd(_mediaPlayer, winId());
+#else
+#error "unsupported platform"
+#endif
+
+	libvlc_media_player_play(_mediaPlayer);
 }
 
 void VideoPlayer::startStreamingAndRecording()
 {
 	QString time(QDateTime::currentDateTime().toString("yyyyMMdd-hhmmss"));
-	QString recordFile(_videoDir + "/" + time + ".mpeg");
+	_recordFile = QString(_videoDir + "/" + time + ".mpeg");
 
-	qDebug() << "RECORD" << recordFile;
-	_avt->setOutputMedia(recordFile);
-	_avt->start();
+	const char *recordingOptionPattern = "sout=#duplicate{dst=display,"
+	  "dst='transcode{vcodec=h264,vb=1800}:standard{access=file,mux=ts,dst=%1}'}";
+	QString recordingOption = QString(recordingOptionPattern).arg(_recordFile);
+	libvlc_media_add_option(_media, recordingOption.toUtf8().constData());
+	libvlc_media_add_option(_media, "v4l2-caching=100");
 
-	qDebug() << "URL" << _video->url();
-	_player->play(_video->url());
+	startStreaming();
+
+	emit recordingStateChanged(true);
 }
 
 void VideoPlayer::stopStreaming()
 {
-	if (_player->isPlaying()) {
-		qDebug() << "STOP";
-		_player->stop();
-	}
-	if (_avt->isRunning()) {
-		qDebug() << "RECORD STOP";
-		_avt->stop();
-	}
+	if (!_mediaPlayer)
+		return;
+
+	libvlc_media_player_stop(_mediaPlayer);
+	libvlc_media_player_release(_mediaPlayer);
+	_mediaPlayer = 0;
+
+	emit recordingStateChanged(false);
 }
 
 void VideoPlayer::captureImage()
 {
-	_player->videoCapture()->capture();
-}
+	Q_ASSERT(_mediaPlayer);
 
-void VideoPlayer::saveImage(const QImage& image)
-{
 	QString time(QDateTime::currentDateTime().toString("yyyyMMdd-hhmmss"));
 	QString path(_imageDir + "/" + time + ".png");
-	qDebug() << "IMAGE" << path;
-	image.save(path);
-}
 
-void VideoPlayer::emitError(const QtAV::AVError &err)
-{
-	emit error(err.ffmpegErrorString());
-}
-
-void VideoPlayer::emitStateChange(QtAV::AVPlayer::State state)
-{
-	switch (state) {
-		case QtAV::AVPlayer::PlayingState:
-			emit stateChanged(true);
-			break;
-		default:
-			emit stateChanged(false);
-	}
-}
-
-void VideoPlayer::emitRecordingStart()
-{
-	emit recordingStateChanged(true);
-}
-
-void VideoPlayer::emitRecordingStop()
-{
-	emit recordingStateChanged(false);
+	libvlc_video_take_snapshot(_mediaPlayer, 0, path.toUtf8().constData(), 0, 0);
 }
 
 QSize VideoPlayer::resolution() const
 {
-	return QSize(_player->statistics().video_only.width,
-	  _player->statistics().video_only.height);
+	unsigned width, height;
+	libvlc_video_get_size(_mediaPlayer, 0, &width, &height);
+	return QSize(width, height);
 }
 
 QString VideoPlayer::recordFile() const
 {
-	return _avt->outputFile();
+	return _recordFile;
 }

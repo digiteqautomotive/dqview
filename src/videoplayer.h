@@ -1,9 +1,8 @@
 #ifndef VIDEOPLAYER_H
 #define VIDEOPLAYER_H
 
-#include <QtAV>
-#include <QtAV/AVTranscoder.h>
 #include <QWidget>
+#include <vlc/vlc.h>
 
 class QImage;
 class Video;
@@ -14,8 +13,8 @@ class VideoPlayer : public QWidget
 
 public:
 	VideoPlayer(QWidget *parent = 0);
+	~VideoPlayer();
 
-	const Video *video() const {return _video;}
 	void setVideo(Video *video);
 
 	void setImageDir(const QString &path) {_imageDir = path;}
@@ -28,6 +27,7 @@ signals:
 	void error(const QString &error);
 	void stateChanged(bool playing);
 	void recordingStateChanged(bool recording);
+	void videoOutputReady();
 
 public slots:
 	void startStreaming();
@@ -35,20 +35,15 @@ public slots:
 	void stopStreaming();
 	void captureImage();
 
-private slots:
-	void saveImage(const QImage &image);
-	void emitError(const QtAV::AVError &err);
-	void emitStateChange(QtAV::AVPlayer::State state);
-	void emitRecordingStart();
-	void emitRecordingStop();
-
 private:
-	Video *_video;
-	QtAV::VideoOutput *_vo;
-	QtAV::AVPlayer *_player;
-	QtAV::AVTranscoder *_avt;
+	static void handleEvent(const libvlc_event_t *event, void *userData);
+
+	libvlc_instance_t *_vlc;
+	libvlc_media_player_t *_mediaPlayer;
+	libvlc_media_t *_media;
 
 	QString _imageDir, _videoDir;
+	QString _recordFile;
 };
 
 #endif // VIDEOPLAYER_H
