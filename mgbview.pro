@@ -30,8 +30,7 @@ HEADERS += src/application.h \
     src/timer.h \
     src/videoplayer.h \
     src/camerainfo.h \
-    src/options.h \
-    src/sleep.h
+    src/options.h
 
 RESOURCES += mgbview.qrc
 LIBS += -lvlc

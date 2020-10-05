@@ -2,7 +2,6 @@
 #include <QFileInfo>
 #include <QDate>
 #include <QTimer>
-#include "sleep.h"
 #include "video.h"
 #include "videoplayer.h"
 
