@@ -25,9 +25,9 @@ private slots:
 	void about();
 	void updateTimer(int time);
 	void streamError(const QString &error);
-	void stateChange(bool playing);
+	void stateChanged(bool playing);
 	void recordingStateChange(bool recording);
-	void resolutionReady();
+	void videoLoaded();
 
 private:
 	void readSettings();

@@ -6,6 +6,8 @@
 #include "video.h"
 #include "videoplayer.h"
 
+#include <QDebug>
+
 
 #define ARRAY_SIZE(array) \
   (sizeof(array) / sizeof(array[0]))
@@ -34,48 +36,21 @@ void VideoPlayer::handleEvent(const libvlc_event_t *event, void *userData)
 		case libvlc_MediaPlayerStopped:
 			player->stateChanged(false);
 			break;
-		case libvlc_MediaPlayerVout:
-			/* The resolution is ready AFTER the callback, so add some
-			   additional time. The callback runs in a VLC thread context,
-			   so we can not use a QTimer. */
-			msleep(250);
-			player->videoOutputReady();
-			break;
-
 		case libvlc_MediaPlayerEncounteredError:
-			player->error("Error");
+			player->error(libvlc_errmsg());
 			break;
 	}
 }
 
-VideoPlayer::VideoPlayer(QWidget *parent) : QWidget(parent),
-  _vlc(libvlc_new(ARRAY_SIZE(vlcArguments), vlcArguments)),
-  _mediaPlayer(0), _media(0)
+VideoPlayer::VideoPlayer(QWidget *parent) : QWidget(parent), _media(0)
 {
 	setAutoFillBackground(true);
-
 	QPalette palette = this->palette();
 	palette.setColor(QPalette::Window, Qt::black);
 	setPalette(palette);
-}
 
-VideoPlayer::~VideoPlayer()
-{
-	libvlc_release(_vlc);
-}
-
-void VideoPlayer::setVideo(Video *video)
-{
-	if (_media)
-		libvlc_media_release(_media);
-	_media = libvlc_media_new_location(_vlc, video->url().toLatin1().constData());
-}
-
-void VideoPlayer::startStreaming()
-{
-	Q_ASSERT(!_mediaPlayer);
-
-	_mediaPlayer = libvlc_media_player_new_from_media(_media);
+	_vlc = libvlc_new(ARRAY_SIZE(vlcArguments), vlcArguments);
+	_mediaPlayer = libvlc_media_player_new(_vlc);
 
 	libvlc_event_manager_t* eventManager = libvlc_media_player_event_manager(
 	  _mediaPlayer);
@@ -83,9 +58,6 @@ void VideoPlayer::startStreaming()
 	  this);
 	libvlc_event_attach(eventManager, libvlc_MediaPlayerStopped, handleEvent,
 	  this);
-	libvlc_event_attach(eventManager, libvlc_MediaPlayerVout, handleEvent,
-	  this);
-
 	libvlc_event_attach(eventManager, libvlc_MediaPlayerEncounteredError,
 	  handleEvent, this);
 
@@ -96,7 +68,24 @@ void VideoPlayer::startStreaming()
 #else
 #error "unsupported platform"
 #endif
+}
 
+VideoPlayer::~VideoPlayer()
+{
+	if (_media)
+		libvlc_media_release(_media);
+	libvlc_media_player_release(_mediaPlayer);
+	libvlc_release(_vlc);
+}
+
+void VideoPlayer::setVideo(Video *video)
+{
+	_media = libvlc_media_new_location(_vlc, video->url().toLatin1().constData());
+	libvlc_media_player_set_media(_mediaPlayer, _media);
+}
+
+void VideoPlayer::startStreaming()
+{
 	libvlc_media_player_play(_mediaPlayer);
 }
 
@@ -111,19 +100,14 @@ void VideoPlayer::startStreamingAndRecording()
 	libvlc_media_add_option(_media, recordingOption.toUtf8().constData());
 	libvlc_media_add_option(_media, "v4l2-caching=100");
 
-	startStreaming();
+	libvlc_media_player_play(_mediaPlayer);
 
 	emit recordingStateChanged(true);
 }
 
 void VideoPlayer::stopStreaming()
 {
-	if (!_mediaPlayer)
-		return;
-
 	libvlc_media_player_stop(_mediaPlayer);
-	libvlc_media_player_release(_mediaPlayer);
-	_mediaPlayer = 0;
 
 	emit recordingStateChanged(false);
 }

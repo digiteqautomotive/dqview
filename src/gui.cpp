@@ -11,6 +11,7 @@
 #include <QStatusBar>
 #include <QMessageBox>
 #include <QSysInfo>
+#include <QTimer>
 #include "timer.h"
 #include "videoplayer.h"
 #include "camera.h"
@@ -19,7 +20,6 @@
 #include "optionsdialog.h"
 #include "gui.h"
 
-#include <QDebug>
 
 #define COMPANY_NAME "Digiteq Automotive"
 #define APP_NAME "MGB Viewer"
@@ -45,17 +45,18 @@ static QString timeSpan(int time)
 
 GUI::GUI()
 {
+	setWindowIcon(QIcon(":/app.png"));
+	setWindowTitle(APP_NAME);
+
 	readSettings();
 
 	_player = new VideoPlayer();
 	_player->setImageDir(_options.imagesDir);
 	_player->setVideoDir(_options.videoDir);
 	connect(_player, &VideoPlayer::error, this, &GUI::streamError);
-	connect(_player, &VideoPlayer::stateChanged, this, &GUI::stateChange);
+	connect(_player, &VideoPlayer::stateChanged, this, &GUI::stateChanged);
 	connect(_player, &VideoPlayer::recordingStateChanged, this,
 	  &GUI::recordingStateChange);
-	connect(_player, &VideoPlayer::videoOutputReady, this,
-	  &GUI::resolutionReady);
 
 	createActions();
 	createMenus();
@@ -64,8 +65,9 @@ GUI::GUI()
 
 	setCentralWidget(_player);
 
-	setWindowIcon(QIcon(":/app.png"));
-	setWindowTitle(APP_NAME);
+	QList<QAction*> devices(_deviceActionGroup->actions());
+	if (!devices.isEmpty())
+		devices.first()->trigger();
 }
 
 QList<QAction*> GUI::cameraActions()
@@ -280,25 +282,29 @@ void GUI::streamError(const QString &error)
 	_openStreamAction->setEnabled(true);
 }
 
-void GUI::stateChange(bool playing)
+void GUI::stateChanged(bool playing)
 {
-	qDebug() << "stateChange" << playing;
-
 	if (playing) {
 		_screenshotAction->setEnabled(true);
+		 QTimer::singleShot(100, this, SLOT(videoLoaded()));
 	} else {
 		_deviceActionGroup->setEnabled(true);
 		_openStreamAction->setEnabled(true);
 		_resolutionLabel->setText(QString());
 		_recordAction->setEnabled(true);
+		_player->repaint();
 	}
 
 	_playAction->setEnabled(true);
 }
 
-#include <unistd.h>
-void GUI::resolutionReady()
+void GUI::videoLoaded()
 {
+	if (_player->resolution().isNull()) {
+		QTimer::singleShot(100, this, SLOT(videoLoaded()));
+		return;
+	}
+
 	if (_resizeAction->isChecked()) {
 		QSize diff(window()->size() - _player->size());
 		window()->resize(_player->resolution() + diff);
@@ -307,6 +313,8 @@ void GUI::resolutionReady()
 	_resolutionLabel->setText(QString("%1x%2").arg(
 	  QString::number(_player->resolution().width()),
 	  QString::number(_player->resolution().height())));
+
+	_playAction->setEnabled(true);
 }
 
 void GUI::recordingStateChange(bool recording)
@@ -321,11 +329,9 @@ void GUI::openDevice(QObject *device)
 {
 	Video *video = qobject_cast<Video *>(device);
 	_player->setVideo(video);
-
 	_deviceNameLabel->setText(video->name());
-	_playAction->setEnabled(true);
 
-	_playAction->trigger();
+	_playAction->setEnabled(true);
 }
 
 void GUI::openStream()

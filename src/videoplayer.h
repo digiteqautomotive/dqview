@@ -27,7 +27,6 @@ signals:
 	void error(const QString &error);
 	void stateChanged(bool playing);
 	void recordingStateChanged(bool recording);
-	void videoOutputReady();
 
 public slots:
 	void startStreaming();
@@ -36,6 +35,7 @@ public slots:
 	void captureImage();
 
 private:
+	void emitLoadStatus();
 	static void handleEvent(const libvlc_event_t *event, void *userData);
 
 	libvlc_instance_t *_vlc;
