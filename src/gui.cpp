@@ -381,8 +381,8 @@ void GUI::about()
 
 	msgBox.setWindowTitle(tr("About MGB Viewer"));
 	msgBox.setText("<h2>" + QString(APP_NAME) + "</h2><p><p>" + tr("Version %1")
-	  .arg(QString(APP_VERSION) + " (" + QSysInfo::buildCpuArchitecture()
-	  + ", Qt " + QT_VERSION_STR + ")") + "</p>");
+	  .arg(QString(APP_VERSION) + " (Qt " + QT_VERSION_STR + ", libVLC "
+	  + libvlc_get_version() + ")") + "</p>");
 	msgBox.setInformativeText("<table width=\"300\"><tr><td>"
 	  + tr("MGB Viewer is distributed under the terms of the GNU General Public "
 	  "License version 3. For more info about MGB Viewer visit the project "
