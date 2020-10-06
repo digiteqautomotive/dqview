@@ -26,7 +26,6 @@ public:
 signals:
 	void error(const QString &error);
 	void stateChanged(bool playing);
-	void recordingStateChanged(bool recording);
 
 public slots:
 	void startStreaming();

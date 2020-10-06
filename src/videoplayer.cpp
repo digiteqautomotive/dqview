@@ -2,6 +2,7 @@
 #include <QFileInfo>
 #include <QDate>
 #include <QTimer>
+#include <QPainter>
 #include "video.h"
 #include "videoplayer.h"
 
@@ -21,7 +22,6 @@ static const char *vlcArguments[] = {
 //	"-vvv"
 };
 
-
 void VideoPlayer::handleEvent(const libvlc_event_t *event, void *userData)
 {
 	VideoPlayer *player = static_cast<VideoPlayer*>(userData);
@@ -34,7 +34,7 @@ void VideoPlayer::handleEvent(const libvlc_event_t *event, void *userData)
 			player->stateChanged(false);
 			break;
 		case libvlc_MediaPlayerEncounteredError:
-			player->error(libvlc_errmsg());
+			player->error("Stream error. See stdout for more details.");
 			break;
 	}
 }
@@ -98,15 +98,15 @@ void VideoPlayer::startStreamingAndRecording()
 	libvlc_media_add_option(_media, "v4l2-caching=100");
 
 	libvlc_media_player_play(_mediaPlayer);
-
-	emit recordingStateChanged(true);
 }
 
 void VideoPlayer::stopStreaming()
 {
 	libvlc_media_player_stop(_mediaPlayer);
 
-	emit recordingStateChanged(false);
+	QPainter p(this);
+	p.fillRect(rect(), Qt::black);
+	update();
 }
 
 void VideoPlayer::captureImage()

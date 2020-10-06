@@ -55,8 +55,6 @@ GUI::GUI()
 	_player->setVideoDir(_options.videoDir);
 	connect(_player, &VideoPlayer::error, this, &GUI::streamError);
 	connect(_player, &VideoPlayer::stateChanged, this, &GUI::stateChanged);
-	connect(_player, &VideoPlayer::recordingStateChanged, this,
-	  &GUI::recordingStateChange);
 
 	createActions();
 	createMenus();
@@ -285,14 +283,17 @@ void GUI::streamError(const QString &error)
 void GUI::stateChanged(bool playing)
 {
 	if (playing) {
+		if (_recordAction->isChecked())
+			startRecording();
 		_screenshotAction->setEnabled(true);
 		 QTimer::singleShot(100, this, SLOT(videoLoaded()));
 	} else {
-		_deviceActionGroup->setEnabled(true);
-		_openStreamAction->setEnabled(true);
+		if (_recordAction->isChecked())
+			stopRecording();
 		_resolutionLabel->setText(QString());
 		_recordAction->setEnabled(true);
-		_player->repaint();
+		_deviceActionGroup->setEnabled(true);
+		_openStreamAction->setEnabled(true);
 	}
 
 	_playAction->setEnabled(true);
@@ -313,16 +314,6 @@ void GUI::videoLoaded()
 	_resolutionLabel->setText(QString("%1x%2").arg(
 	  QString::number(_player->resolution().width()),
 	  QString::number(_player->resolution().height())));
-
-	_playAction->setEnabled(true);
-}
-
-void GUI::recordingStateChange(bool recording)
-{
-	if (recording)
-		startRecording();
-	else
-		stopRecording();
 }
 
 void GUI::openDevice(QObject *device)
