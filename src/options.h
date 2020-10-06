@@ -7,6 +7,8 @@
 
 struct Options
 {
+	QString codec;
+	unsigned bitrate;
 	QString videoDir;
 	QString imagesDir;
 	QList<StreamInfo> streams;

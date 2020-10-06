@@ -16,9 +16,10 @@ public:
 	~VideoPlayer();
 
 	void setVideo(Video *video);
-
 	void setImageDir(const QString &path) {_imageDir = path;}
 	void setVideoDir(const QString &path) {_videoDir = path;}
+	void setCodec(const QString &codec) {_codec = codec;}
+	void setBitrate(unsigned bitrate) {_bitrate = bitrate;}
 
 	QSize resolution() const;
 	QString recordFile() const;
@@ -43,6 +44,8 @@ private:
 
 	QString _imageDir, _videoDir;
 	QString _recordFile;
+	QString _codec;
+	unsigned _bitrate;
 };
 
 #endif // VIDEOPLAYER_H

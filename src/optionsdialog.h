@@ -4,8 +4,8 @@
 #include <QDialog>
 #include "streaminfo.h"
 
-class QTableWidget;
-class QToolButton;
+class QComboBox;
+class QSpinBox;
 class DirSelectWidget;
 class StreamTable;
 class Options;
@@ -25,6 +25,8 @@ private:
 	DirSelectWidget *_videoDir;
 	DirSelectWidget *_imageDir;
 	StreamTable *_streamTable;
+	QComboBox *_codec;
+	QSpinBox *_bitrate;
 };
 
 #endif // OPTIONSDIALOG_H

@@ -53,6 +53,8 @@ GUI::GUI()
 	_player = new VideoPlayer();
 	_player->setImageDir(_options.imagesDir);
 	_player->setVideoDir(_options.videoDir);
+	_player->setCodec(_options.codec);
+	_player->setBitrate(_options.bitrate);
 	connect(_player, &VideoPlayer::error, this, &GUI::streamError);
 	connect(_player, &VideoPlayer::stateChanged, this, &GUI::stateChanged);
 
@@ -368,6 +370,8 @@ void GUI::openOptions()
 
 	_player->setImageDir(_options.imagesDir);
 	_player->setVideoDir(_options.videoDir);
+	_player->setCodec(_options.codec);
+	_player->setBitrate(_options.bitrate);
 }
 
 void GUI::about()
@@ -416,6 +420,8 @@ void GUI::readSettings()
 	settings.endGroup();
 
 	settings.beginGroup("Recording");
+	_options.codec = settings.value("Codec", "h264").toString();
+	_options.bitrate = settings.value("Bitrate", 1800).toUInt();
 	_options.videoDir = settings.value("VideoDir", QDir::homePath()).toString();
 	_options.imagesDir = settings.value("ImagesDir", QDir::homePath()).toString();
 	settings.endGroup();
@@ -441,6 +447,8 @@ void GUI::writeSettings()
 	settings.endGroup();
 
 	settings.beginGroup("Recording");
+	settings.setValue("Codec", _options.codec);
+	settings.setValue("Bitrate", _options.bitrate);
 	settings.setValue("VideoDir", _options.videoDir);
 	settings.setValue("ImagesDir", _options.imagesDir);
 	settings.endGroup();

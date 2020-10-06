@@ -3,6 +3,8 @@
 #include <QFormLayout>
 #include <QTabWidget>
 #include <QGroupBox>
+#include <QComboBox>
+#include <QSpinBox>
 #include "dirselectwidget.h"
 #include "streamtable.h"
 #include "options.h"
@@ -23,8 +25,19 @@ OptionsDialog::OptionsDialog(Options *options, QWidget *parent)
 
 	_videoDir = new DirSelectWidget();
 	_videoDir->setDir(options->videoDir);
+	_codec = new QComboBox();
+	_codec->addItem("H264", QVariant("h264"));
+	_codec->addItem("MPEG-2", QVariant("mp2v"));
+	_codec->setCurrentIndex(_codec->findData(QVariant(options->codec)));
+	_bitrate = new QSpinBox();
+	_bitrate->setMaximum(3000);
+	_bitrate->setMinimum(128);
+	_bitrate->setSingleStep(100);
+	_bitrate->setValue(options->bitrate);
 	QGroupBox *videoBox = new QGroupBox(tr("Video"));
 	QFormLayout *videoBoxLayout = new QFormLayout(videoBox);
+	videoBoxLayout->addRow(tr("Codec:"), _codec);
+	videoBoxLayout->addRow(tr("Bitrate:"), _bitrate);
 	videoBoxLayout->addRow(tr("Directory:"), _videoDir);
 
 	_imageDir = new DirSelectWidget();
@@ -59,6 +72,8 @@ OptionsDialog::OptionsDialog(Options *options, QWidget *parent)
 
 void OptionsDialog::accept()
 {
+	_options->bitrate = _bitrate->value();
+	_options->codec = _codec->currentData().toString();
 	_options->videoDir = _videoDir->dir();
 	_options->imagesDir = _imageDir->dir();
 	_options->streams.clear();
