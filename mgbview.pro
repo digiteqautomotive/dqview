@@ -4,6 +4,7 @@ TEMPLATE = app
 QT      += core gui widgets
 VERSION = 1.1
 DEFINES += APP_VERSION=\\\"$$VERSION\\\" \
+  QT_NO_DEPRECATED_WARNINGS
 
 SOURCES += src/main.cpp \
     src/application.cpp \
