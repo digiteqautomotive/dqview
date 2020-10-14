@@ -441,11 +441,7 @@ void GUI::showFullScreen(bool show)
 
 void GUI::closeEvent(QCloseEvent *event)
 {
-	stopRecording();
-	stopStreaming();
-
 	writeSettings();
-
 	QMainWindow::closeEvent(event);
 }
 
