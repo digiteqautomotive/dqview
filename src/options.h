@@ -3,6 +3,7 @@
 
 #include <QString>
 #include <QList>
+#include <QByteArray>
 #include "streaminfo.h"
 
 struct Options
@@ -14,6 +15,9 @@ struct Options
 	QList<StreamInfo> streams;
 
 	bool resize;
+	bool fullScreen;
+	QByteArray windowGeometry;
+	QByteArray windowState;
 };
 
 #endif // OPTIONS_H

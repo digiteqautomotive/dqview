@@ -12,6 +12,7 @@
 #include <QMessageBox>
 #include <QSysInfo>
 #include <QTimer>
+#include <QKeyEvent>
 #include "timer.h"
 #include "videoplayer.h"
 #include "camera.h"
@@ -64,6 +65,8 @@ GUI::GUI()
 	createStatusBar();
 
 	setCentralWidget(_player);
+	restoreGeometry(_options.windowGeometry);
+	restoreState(_options.windowState);
 
 	QList<QAction*> devices(_deviceActionGroup->actions());
 	if (!devices.isEmpty())
@@ -125,6 +128,8 @@ void GUI::createActions()
 {
 	_deviceActionGroup = new QActionGroup(this);
 	_deviceActionGroup->setExclusive(true);
+	_resizeActionGroup = new QActionGroup(this);
+	_resizeActionGroup->setExclusive(true);
 
 	_openStreamAction = new QAction(tr("Open Stream..."), this);
 	connect(_openStreamAction, &QAction::triggered, this,
@@ -143,9 +148,18 @@ void GUI::createActions()
 	connect(_screenshotAction, &QAction::triggered, _player,
 	  &VideoPlayer::captureImage);
 
-	_resizeAction = new QAction(tr("Resize Window To Video"));
-	_resizeAction->setCheckable(true);
-	_resizeAction->setChecked(_options.resize);
+	_resizeVideoAction = new QAction(tr("Resize Video To Window"));
+	_resizeVideoAction->setCheckable(true);
+	_resizeVideoAction->setChecked(!(_options.resize || _options.fullScreen));
+	_resizeVideoAction->setActionGroup(_resizeActionGroup);
+	_resizeWindowAction = new QAction(tr("Resize Window To Video"));
+	_resizeWindowAction->setCheckable(true);
+	_resizeWindowAction->setChecked(_options.resize);
+	_resizeWindowAction->setActionGroup(_resizeActionGroup);
+	_fullScreenAction = new QAction(tr("Fullscreen mode"));
+	_fullScreenAction->setCheckable(true);
+	_fullScreenAction->setChecked(_options.fullScreen);
+	_fullScreenAction->setActionGroup(_resizeActionGroup);
 	_optionsAction = new QAction(tr("Options..."));
 	connect(_optionsAction, &QAction::triggered, this, &GUI::openOptions);
 
@@ -172,7 +186,10 @@ void GUI::createMenus()
 	videoMenu->addAction(_screenshotAction);
 
 	QMenu *settingsMenu = menuBar()->addMenu(tr("&Settings"));
-	settingsMenu->addAction(_resizeAction);
+	settingsMenu->addAction(_resizeVideoAction);
+	settingsMenu->addAction(_resizeWindowAction);
+	settingsMenu->addAction(_fullScreenAction);
+	settingsMenu->addSeparator();
 	settingsMenu->addAction(_optionsAction);
 
 	QMenu *helpMenu = menuBar()->addMenu(tr("&Help"));
@@ -181,11 +198,12 @@ void GUI::createMenus()
 
 void GUI::createToolbars()
 {
-	QToolBar *videoToolBar = addToolBar(tr("Video"));
-	videoToolBar->addAction(_playAction);
-	videoToolBar->addSeparator();
-	videoToolBar->addAction(_recordAction);
-	videoToolBar->addAction(_screenshotAction);
+	_videoToolBar = addToolBar(tr("Video"));
+	_videoToolBar->setObjectName("VideoToolBar");
+	_videoToolBar->addAction(_playAction);
+	_videoToolBar->addSeparator();
+	_videoToolBar->addAction(_recordAction);
+	_videoToolBar->addAction(_screenshotAction);
 }
 
 void GUI::createStatusBar()
@@ -217,40 +235,31 @@ void GUI::updateTimer(int time)
 void GUI::play(bool enable)
 {
 	if (enable) {
-		_recordAction->setEnabled(false);
+		startStreaming();
 		if (_recordAction->isChecked())
-			startStreamingAndRecording();
+			_player->startStreamingAndRecording();
 		else
-			startStreaming();
+			_player->startStreaming();
 	} else {
 		stopStreaming();
+		_player->stopStreaming();
 	}
 }
 
 void GUI::startStreaming()
 {
+	_recordAction->setEnabled(false);
 	_playAction->setEnabled(false);
 	_deviceActionGroup->setEnabled(false);
+	_resizeActionGroup->setEnabled(false);
 	_openStreamAction->setEnabled(false);
-
-	_player->startStreaming();
-}
-
-void GUI::startStreamingAndRecording()
-{
-	_playAction->setEnabled(false);
-	_deviceActionGroup->setEnabled(false);
-	_openStreamAction->setEnabled(false);
-
-	_player->startStreamingAndRecording();
 }
 
 void GUI::stopStreaming()
 {
 	_playAction->setEnabled(false);
 	_screenshotAction->setEnabled(false);
-
-	_player->stopStreaming();
+	showFullScreen(false);
 }
 
 void GUI::startRecording()
@@ -295,6 +304,7 @@ void GUI::stateChanged(bool playing)
 		_resolutionLabel->setText(QString());
 		_recordAction->setEnabled(true);
 		_deviceActionGroup->setEnabled(true);
+		_resizeActionGroup->setEnabled(true);
 		_openStreamAction->setEnabled(true);
 	}
 
@@ -308,7 +318,9 @@ void GUI::videoLoaded()
 		return;
 	}
 
-	if (_resizeAction->isChecked()) {
+	if (_fullScreenAction->isChecked()) {
+		showFullScreen(true);
+	} else if (_resizeWindowAction->isChecked()) {
 		QSize diff(window()->size() - _player->size());
 		window()->resize(_player->resolution() + diff);
 	}
@@ -397,6 +409,36 @@ void GUI::about()
 	msgBox.exec();
 }
 
+void GUI::showToolbars(bool show)
+{
+	if (show) {
+		Q_ASSERT(!_windowStates.isEmpty());
+		restoreState(_windowStates.last());
+		_windowStates.pop_back();
+	} else {
+		_windowStates.append(saveState());
+		removeToolBar(_videoToolBar);
+	}
+}
+
+void GUI::showFullScreen(bool show)
+{
+	if (isFullScreen() == show)
+		return;
+
+	if (show) {
+		statusBar()->hide();
+		menuBar()->hide();
+		showToolbars(false);
+		QMainWindow::showFullScreen();
+	} else {
+		statusBar()->show();
+		menuBar()->show();
+		showToolbars(true);
+		showNormal();
+	}
+}
+
 void GUI::closeEvent(QCloseEvent *event)
 {
 	stopRecording();
@@ -407,6 +449,18 @@ void GUI::closeEvent(QCloseEvent *event)
 	QMainWindow::closeEvent(event);
 }
 
+void GUI::keyPressEvent(QKeyEvent *event)
+{
+	switch (event->key()) {
+		case Qt::Key_Space:
+			if (_playAction->isEnabled())
+				_playAction->trigger();
+			break;
+	}
+
+	QMainWindow::keyPressEvent(event);
+}
+
 void GUI::readSettings()
 {
 	qRegisterMetaTypeStreamOperators<StreamInfo>("Stream");
@@ -414,9 +468,10 @@ void GUI::readSettings()
 	QSettings settings(COMPANY_NAME, APP_NAME);
 
 	settings.beginGroup("Window");
-	restoreGeometry(settings.value("Geometry").toByteArray());
-	restoreState(settings.value("WindowState").toByteArray());
+	_options.windowGeometry = settings.value("Geometry").toByteArray();
+	_options.windowState = settings.value("WindowState").toByteArray();
 	_options.resize = settings.value("Resize").toBool();
+	_options.fullScreen = settings.value("FullScreen").toBool();
 	settings.endGroup();
 
 	settings.beginGroup("Recording");
@@ -443,7 +498,8 @@ void GUI::writeSettings()
 	settings.beginGroup("Window");
 	settings.setValue("Geometry", saveGeometry());
 	settings.setValue("WindowState", saveState());
-	settings.setValue("Resize", _resizeAction->isChecked());
+	settings.setValue("Resize", _resizeWindowAction->isChecked());
+	settings.setValue("FullScreen", _fullScreenAction->isChecked());
 	settings.endGroup();
 
 	settings.beginGroup("Recording");

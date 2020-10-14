@@ -2,10 +2,12 @@
 #include "options.h"
 
 class QCloseEvent;
+class QKeyEvent;
 class QLabel;
 class QAction;
 class QActionGroup;
 class QSignalMapper;
+class QToolBar;
 class VideoPlayer;
 class Stream;
 class Timer;
@@ -45,26 +47,34 @@ private:
 	void startStreaming();
 	void startRecording();
 	void stopRecording();
-	void startStreamingAndRecording();
+
+	void showFullScreen(bool show);
+	void showToolbars(bool show);
 
 	void closeEvent(QCloseEvent *event);
+	void keyPressEvent(QKeyEvent *event);
 	QSize sizeHint() const {return QSize(640, 480);}
 
 	VideoPlayer *_player;
 
 	QActionGroup *_deviceActionGroup;
+	QActionGroup *_resizeActionGroup;
 	QAction *_deviceSeparator;
 	QAction *_openStreamAction;
 	QAction *_playAction;
 	QAction *_recordAction;
 	QAction *_screenshotAction;
-	QAction *_resizeAction;
+	QAction *_resizeVideoAction;
+	QAction *_resizeWindowAction;
+	QAction *_fullScreenAction;
 	QAction *_optionsAction;
 	QAction *_aboutAction;
 	QAction *_exitAction;
 
+	QToolBar *_videoToolBar;
 	QMenu *_deviceMenu;
 	QSignalMapper *_streamSignalMapper;
+	QList<QByteArray> _windowStates;
 
 	QLabel *_deviceNameLabel;
 	QLabel *_resolutionLabel;
