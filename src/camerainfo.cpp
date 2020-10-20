@@ -1,3 +1,7 @@
+#include <QtGlobal>
+
+#if defined(Q_OS_LINUX)
+
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <sys/ioctl.h>
@@ -39,3 +43,86 @@ QList<CameraInfo> CameraInfo::availableCameras()
 
 	return list;
 }
+
+
+#elif defined(Q_OS_WIN32) || defined(Q_OS_CYGWIN)
+
+
+#include <dshow.h>
+#include <wrl/client.h>
+#include <QDebug>
+#include "camerainfo.h"
+
+static char *FromWide(const wchar_t *wide)
+{
+	size_t len;
+	len = WideCharToMultiByte(CP_UTF8, 0, wide, -1, NULL, 0, NULL, NULL);
+
+	char *out = (char*)malloc(len);
+	if (out)
+		WideCharToMultiByte(CP_UTF8, 0, wide, -1, out, len, NULL, NULL);
+	return out;
+}
+
+QList<CameraInfo> CameraInfo::availableCameras()
+{
+	Microsoft::WRL::ComPtr<IBaseFilter> p_base_filter;
+	Microsoft::WRL::ComPtr<IMoniker> p_moniker;
+	ULONG i_fetched;
+	HRESULT hr;
+	QList<CameraInfo> list;
+
+	/* Create the system device enumerator */
+	Microsoft::WRL::ComPtr<ICreateDevEnum> p_dev_enum;
+	hr = CoCreateInstance(CLSID_SystemDeviceEnum, NULL, CLSCTX_INPROC,
+	  IID_ICreateDevEnum, (void**)p_dev_enum.GetAddressOf());
+	if (FAILED(hr)) {
+		qWarning("failed to create the device enumerator (0x%lX)", hr);
+		return list;
+	}
+
+	/* Create an enumerator for the video capture devices */
+	Microsoft::WRL::ComPtr<IEnumMoniker> p_class_enum;
+	hr = p_dev_enum->CreateClassEnumerator(CLSID_VideoInputDeviceCategory,
+	  p_class_enum.GetAddressOf(), 0);
+	if (FAILED(hr)) {
+		qWarning("failed to create the class enumerator (0x%lX)", hr);
+		return list;
+	}
+
+	/* If there are no enumerators for the requested type, then
+	 * CreateClassEnumerator will succeed, but p_class_enum will be NULL */
+	if (p_class_enum == NULL) {
+		qWarning("no video capture device was detected");
+		return list;
+	}
+
+	/* Enumerate the devices */
+	/* Note that if the Next() call succeeds but there are no monikers,
+	 * it will return S_FALSE (which is not a failure). Therefore, we check
+	 * that the return code is S_OK instead of using SUCCEEDED() macro. */
+	while (p_class_enum->Next(1, p_moniker.ReleaseAndGetAddressOf(),
+	  &i_fetched) == S_OK) {
+		Microsoft::WRL::ComPtr<IPropertyBag> p_bag;
+		hr = p_moniker->BindToStorage(0, 0, IID_IPropertyBag,
+		  (void**)p_bag.GetAddressOf());
+		if (SUCCEEDED(hr)) {
+			VARIANT var;
+			var.vt = VT_BSTR;
+			hr = p_bag->Read(L"FriendlyName", &var, NULL);
+			if (SUCCEEDED(hr)) {
+				char *p_buf = FromWide(var.bstrVal);
+				QString devname(p_buf);
+				free(p_buf);
+
+				list.append(CameraInfo(devname, devname));
+			}
+		}
+	}
+
+	return list;
+}
+
+#else
+#error "unsupported platform"
+#endif

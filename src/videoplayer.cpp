@@ -60,8 +60,8 @@ VideoPlayer::VideoPlayer(QWidget *parent) : QWidget(parent), _media(0)
 
 #if defined(Q_OS_LINUX)
 	libvlc_media_player_set_xwindow(_mediaPlayer, winId());
-#elif defined(Q_OS_WIN)
-	libvlc_media_player_set_hwnd(_mediaPlayer, winId());
+#elif defined(Q_OS_WIN32) || defined(Q_OS_CYGWIN)
+	libvlc_media_player_set_hwnd(_mediaPlayer, reinterpret_cast<void*>(winId()));
 #else
 #error "unsupported platform"
 #endif
@@ -81,6 +81,10 @@ VideoPlayer::~VideoPlayer()
 void VideoPlayer::setVideo(Video *video)
 {
 	_media = libvlc_media_new_location(_vlc, video->url().toLatin1().constData());
+	QStringList list = video->url().split(" :");
+	for (int i = 1; i < list.count(); i++)
+		libvlc_media_add_option(_media, list.at(i).toLatin1().constData());
+
 	libvlc_media_player_set_media(_mediaPlayer, _media);
 }
 

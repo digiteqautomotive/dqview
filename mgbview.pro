@@ -35,3 +35,6 @@ HEADERS += src/application.h \
 
 RESOURCES += mgbview.qrc
 LIBS += -lvlc
+win32 {
+    LIBS += -lstrmiids -lole32
+}

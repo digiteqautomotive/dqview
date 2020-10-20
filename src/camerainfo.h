@@ -18,7 +18,9 @@ private:
 	CameraInfo(const QString &device, const QString &description)
 	  : _deviceName(device), _description(description) {}
 
+#if defined(Q_OS_LINUX)
 	static CameraInfo cameraInfo(const QString &device);
+#endif // Q_OS_LINUX
 
 	QString _deviceName;
 	QString _description;
