@@ -19,7 +19,7 @@ static const char *vlcArguments[] = {
 	"--no-snapshot-preview",
 	"--no-stats",
 	"--no-video-title-show",
-	"-vvv"
+//	"-vvv"
 };
 
 void VideoPlayer::handleEvent(const libvlc_event_t *event, void *userData)
