@@ -10,9 +10,9 @@ static struct {
 	const char *sdp;
 } formats[] = {
 	{"H264-MPEGTS-TCP", "tcp://%1:%2", 0},
-	{"H264-RTP-UDP", 0, "a=type:broadcast\nm=video %2 RTP/AVP 96\nc=IN IP4 %1\na=rtpmap:96 H264/90000"},
+	{"H264-RTP-UDP", 0, "v=0\no=- %2 1 IN IP4 %1\ns=MGB video stream\nt=0 0\na=type:broadcast\nm=video %2 RTP/AVP 96\nc=IN IP4 %1\na=rtpmap:96 H264/90000"},
 	{"JPEG-MUX-TCP", "tcp://%1:%2", 0},
-	{"JPEG-RTP-UDP", 0, "a=type:broadcast\nm=video %2 RTP/AVP 96\nc=IN IP4 %1\na=rtpmap:96 JPEG/90000"}
+	{"JPEG-RTP-UDP", 0, "v=0\no=- %2 2 IN IP4 %1\ns=MGB video stream\nt=0 0\na=type:broadcast\nm=video %2 RTP/AVP 96\nc=IN IP4 %1\na=rtpmap:96 JPEG/90000"}
 };
 
 Stream::Stream(const StreamInfo &streamInfo, QObject *parent)
