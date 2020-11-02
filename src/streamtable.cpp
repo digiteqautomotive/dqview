@@ -24,7 +24,7 @@ StreamTable::StreamTable(QWidget *parent) : QWidget(parent)
 	_addButton = new QPushButton("+");
 	_addButton->setMaximumWidth(_addButton->sizeHint().width() / 2);
 	connect(_addButton, &QPushButton::clicked, this, &StreamTable::add);
-	_removeButton = new QPushButton("+");
+	_removeButton = new QPushButton("-");
 	_removeButton->setMaximumWidth(_removeButton->sizeHint().width() / 2);
 	connect(_removeButton, &QPushButton::clicked, this, &StreamTable::remove);
 #else // Q_OS_WIN32
