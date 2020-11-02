@@ -131,7 +131,7 @@ void GUI::createActions()
 	_resizeActionGroup = new QActionGroup(this);
 	_resizeActionGroup->setExclusive(true);
 
-	_openStreamAction = new QAction(tr("Open Stream..."), this);
+	_openStreamAction = new QAction(tr("Open Remote Device..."), this);
 	connect(_openStreamAction, &QAction::triggered, this,
 	  QOverload<>::of(&GUI::openStream));
 
@@ -341,7 +341,7 @@ void GUI::openDevice(QObject *device)
 
 void GUI::openStream()
 {
-	StreamInfo info = StreamDialog::getStream(this, tr("Open Video Stream"));
+	StreamInfo info = StreamDialog::getStream(this, tr("Open Remote Device"));
 	if (info.isNull())
 		return;
 

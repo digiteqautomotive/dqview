@@ -13,7 +13,7 @@ StreamTable::StreamTable(QWidget *parent) : QWidget(parent)
 	_table = new QTableWidget(0, 3);
 	QHeaderView *hh = _table->horizontalHeader();
 	hh->setStretchLastSection(true);
-	QStringList labels = {tr("Address"), tr("Port"), tr("Type")};
+	QStringList labels = {tr("Address"), tr("Port"), tr("Format")};
 	_table->setHorizontalHeaderLabels(labels);
 	_table->setSelectionBehavior(QAbstractItemView::SelectRows);
 	_table->setMinimumWidth(400);
@@ -93,12 +93,12 @@ bool StreamTable::findStream(const StreamInfo stream) const
 
 void StreamTable::add()
 {
-	StreamInfo stream = StreamDialog::getStream(this, tr("Add Stream"));
+	StreamInfo stream = StreamDialog::getStream(this, tr("Add Remote Device"));
 	if (stream.isNull())
 		return;
 
 	if (findStream(stream))
-		QMessageBox::critical(this, tr("Error"), tr("Duplicit stream entry"));
+		QMessageBox::critical(this, tr("Error"), tr("Duplicit device entry"));
 	else {
 		int i = _table->rowCount();
 		_table->insertRow(i);

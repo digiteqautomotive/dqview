@@ -62,7 +62,7 @@ OptionsDialog::OptionsDialog(Options *options, QWidget *parent)
 
 	QTabWidget *tabWidget = new QTabWidget();
 	tabWidget->addTab(recordingPage, tr("Recording"));
-	tabWidget->addTab(streamsPage, tr("Streams"));
+	tabWidget->addTab(streamsPage, tr("Remote Devices"));
 
 	QVBoxLayout *layout = new QVBoxLayout(this);
 	layout->addWidget(tabWidget);
