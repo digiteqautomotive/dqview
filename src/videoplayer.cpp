@@ -39,7 +39,7 @@ void VideoPlayer::handleEvent(const libvlc_event_t *event, void *userData)
 	}
 }
 
-VideoPlayer::VideoPlayer(QWidget *parent) : QWidget(parent), _media(0)
+VideoPlayer::VideoPlayer(QWidget *parent) : QWidget(parent), _video(0)
 {
 	setAutoFillBackground(true);
 	QPalette palette = this->palette();
@@ -72,38 +72,47 @@ VideoPlayer::VideoPlayer(QWidget *parent) : QWidget(parent), _media(0)
 
 VideoPlayer::~VideoPlayer()
 {
-	if (_media)
-		libvlc_media_release(_media);
 	libvlc_media_player_release(_mediaPlayer);
 	libvlc_release(_vlc);
 }
 
-void VideoPlayer::setVideo(Video *video)
+libvlc_media_t *VideoPlayer::createMedia()
 {
-	_media = libvlc_media_new_location(_vlc, video->url().toLatin1().constData());
-	QStringList list = video->url().split(" :");
-	for (int i = 1; i < list.count(); i++)
-		libvlc_media_add_option(_media, list.at(i).toLatin1().constData());
+	Q_ASSERT(_video);
 
-	libvlc_media_player_set_media(_mediaPlayer, _media);
+	libvlc_media_t *media = libvlc_media_new_location(_vlc,
+	  _video->url().toLatin1().constData());
+	QStringList list = _video->url().split(" :");
+	for (int i = 1; i < list.count(); i++)
+		libvlc_media_add_option(media, list.at(i).toLatin1().constData());
+
+	return media;
 }
 
 void VideoPlayer::startStreaming()
 {
+	libvlc_media_t *media = createMedia();
+	libvlc_media_player_set_media(_mediaPlayer, media);
+	libvlc_media_release(media);
+
 	libvlc_media_player_play(_mediaPlayer);
 }
 
 void VideoPlayer::startStreamingAndRecording()
 {
+	libvlc_media_t *media = createMedia();
+
 	QString time(QDateTime::currentDateTime().toString("yyyyMMdd-hhmmss"));
 	_recordFile = QString(_videoDir + "/" + time + ".mpeg");
 
 	QString rec = QString("sout=#duplicate{dst=display,dst='transcode{vcodec=%2"
 	  ",vb=%3}:standard{access=file,mux=ts,dst=%1}'}")
 	  .arg(_recordFile, _codec, QString::number(_bitrate));
-	libvlc_media_add_option(_media, rec.toUtf8().constData());
-	libvlc_media_add_option(_media, "v4l2-caching=100");
+	libvlc_media_add_option(media, rec.toUtf8().constData());
+	libvlc_media_add_option(media, "v4l2-caching=100");
 
+	libvlc_media_player_set_media(_mediaPlayer, media);
+	libvlc_media_release(media);
 	libvlc_media_player_play(_mediaPlayer);
 }
 
@@ -118,8 +127,6 @@ void VideoPlayer::stopStreaming()
 
 void VideoPlayer::captureImage()
 {
-	Q_ASSERT(_mediaPlayer);
-
 	QString time(QDateTime::currentDateTime().toString("yyyyMMdd-hhmmss"));
 	QString path(_imageDir + "/" + time + ".png");
 
