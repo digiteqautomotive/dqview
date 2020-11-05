@@ -307,6 +307,9 @@ void GUI::stateChanged(bool playing)
 		_deviceActionGroup->setEnabled(true);
 		_resizeActionGroup->setEnabled(true);
 		_openStreamAction->setEnabled(true);
+		/* The playback can be terminated by libVLC itself, eg. when no network
+		   data has arrived in 10s */
+		_playAction->setChecked(false);
 	}
 
 	_playAction->setEnabled(true);
