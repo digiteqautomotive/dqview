@@ -296,7 +296,8 @@ void GUI::stateChanged(bool playing)
 	if (playing) {
 		if (_recordAction->isChecked())
 			startRecording();
-		_screenshotAction->setEnabled(true);
+		if (!_recordAction->isChecked())
+			_screenshotAction->setEnabled(true);
 		 QTimer::singleShot(100, this, SLOT(videoLoaded()));
 	} else {
 		if (_recordAction->isChecked())
