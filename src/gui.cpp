@@ -19,6 +19,7 @@
 #include "stream.h"
 #include "streamdialog.h"
 #include "optionsdialog.h"
+#include "logdialog.h"
 #include "gui.h"
 
 
@@ -134,6 +135,8 @@ void GUI::createActions()
 	_openStreamAction = new QAction(tr("Open Remote Device..."), this);
 	connect(_openStreamAction, &QAction::triggered, this,
 	  QOverload<>::of(&GUI::openStream));
+	_exitAction = new QAction(tr("Quit"), this);
+	connect(_exitAction, &QAction::triggered, this, &GUI::close);
 
 	_playAction = new QAction(QIcon(":/play.png"), tr("Play"));
 	_playAction->setCheckable(true);
@@ -156,17 +159,18 @@ void GUI::createActions()
 	_resizeWindowAction->setCheckable(true);
 	_resizeWindowAction->setChecked(_options.resize);
 	_resizeWindowAction->setActionGroup(_resizeActionGroup);
-	_fullScreenAction = new QAction(tr("Fullscreen mode"));
+	_fullScreenAction = new QAction(tr("Fullscreen Mode"));
 	_fullScreenAction->setCheckable(true);
 	_fullScreenAction->setChecked(_options.fullScreen);
 	_fullScreenAction->setActionGroup(_resizeActionGroup);
 	_optionsAction = new QAction(tr("Options..."));
 	connect(_optionsAction, &QAction::triggered, this, &GUI::openOptions);
 
+
+	_showLogAction = new QAction("Show Log File...");
+	connect(_showLogAction, &QAction::triggered, this, &GUI::showLog);
 	_aboutAction = new QAction(QIcon(":/app.png"), tr("About MGB Viewer"), this);
 	connect(_aboutAction, &QAction::triggered, this, &GUI::about);
-	_exitAction = new QAction(tr("Quit"), this);
-	connect(_exitAction, &QAction::triggered, this, &GUI::close);
 }
 
 void GUI::createMenus()
@@ -193,6 +197,7 @@ void GUI::createMenus()
 	settingsMenu->addAction(_optionsAction);
 
 	QMenu *helpMenu = menuBar()->addMenu(tr("&Help"));
+	helpMenu->addAction(_showLogAction);
 	helpMenu->addAction(_aboutAction);
 }
 
@@ -411,6 +416,12 @@ void GUI::about()
 	msgBox.setIconPixmap(icon.pixmap(size));
 
 	msgBox.exec();
+}
+
+void GUI::showLog()
+{
+	LogDialog dialog(_player->log(), this);
+	dialog.exec();
 }
 
 void GUI::showToolbars(bool show)

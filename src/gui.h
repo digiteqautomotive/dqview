@@ -29,6 +29,7 @@ private slots:
 	void streamError(const QString &error);
 	void stateChanged(bool playing);
 	void videoLoaded();
+	void showLog();
 
 private:
 	void readSettings();
@@ -70,6 +71,7 @@ private:
 	QAction *_optionsAction;
 	QAction *_aboutAction;
 	QAction *_exitAction;
+	QAction *_showLogAction;
 
 	QToolBar *_videoToolBar;
 	QMenu *_deviceMenu;

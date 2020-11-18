@@ -9,6 +9,7 @@ DEFINES += APP_VERSION=\\\"$$VERSION\\\" \
 SOURCES += src/main.cpp \
     src/application.cpp \
     src/gui.cpp \
+    src/logdialog.cpp \
     src/optionsdialog.cpp \
     src/dirselectwidget.cpp \
     src/streamtable.cpp \
@@ -20,6 +21,8 @@ SOURCES += src/main.cpp \
     src/camerainfo.cpp
 HEADERS += src/application.h \
     src/gui.h \
+    src/log.h \
+    src/logdialog.h \
     src/stream.h \
     src/optionsdialog.h \
     src/dirselectwidget.h \

@@ -7,6 +7,8 @@
 #include "videoplayer.h"
 
 
+#define MAX_LOG_SIZE 100
+
 #define ARRAY_SIZE(array) \
   (sizeof(array) / sizeof(array[0]))
 
@@ -22,6 +24,19 @@ static const char *vlcArguments[] = {
 //	"-vvv"
 };
 
+static void logCb(void *data, int level, const libvlc_log_t *ctx,
+  const char *fmt, va_list args)
+{
+	Q_UNUSED(ctx);
+
+	Log *log = static_cast<Log *>(data);
+	QString msg(QString::vasprintf(fmt, args));
+
+	if (log->size() == MAX_LOG_SIZE)
+		log->removeFirst();
+	log->append(LogEntry(QTime::currentTime(), level, msg));
+}
+
 void VideoPlayer::handleEvent(const libvlc_event_t *event, void *userData)
 {
 	VideoPlayer *player = static_cast<VideoPlayer*>(userData);
@@ -34,7 +49,7 @@ void VideoPlayer::handleEvent(const libvlc_event_t *event, void *userData)
 			player->stateChanged(false);
 			break;
 		case libvlc_MediaPlayerEncounteredError:
-			player->error("Stream error. See stdout for more details.");
+			player->error("Stream error. See the log file for more details.");
 			break;
 	}
 }
@@ -57,6 +72,8 @@ VideoPlayer::VideoPlayer(QWidget *parent) : QWidget(parent), _video(0)
 	  this);
 	libvlc_event_attach(eventManager, libvlc_MediaPlayerEncounteredError,
 	  handleEvent, this);
+
+	libvlc_log_set(_vlc, logCb, &_log);
 
 #if defined(Q_OS_LINUX)
 	libvlc_media_player_set_xwindow(_mediaPlayer, winId());

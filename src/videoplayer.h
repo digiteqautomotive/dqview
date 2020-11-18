@@ -3,6 +3,7 @@
 
 #include <QWidget>
 #include <vlc/vlc.h>
+#include "log.h"
 
 class QImage;
 class Video;
@@ -23,6 +24,8 @@ public:
 
 	QSize resolution() const;
 	QString recordFile() const;
+
+	const Log &log() const {return _log;}
 
 signals:
 	void error(const QString &error);
@@ -48,6 +51,8 @@ private:
 	QString _recordFile;
 	QString _codec;
 	unsigned _bitrate;
+
+	Log _log;
 };
 
 #endif // VIDEOPLAYER_H
