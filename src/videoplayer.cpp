@@ -7,7 +7,7 @@
 #include "videoplayer.h"
 
 
-#define MAX_LOG_SIZE 100
+#define MAX_LOG_SIZE 1000
 
 #define ARRAY_SIZE(array) \
   (sizeof(array) / sizeof(array[0]))
