@@ -78,7 +78,7 @@ static QString format(const Log &log)
 	for (int i = 0; i < log.size(); i++) {
 		const LogEntry &e = log.at(i);
 		text.append(e.time().toString("[h:m:s] ") + logLevel(e.level()) + ": "
-		  + e.message() + "\n");
+		  + e.message().trimmed() + "\n");
 	}
 
 	return text;
