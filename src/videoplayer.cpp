@@ -126,7 +126,6 @@ void VideoPlayer::startStreamingAndRecording()
 	  ",vb=%3}:standard{access=file,mux=ts,dst=%1}'}")
 	  .arg(_recordFile, _codec, QString::number(_bitrate));
 	libvlc_media_add_option(media, rec.toUtf8().constData());
-	libvlc_media_add_option(media, "v4l2-caching=100");
 
 	libvlc_media_player_set_media(_mediaPlayer, media);
 	libvlc_media_release(media);
