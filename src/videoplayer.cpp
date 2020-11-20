@@ -97,9 +97,9 @@ libvlc_media_t *VideoPlayer::createMedia()
 {
 	Q_ASSERT(_video);
 
-	libvlc_media_t *media = libvlc_media_new_location(_vlc,
-	  _video->url().toLatin1().constData());
 	QStringList list = _video->url().split(" :");
+	libvlc_media_t *media = libvlc_media_new_location(_vlc,
+	  list.first().toLatin1().constData());
 	for (int i = 1; i < list.count(); i++)
 		libvlc_media_add_option(media, list.at(i).toLatin1().constData());
 
