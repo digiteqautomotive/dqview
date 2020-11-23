@@ -39,5 +39,6 @@ HEADERS += src/application.h \
 RESOURCES += mgbview.qrc
 LIBS += -lvlc
 win32 {
+    RC_ICONS = icons/app.ico
     LIBS += -lstrmiids -lole32
 }
