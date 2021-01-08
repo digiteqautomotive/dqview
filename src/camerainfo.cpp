@@ -66,7 +66,6 @@ static char *FromWide(const wchar_t *wide)
 
 QList<CameraInfo> CameraInfo::availableCameras()
 {
-	Microsoft::WRL::ComPtr<IBaseFilter> p_base_filter;
 	Microsoft::WRL::ComPtr<IMoniker> p_moniker;
 	ULONG i_fetched;
 	HRESULT hr;
@@ -115,7 +114,14 @@ QList<CameraInfo> CameraInfo::availableCameras()
 				QString devname(p_buf);
 				free(p_buf);
 
-				list.append(CameraInfo(devname, devname));
+				CameraInfo ci(devname, devname);
+				int i = 0;
+				while (list.contains(ci)) {
+					QString name(devname + QString(" #%1").arg(++i));
+					ci = CameraInfo(name, name);
+				}
+
+				list.append(ci);
 			}
 		}
 	}

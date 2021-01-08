@@ -76,12 +76,14 @@ GUI::GUI()
 
 QList<QAction*> GUI::cameraActions()
 {
-	const QList<CameraInfo> cameras = CameraInfo::availableCameras();
+	QList<CameraInfo> cameras = CameraInfo::availableCameras();
 	QList<QAction*> list;
 
 	QSignalMapper *signalMapper = new QSignalMapper(this);
 	connect(signalMapper, QOverload<QObject *>::of(&QSignalMapper::mapped),
 	  this, &GUI::openDevice);
+
+	qSort(cameras);
 
 	for (int i = 0; i < cameras.size(); i++) {
 		QAction *a = new QAction(cameras.at(i).description(), this);

@@ -11,6 +11,11 @@ public:
 
 	bool isNull() {return _deviceName.isNull();}
 
+	bool operator==(const CameraInfo &other) const
+	  {return (_deviceName == other._deviceName);}
+	bool operator<(const CameraInfo &other) const
+	  {return (_deviceName < other._deviceName);}
+
 	static QList<CameraInfo> availableCameras();
 
 private:
