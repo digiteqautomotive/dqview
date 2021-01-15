@@ -16,6 +16,7 @@ struct Options
 
 	bool resize;
 	bool fullScreen;
+	bool flip;
 	QByteArray windowGeometry;
 	QByteArray windowState;
 };

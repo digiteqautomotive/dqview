@@ -36,8 +36,10 @@ public slots:
 	void startStreamingAndRecording();
 	void stopStreaming();
 	void captureImage();
+	void setFlip(bool flip);
 
 private:
+	void createPlayer();
 	libvlc_media_t *createMedia();
 	void emitLoadStatus();
 	static void handleEvent(const libvlc_event_t *event, void *userData);
@@ -51,6 +53,7 @@ private:
 	QString _recordFile;
 	QString _codec;
 	unsigned _bitrate;
+	bool _flip;
 
 	Log _log;
 };
