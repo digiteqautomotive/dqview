@@ -27,7 +27,6 @@
 #define APP_NAME "DQ Viewer"
 #define APP_HOMEPAGE "https://www.digiteqautomotive.com"
 
-
 static QString timeSpan(int time)
 {
 	unsigned h, m, s;
