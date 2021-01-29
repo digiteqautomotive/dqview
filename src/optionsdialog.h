@@ -6,6 +6,7 @@
 
 class QComboBox;
 class QSpinBox;
+class QCheckBox;
 class DirSelectWidget;
 class StreamTable;
 class Options;
@@ -27,6 +28,7 @@ private:
 	StreamTable *_streamTable;
 	QComboBox *_codec;
 	QSpinBox *_bitrate;
+	QCheckBox *_flip;
 };
 
 #endif // OPTIONSDIALOG_H

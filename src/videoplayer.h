@@ -13,7 +13,7 @@ class VideoPlayer : public QWidget
 	Q_OBJECT
 
 public:
-	VideoPlayer(QWidget *parent = 0);
+	VideoPlayer(bool flip, QWidget *parent = 0);
 	~VideoPlayer();
 
 	void setVideo(Video *video) {_video = video;}
@@ -36,7 +36,6 @@ public slots:
 	void startStreamingAndRecording();
 	void stopStreaming();
 	void captureImage();
-	void setFlip(bool flip);
 
 private:
 	void createPlayer();
@@ -53,7 +52,6 @@ private:
 	QString _recordFile;
 	QString _codec;
 	unsigned _bitrate;
-	bool _flip;
 
 	Log _log;
 };

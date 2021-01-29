@@ -68,7 +68,6 @@ private:
 	QAction *_resizeVideoAction;
 	QAction *_resizeWindowAction;
 	QAction *_fullScreenAction;
-	QAction *_flipAction;
 	QAction *_optionsAction;
 	QAction *_aboutAction;
 	QAction *_exitAction;

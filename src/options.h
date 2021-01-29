@@ -13,10 +13,10 @@ struct Options
 	QString videoDir;
 	QString imagesDir;
 	QList<StreamInfo> streams;
+	bool flip;
 
 	bool resize;
 	bool fullScreen;
-	bool flip;
 	QByteArray windowGeometry;
 	QByteArray windowState;
 };

@@ -5,6 +5,8 @@
 #include <QGroupBox>
 #include <QComboBox>
 #include <QSpinBox>
+#include <QCheckBox>
+#include <QLabel>
 #include "dirselectwidget.h"
 #include "streamtable.h"
 #include "options.h"
@@ -60,9 +62,25 @@ OptionsDialog::OptionsDialog(Options *options, QWidget *parent)
 	streamsLayout->addWidget(_streamTable);
 
 
+	_flip = new QCheckBox(tr("Flip Image"));
+	_flip->setChecked(options->flip);
+	QLabel *label = new QLabel(tr("Application restart is required for"
+	  " the image transformation to take effect!"));
+	QFont font = label->font();
+	font.setItalic(true);
+	label->setFont(font);
+
+	QWidget *filtersPage = new QWidget();
+	QVBoxLayout *filtersLayout = new QVBoxLayout(filtersPage);
+	filtersLayout->addWidget(_flip);
+	filtersLayout->addWidget(label);
+	filtersLayout->addStretch();
+
+
 	QTabWidget *tabWidget = new QTabWidget();
 	tabWidget->addTab(recordingPage, tr("Recording"));
 	tabWidget->addTab(streamsPage, tr("Remote Devices"));
+	tabWidget->addTab(filtersPage, tr("Video Filters"));
 
 	QVBoxLayout *layout = new QVBoxLayout(this);
 	layout->addWidget(tabWidget);
@@ -76,6 +94,7 @@ void OptionsDialog::accept()
 	_options->codec = _codec->currentData().toString();
 	_options->videoDir = _videoDir->dir();
 	_options->imagesDir = _imageDir->dir();
+	_options->flip = _flip->isChecked();
 	_options->streams.clear();
 	_streamTable->store(_options->streams);
 

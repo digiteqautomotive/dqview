@@ -52,8 +52,7 @@ GUI::GUI()
 
 	readSettings();
 
-	_player = new VideoPlayer();
-	_player->setFlip(_options.flip);
+	_player = new VideoPlayer(_options.flip);
 	_player->setImageDir(_options.imagesDir);
 	_player->setVideoDir(_options.videoDir);
 	_player->setCodec(_options.codec);
@@ -167,11 +166,6 @@ void GUI::createActions()
 	_fullScreenAction->setChecked(_options.fullScreen);
 	_fullScreenAction->setActionGroup(_resizeActionGroup);
 
-	_flipAction = new QAction(tr("Flip Image"));
-	_flipAction->setCheckable(true);
-	_flipAction->setChecked(_options.flip);
-	connect(_flipAction, &QAction::triggered, _player, &VideoPlayer::setFlip);
-
 	_optionsAction = new QAction(tr("Options..."));
 	connect(_optionsAction, &QAction::triggered, this, &GUI::openOptions);
 
@@ -202,8 +196,6 @@ void GUI::createMenus()
 	settingsMenu->addAction(_resizeVideoAction);
 	settingsMenu->addAction(_resizeWindowAction);
 	settingsMenu->addAction(_fullScreenAction);
-	settingsMenu->addSeparator();
-	settingsMenu->addAction(_flipAction);
 	settingsMenu->addSeparator();
 	settingsMenu->addAction(_optionsAction);
 
@@ -268,7 +260,6 @@ void GUI::startStreaming()
 	_playAction->setEnabled(false);
 	_deviceActionGroup->setEnabled(false);
 	_resizeActionGroup->setEnabled(false);
-	_flipAction->setEnabled(false);
 	_openStreamAction->setEnabled(false);
 }
 
@@ -323,7 +314,6 @@ void GUI::stateChanged(bool playing)
 		_recordAction->setEnabled(true);
 		_deviceActionGroup->setEnabled(true);
 		_resizeActionGroup->setEnabled(true);
-		_flipAction->setEnabled(true);
 		_openStreamAction->setEnabled(true);
 		/* The playback can be terminated by libVLC itself, eg. when no network
 		   data has arrived in 10s */
@@ -531,7 +521,7 @@ void GUI::writeSettings()
 	settings.endGroup();
 
 	settings.beginGroup("Video");
-	settings.setValue("Flip", _flipAction->isChecked());
+	settings.setValue("Flip", _options.flip);
 	settings.endGroup();
 
 	settings.beginGroup("Recording");

@@ -68,7 +68,7 @@ void VideoPlayer::handleEvent(const libvlc_event_t *event, void *userData)
 	}
 }
 
-VideoPlayer::VideoPlayer(QWidget *parent)
+VideoPlayer::VideoPlayer(bool flip, QWidget *parent)
   : QWidget(parent), _video(0), _vlc(0), _mediaPlayer(0)
 {
 	setAutoFillBackground(true);
@@ -76,12 +76,18 @@ VideoPlayer::VideoPlayer(QWidget *parent)
 	palette.setColor(QPalette::Window, Qt::black);
 	setPalette(palette);
 
-	_vlc = libvlc_new(ARRAY_SIZE(vlcArguments), vlcArguments);
+	/* There is no other way in libvlc 3.x to set the video output filters
+	   than to do it through the libvlc_new() parameters. At the same time,
+	   changing the libvlc instance using another libvlc_new() crashes the
+	   process...
+	*/
+	_vlc = flip
+	  ? libvlc_new(ARRAY_SIZE(vlcArgumentsFlip), vlcArgumentsFlip)
+	  : libvlc_new(ARRAY_SIZE(vlcArguments), vlcArguments);
 	createPlayer();
 
 	_bitrate = 1800;
 	_codec = QString("h264");
-	_flip = false;
 }
 
 VideoPlayer::~VideoPlayer()
@@ -180,26 +186,4 @@ QSize VideoPlayer::resolution() const
 QString VideoPlayer::recordFile() const
 {
 	return _recordFile;
-}
-
-void VideoPlayer::setFlip(bool flip)
-{
-	if (_flip == flip)
-		return;
-	_flip = flip;
-
-	/*
-		There is no other way in libvlc 3.x to set the video output filters
-		than to do it through the libvlc_new() parameters. However, libvlc_new()
-		called multiple times in a single process is very fragile and leads to
-		crashes/deadlocks on some configurations/systems...
-	*/
-	libvlc_media_player_release(_mediaPlayer);
-	libvlc_release(_vlc);
-
-	_vlc = flip
-	  ? libvlc_new(ARRAY_SIZE(vlcArgumentsFlip), vlcArgumentsFlip)
-	  : libvlc_new(ARRAY_SIZE(vlcArguments), vlcArguments);
-
-	createPlayer();
 }
