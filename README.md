@@ -1,5 +1,5 @@
-# MGBViewer
-MGBViewer is a simple video player especially designated for playing video
+# DQ Viewer
+DQ Viewer is a simple video player especially designated for playing video
 streams from Digiteq Automotives FG4 grabber cards and MGB devices.
 
 ## Features
@@ -14,4 +14,4 @@ streams from Digiteq Automotives FG4 grabber cards and MGB devices.
     - First public version.
 
 ## License
-GPXSee is licensed under GPL-3.0 (only).
+DQ Viewer is licensed under GPL-3.0 (only).

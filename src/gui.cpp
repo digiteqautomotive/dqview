@@ -24,7 +24,7 @@
 
 
 #define COMPANY_NAME "Digiteq Automotive"
-#define APP_NAME "MGB Viewer"
+#define APP_NAME "DQ Viewer"
 #define APP_HOMEPAGE "https://www.digiteqautomotive.com"
 
 
@@ -172,7 +172,7 @@ void GUI::createActions()
 
 	_showLogAction = new QAction("Show Log File...");
 	connect(_showLogAction, &QAction::triggered, this, &GUI::showLog);
-	_aboutAction = new QAction(QIcon(":/app.png"), tr("About MGB Viewer"), this);
+	_aboutAction = new QAction(QIcon(":/app.png"), tr("About DQ Viewer"), this);
 	connect(_aboutAction, &QAction::triggered, this, &GUI::about);
 }
 
@@ -403,13 +403,13 @@ void GUI::about()
 	QMessageBox msgBox(this);
 	QUrl homepage(APP_HOMEPAGE);
 
-	msgBox.setWindowTitle(tr("About MGB Viewer"));
+	msgBox.setWindowTitle(tr("About DQ Viewer"));
 	msgBox.setText("<h2>" + QString(APP_NAME) + "</h2><p><p>" + tr("Version %1")
 	  .arg(QString(APP_VERSION) + " (Qt " + QT_VERSION_STR + ", libVLC "
 	  + libvlc_get_version() + ")") + "</p>");
 	msgBox.setInformativeText("<table width=\"300\"><tr><td>"
 	  + tr("MGB Viewer is distributed under the terms of the GNU General Public "
-	  "License version 3. For more info about MGB Viewer visit the project "
+	  "License version 3. For more info about DQ Viewer visit the project "
 	  "homepage at %1.").arg("<a href=\"" + homepage.toString() + "\">"
 	  + homepage.toString(QUrl::RemoveScheme).mid(2) + "</a>")
 	  + "</td></tr></table>");

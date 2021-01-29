@@ -4,12 +4,12 @@
 
 
 ; The name of the installer
-Name "MGBView"
+Name "DQ Viewer"
 ; Program version
 !define VERSION "1.1"
 
 ; The file to write
-OutFile "MGBView-${VERSION}.exe"
+OutFile "DQView-${VERSION}.exe"
 ; Compression method
 SetCompressor /SOLID lzma
 
@@ -17,27 +17,27 @@ SetCompressor /SOLID lzma
 ManifestDPIAware true
 
 ; The default installation directory
-InstallDir "$LOCALAPPDATA\Programs\MGBView"
+InstallDir "$LOCALAPPDATA\Programs\DQView"
 
 ; Installer executable info
 VIProductVersion "${VERSION}.0.0"
 VIAddVersionKey "ProductVersion" ${VERSION}
 VIAddVersionKey "FileVersion" "${VERSION}.0.0"
-VIAddVersionKey "ProductName" "MGBView"
+VIAddVersionKey "ProductName" "DQ Viewer"
 VIAddVersionKey "LegalCopyright" "Digiteq Automotive"
-VIAddVersionKey "FileDescription" "MGBView installer"
+VIAddVersionKey "FileDescription" "DQ Viewer installer"
 
 ; Registry key to check for directory (so if you install again, it will
 ; overwrite the old one automatically)
-InstallDirRegKey HKCU "Software\MGBView" "Install_Dir"
+InstallDirRegKey HKCU "Software\DQView" "Install_Dir"
 
 ; Registry key for uninstaller
-!define REGENTRY "Software\Microsoft\Windows\CurrentVersion\Uninstall\MGBView"
+!define REGENTRY "Software\Microsoft\Windows\CurrentVersion\Uninstall\DQView"
 
 ; Start menu page configuration
 !define MUI_STARTMENUPAGE_REGISTRY_ROOT "HKCU"
-!define MUI_STARTMENUPAGE_REGISTRY_KEY "Software\MGBView"
-!define MUI_STARTMENUPAGE_REGISTRY_VALUENAME "MGBView"
+!define MUI_STARTMENUPAGE_REGISTRY_KEY "Software\DQView"
+!define MUI_STARTMENUPAGE_REGISTRY_VALUENAME "DQView"
 
 Var StartMenuFolder
 
@@ -62,13 +62,13 @@ Var StartMenuFolder
 
 Function .onInit
   ${IfNot} ${AtLeastWin7}
-    MessageBox MB_OK "MGBView can only be installed on Windows 7 or later."
+    MessageBox MB_OK "DQ Viewer can only be installed on Windows 7 or later."
     Abort
   ${EndIf}
 FunctionEnd 
 
 ; The stuff to install
-Section "MGBView" SEC_APP
+Section "DQ Viewer" SEC_APP
 
   SectionIn RO
 
@@ -76,7 +76,7 @@ Section "MGBView" SEC_APP
   SetOutPath $INSTDIR
 
   ; Put the files there
-  File "mgbview.exe"
+  File "dqview.exe"
   File /r "platforms"
   File /r "plugins"
   File /r "styles"
@@ -86,7 +86,7 @@ Section "MGBView" SEC_APP
   !insertmacro MUI_STARTMENU_WRITE_BEGIN Application
     CreateDirectory "$SMPROGRAMS\$StartMenuFolder"
     CreateShortCut "$SMPROGRAMS\$StartMenuFolder\Uninstall.lnk" "$INSTDIR\Uninstall.exe"
-    CreateShortCut "$SMPROGRAMS\$StartMenuFolder\MGBView.lnk" "$INSTDIR\mgbview.exe"
+    CreateShortCut "$SMPROGRAMS\$StartMenuFolder\DQView.lnk" "$INSTDIR\dqview.exe"
   !insertmacro MUI_STARTMENU_WRITE_END
 
   ; Create the uninstaller
@@ -94,10 +94,10 @@ Section "MGBView" SEC_APP
 
   ; Write the installation path into the registry
   DetailPrint "Registering application..."
-  WriteRegStr HKCU SOFTWARE\MGBView "Install_Dir" "$INSTDIR"
+  WriteRegStr HKCU SOFTWARE\DQView "Install_Dir" "$INSTDIR"
 
   ; Write the uninstall keys for Windows
-  WriteRegStr HKCU "${REGENTRY}" "DisplayName" "MGBView"
+  WriteRegStr HKCU "${REGENTRY}" "DisplayName" "DQ Viewer"
   WriteRegStr HKCU "${REGENTRY}" "Publisher" "Digiteq Automotive"
   WriteRegStr HKCU "${REGENTRY}" "DisplayVersion" "${VERSION}"
   WriteRegStr HKCU "${REGENTRY}" "UninstallString" '"$INSTDIR\uninstall.exe"'
@@ -114,7 +114,7 @@ Section "Uninstall"
 
   ; Remove registry keys
   DeleteRegKey HKCU "${REGENTRY}"
-  DeleteRegKey HKCU SOFTWARE\MGBView
+  DeleteRegKey HKCU SOFTWARE\DQView
 
   ; Remove directories used
   RMDir /r "$INSTDIR"

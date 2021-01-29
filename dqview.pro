@@ -1,4 +1,4 @@
-TARGET = mgbview
+TARGET = dqbview
 TEMPLATE = app
 
 QT      += core gui widgets
@@ -36,7 +36,7 @@ HEADERS += src/application.h \
     src/camerainfo.h \
     src/options.h
 
-RESOURCES += mgbview.qrc
+RESOURCES += dqview.qrc
 LIBS += -lvlc
 win32 {
     RC_ICONS = icons/app.ico
