@@ -13,6 +13,9 @@ OutFile "DQView-${VERSION}.exe"
 ; Compression method
 SetCompressor /SOLID lzma
 
+; Required execution level
+RequestExecutionLevel user
+
 ; Don't let the OS scale(blur) the installer GUI
 ManifestDPIAware true
 
