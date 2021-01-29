@@ -1,4 +1,4 @@
-TARGET = dqbview
+TARGET = dqview
 TEMPLATE = app
 
 QT      += core gui widgets
