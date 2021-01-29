@@ -408,7 +408,7 @@ void GUI::about()
 	  .arg(QString(APP_VERSION) + " (Qt " + QT_VERSION_STR + ", libVLC "
 	  + libvlc_get_version() + ")") + "</p>");
 	msgBox.setInformativeText("<table width=\"300\"><tr><td>"
-	  + tr("MGB Viewer is distributed under the terms of the GNU General Public "
+	  + tr("DQ Viewer is distributed under the terms of the GNU General Public "
 	  "License version 3. For more info about DQ Viewer visit the project "
 	  "homepage at %1.").arg("<a href=\"" + homepage.toString() + "\">"
 	  + homepage.toString(QUrl::RemoveScheme).mid(2) + "</a>")
