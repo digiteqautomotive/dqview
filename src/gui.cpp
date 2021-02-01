@@ -67,6 +67,11 @@ GUI::GUI()
 	setCentralWidget(_player);
 	restoreGeometry(_options.windowGeometry);
 	restoreState(_options.windowState);
+	if (isFullScreen()) {
+		statusBar()->hide();
+		menuBar()->hide();
+		showToolbars(false);
+	}
 
 	QList<QAction*> devices(_deviceActionGroup->actions());
 	if (!devices.isEmpty())
