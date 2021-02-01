@@ -271,7 +271,6 @@ void GUI::stopStreaming()
 {
 	_playAction->setEnabled(false);
 	_screenshotAction->setEnabled(false);
-	showFullScreen(false);
 }
 
 void GUI::startRecording()
@@ -473,6 +472,13 @@ void GUI::keyPressEvent(QKeyEvent *event)
 		case Qt::Key_Space:
 			if (_playAction->isEnabled())
 				_playAction->trigger();
+			break;
+		case Qt::Key_Escape:
+			if (isFullScreen()) {
+				showFullScreen(false);
+				if (_playAction->isChecked())
+					_playAction->trigger();
+			}
 			break;
 	}
 
