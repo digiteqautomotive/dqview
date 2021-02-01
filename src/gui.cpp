@@ -474,11 +474,7 @@ void GUI::keyPressEvent(QKeyEvent *event)
 				_playAction->trigger();
 			break;
 		case Qt::Key_Escape:
-			if (isFullScreen()) {
-				showFullScreen(false);
-				if (_playAction->isChecked())
-					_playAction->trigger();
-			}
+			showFullScreen(false);
 			break;
 	}
 
