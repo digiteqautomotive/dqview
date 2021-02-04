@@ -85,16 +85,16 @@ Section "DQ Viewer" SEC_APP
   File /r "styles"
   File *.dll
   
+  ; Create the uninstaller
+  WriteUninstaller "$INSTDIR\uninstall.exe"
+
   ; Create start menu entry and add links
   !insertmacro MUI_STARTMENU_WRITE_BEGIN Application
     CreateDirectory "$SMPROGRAMS\$StartMenuFolder"
     CreateShortCut "$SMPROGRAMS\$StartMenuFolder\Uninstall.lnk" "$INSTDIR\Uninstall.exe"
     CreateShortCut "$SMPROGRAMS\$StartMenuFolder\DQView.lnk" "$INSTDIR\dqview.exe"
   !insertmacro MUI_STARTMENU_WRITE_END
-
-  ; Create the uninstaller
-  WriteUninstaller "$INSTDIR\uninstall.exe"
-
+  
   ; Write the installation path into the registry
   DetailPrint "Registering application..."
   WriteRegStr HKCU SOFTWARE\DQView "Install_Dir" "$INSTDIR"
@@ -106,8 +106,6 @@ Section "DQ Viewer" SEC_APP
   WriteRegStr HKCU "${REGENTRY}" "UninstallString" '"$INSTDIR\uninstall.exe"'
   WriteRegDWORD HKCU "${REGENTRY}" "NoModify" 1
   WriteRegDWORD HKCU "${REGENTRY}" "NoRepair" 1
-
-  System::Call 'shell32.dll::SHChangeNotify(i, i, i, i) v (0x08000000, 0, 0, 0)'
 
 SectionEnd
 
