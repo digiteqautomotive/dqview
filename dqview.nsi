@@ -107,6 +107,8 @@ Section "DQ Viewer" SEC_APP
   WriteRegDWORD HKCU "${REGENTRY}" "NoModify" 1
   WriteRegDWORD HKCU "${REGENTRY}" "NoRepair" 1
 
+  System::Call 'shell32.dll::SHChangeNotify(i, i, i, i) v (0x08000000, 0, 0, 0)'
+
 SectionEnd
 
 ;--------------------------------
