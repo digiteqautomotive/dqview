@@ -2,7 +2,7 @@ TARGET = dqview
 TEMPLATE = app
 
 QT      += core gui widgets
-VERSION = 1.1
+VERSION = 1.2
 DEFINES += APP_VERSION=\\\"$$VERSION\\\" \
   QT_NO_DEPRECATED_WARNINGS
 
