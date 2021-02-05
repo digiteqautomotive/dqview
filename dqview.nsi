@@ -92,9 +92,9 @@ Section "DQ Viewer" SEC_APP
   !insertmacro MUI_STARTMENU_WRITE_BEGIN Application
     CreateDirectory "$SMPROGRAMS\$StartMenuFolder"
     CreateShortCut "$SMPROGRAMS\$StartMenuFolder\Uninstall.lnk" "$INSTDIR\Uninstall.exe"
-    CreateShortCut "$SMPROGRAMS\$StartMenuFolder\DQView.lnk" "$INSTDIR\dqview.exe"
+    CreateShortCut "$SMPROGRAMS\$StartMenuFolder\DQ Viewer.lnk" "$INSTDIR\dqview.exe"
   !insertmacro MUI_STARTMENU_WRITE_END
-  
+
   ; Write the installation path into the registry
   DetailPrint "Registering application..."
   WriteRegStr HKCU SOFTWARE\DQView "Install_Dir" "$INSTDIR"
