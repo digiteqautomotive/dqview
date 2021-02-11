@@ -104,6 +104,9 @@ Section "DQ Viewer" SEC_APP
   WriteRegStr HKCU "${REGENTRY}" "Publisher" "Digiteq Automotive"
   WriteRegStr HKCU "${REGENTRY}" "DisplayVersion" "${VERSION}"
   WriteRegStr HKCU "${REGENTRY}" "UninstallString" '"$INSTDIR\uninstall.exe"'
+  WriteRegStr HKCU "${REGENTRY}" "DisplayIcon" '"$INSTDIR\dqview.exe"'
+  WriteRegStr HKCU "${REGENTRY}" "InstallLocation" '"$INSTDIR"'
+  WriteRegStr HKCU "${REGENTRY}" "URLInfoAbout" "https://www.digiteqautomotive.com"
   WriteRegDWORD HKCU "${REGENTRY}" "NoModify" 1
   WriteRegDWORD HKCU "${REGENTRY}" "NoRepair" 1
 
