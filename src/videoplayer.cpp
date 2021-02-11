@@ -159,6 +159,13 @@ void VideoPlayer::startStreamingAndRecording()
 	libvlc_media_player_play(_mediaPlayer);
 }
 
+void VideoPlayer::setAspectRatio(const QString &ratio)
+{
+	QByteArray ba(ratio.toLatin1());
+	libvlc_video_set_aspect_ratio(_mediaPlayer,
+	  ba.isEmpty() ? "Default" : ba.constData());
+}
+
 void VideoPlayer::stopStreaming()
 {
 	libvlc_media_player_stop(_mediaPlayer);

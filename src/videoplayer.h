@@ -21,6 +21,7 @@ public:
 	void setVideoDir(const QString &path) {_videoDir = path;}
 	void setCodec(const QString &codec) {_codec = codec;}
 	void setBitrate(unsigned bitrate) {_bitrate = bitrate;}
+	void setAspectRatio(const QString &ratio);
 
 	QSize resolution() const;
 	QString recordFile() const;

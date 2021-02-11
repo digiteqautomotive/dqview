@@ -56,6 +56,7 @@ GUI::GUI()
 	_player->setVideoDir(_options.videoDir);
 	_player->setCodec(_options.codec);
 	_player->setBitrate(_options.bitrate);
+	_player->setAspectRatio(_options.aspectRatio);
 	connect(_player, &VideoPlayer::error, this, &GUI::streamError);
 	connect(_player, &VideoPlayer::stateChanged, this, &GUI::stateChanged);
 
@@ -399,6 +400,7 @@ void GUI::openOptions()
 	_player->setVideoDir(_options.videoDir);
 	_player->setCodec(_options.codec);
 	_player->setBitrate(_options.bitrate);
+	_player->setAspectRatio(_options.aspectRatio);
 }
 
 void GUI::about()
@@ -496,6 +498,7 @@ void GUI::readSettings()
 
 	settings.beginGroup("Video");
 	_options.flip = settings.value("Flip").toBool();
+	_options.aspectRatio = settings.value("AspectRatio").toString();
 	settings.endGroup();
 
 	settings.beginGroup("Recording");
@@ -528,6 +531,7 @@ void GUI::writeSettings()
 
 	settings.beginGroup("Video");
 	settings.setValue("Flip", _options.flip);
+	settings.setValue("AspectRatio", _options.aspectRatio);
 	settings.endGroup();
 
 	settings.beginGroup("Recording");

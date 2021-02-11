@@ -14,6 +14,7 @@ struct Options
 	QString imagesDir;
 	QList<StreamInfo> streams;
 	bool flip;
+	QString aspectRatio;
 
 	bool resize;
 	bool fullScreen;

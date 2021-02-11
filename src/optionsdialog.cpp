@@ -6,6 +6,7 @@
 #include <QComboBox>
 #include <QSpinBox>
 #include <QCheckBox>
+#include <QLineEdit>
 #include <QLabel>
 #include "dirselectwidget.h"
 #include "streamtable.h"
@@ -64,17 +65,28 @@ OptionsDialog::OptionsDialog(Options *options, QWidget *parent)
 
 	_flip = new QCheckBox(tr("Flip Image"));
 	_flip->setChecked(options->flip);
-	QLabel *label = new QLabel(tr("Application restart is required for"
-	  " the image transformation to take effect!"));
+	QLabel *label = new QLabel(tr("Note: Application restart is required for"
+	  " the image flip to take effect!"));
 	QFont font = label->font();
 	font.setItalic(true);
 	label->setFont(font);
+	QRegularExpression re("[0-9]+:[0-9]+");
+	QRegularExpressionValidator *validator = new QRegularExpressionValidator(re);
+	_aspectRatio = new QLineEdit();
+	_aspectRatio->setValidator(validator);
+	_aspectRatio->setText(options->aspectRatio);
+
 
 	QWidget *filtersPage = new QWidget();
 	QVBoxLayout *filtersLayout = new QVBoxLayout(filtersPage);
-	filtersLayout->addWidget(_flip);
-	filtersLayout->addWidget(label);
+
+	QFormLayout *arLayout = new QFormLayout();
+	arLayout->addRow("Force Aspect Ratio:", _aspectRatio);
+	arLayout->addWidget(_flip);
+
+	filtersLayout->addLayout(arLayout);
 	filtersLayout->addStretch();
+	filtersLayout->addWidget(label);
 
 
 	QTabWidget *tabWidget = new QTabWidget();
@@ -95,6 +107,7 @@ void OptionsDialog::accept()
 	_options->videoDir = _videoDir->dir();
 	_options->imagesDir = _imageDir->dir();
 	_options->flip = _flip->isChecked();
+	_options->aspectRatio = _aspectRatio->text();
 	_options->streams.clear();
 	_streamTable->store(_options->streams);
 
