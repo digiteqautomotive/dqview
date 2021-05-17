@@ -20,3 +20,9 @@ QString Camera::name() const
 {
 	return _cameraInfo.description();
 }
+
+QString Camera::device() const
+{
+	// TODO: check for mgb4
+	return _cameraInfo.deviceName();
+}

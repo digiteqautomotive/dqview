@@ -22,6 +22,7 @@ public:
 private slots:
 	void openStream();
 	void openDevice(QObject *device);
+	void configureDevice();
 	void play(bool enable);
 	void openOptions();
 	void about();
@@ -57,11 +58,13 @@ private:
 	QSize sizeHint() const {return QSize(640, 480);}
 
 	VideoPlayer *_player;
+	QString _device;
 
 	QActionGroup *_deviceActionGroup;
 	QActionGroup *_resizeActionGroup;
 	QAction *_deviceSeparator;
 	QAction *_openStreamAction;
+	QAction *_configureDeviceAction;
 	QAction *_playAction;
 	QAction *_recordAction;
 	QAction *_screenshotAction;

@@ -15,6 +15,7 @@ public:
 
 	QString url() const;
 	QString name() const;
+	QString device() const;
 
 private:
 	CameraInfo _cameraInfo;

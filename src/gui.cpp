@@ -20,6 +20,7 @@
 #include "streamdialog.h"
 #include "optionsdialog.h"
 #include "logdialog.h"
+#include "deviceconfigdialog.h"
 #include "gui.h"
 
 
@@ -142,6 +143,10 @@ void GUI::createActions()
 	_openStreamAction = new QAction(tr("Open Remote Device..."), this);
 	connect(_openStreamAction, &QAction::triggered, this,
 	  QOverload<>::of(&GUI::openStream));
+	_configureDeviceAction = new QAction(tr("Configure Device.."), this);
+	_configureDeviceAction->setEnabled(false);
+	connect(_configureDeviceAction, &QAction::triggered, this,
+	  &GUI::configureDevice);
 	_exitAction = new QAction(tr("Quit"), this);
 	connect(_exitAction, &QAction::triggered, this, &GUI::close);
 
@@ -188,6 +193,8 @@ void GUI::createMenus()
 	_deviceMenu->addActions(streamActions());
 	_deviceSeparator = _deviceMenu->addSeparator();
 	_deviceMenu->addAction(_openStreamAction);
+	_deviceMenu->addSeparator();
+	_deviceMenu->addAction(_configureDeviceAction);
 	_deviceMenu->addSeparator();
 	_deviceMenu->addAction(_exitAction);
 
@@ -351,6 +358,8 @@ void GUI::openDevice(QObject *device)
 	Video *video = qobject_cast<Video *>(device);
 	_player->setVideo(video);
 	_deviceNameLabel->setText(video->name());
+	_device = video->device();
+	_configureDeviceAction->setEnabled(!_device.isNull());
 
 	_playAction->setEnabled(true);
 }
@@ -401,6 +410,12 @@ void GUI::openOptions()
 	_player->setCodec(_options.codec);
 	_player->setBitrate(_options.bitrate);
 	_player->setAspectRatio(_options.aspectRatio);
+}
+
+void GUI::configureDevice()
+{
+	DeviceConfigDialog dialog(_device, this);
+	dialog.exec();
 }
 
 void GUI::about()

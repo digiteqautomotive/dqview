@@ -14,6 +14,7 @@ public:
 
 	virtual QString url() const = 0;
 	virtual QString name() const = 0;
+	virtual QString device() const {return QString();}
 };
 
 #endif // VIDEO_H

@@ -8,6 +8,7 @@ DEFINES += APP_VERSION=\\\"$$VERSION\\\" \
 
 SOURCES += src/main.cpp \
     src/application.cpp \
+    src/deviceconfigdialog.cpp \
     src/gui.cpp \
     src/logdialog.cpp \
     src/optionsdialog.cpp \
@@ -20,6 +21,7 @@ SOURCES += src/main.cpp \
     src/videoplayer.cpp \
     src/camerainfo.cpp
 HEADERS += src/application.h \
+    src/deviceconfigdialog.h \
     src/gui.h \
     src/log.h \
     src/logdialog.h \
