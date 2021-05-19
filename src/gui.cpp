@@ -44,7 +44,6 @@ static QString timeSpan(int time)
 		  .arg(s, 2, 10, QChar('0'));
 }
 
-
 GUI::GUI()
 {
 	setWindowIcon(QIcon(":/app.png"));
@@ -92,7 +91,7 @@ QList<QAction*> GUI::cameraActions()
 	qSort(cameras);
 
 	for (int i = 0; i < cameras.size(); i++) {
-		QAction *a = new QAction(cameras.at(i).description(), this);
+		QAction *a = new QAction(cameras.at(i).name(), this);
 		a->setActionGroup(_deviceActionGroup);
 		a->setCheckable(true);
 		Camera *cam = new Camera(cameras.at(i), this);

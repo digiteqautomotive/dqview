@@ -14,7 +14,7 @@ public:
 	  : Video(parent), _cameraInfo(cameraInfo) {}
 
 	QString url() const;
-	QString name() const;
+	QString name() const {return _cameraInfo.name();}
 	QString device() const;
 
 private:

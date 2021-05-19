@@ -5,7 +5,7 @@ QString Camera::url() const
 {
 	QString url;
 #if defined(Q_OS_LINUX)
-	url = QString("v4l2://%1").arg(_cameraInfo.deviceName());
+	url = QString("v4l2://%1").arg(_cameraInfo.device());
 #elif defined(Q_OS_WIN32) || defined(Q_OS_CYGWIN)
 	url = QString("dshow:// :dshow-vdev=%1 :dshow-adev=none")
 	  .arg(_cameraInfo.deviceName());
@@ -16,13 +16,7 @@ QString Camera::url() const
 	return url;
 }
 
-QString Camera::name() const
-{
-	return _cameraInfo.description();
-}
-
 QString Camera::device() const
 {
-	// TODO: check for mgb4
-	return _cameraInfo.deviceName();
+	return _cameraInfo.isMGB4() ? _cameraInfo.device() : QString();
 }
