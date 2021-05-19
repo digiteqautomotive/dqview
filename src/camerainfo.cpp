@@ -29,10 +29,9 @@ CameraInfo CameraInfo::cameraInfo(const QString &device)
 	int err = ioctl(fd, VIDIOC_QUERYCAP, &vcap);
 	close(fd);
 
-	if (err)
-		return CameraInfo();
-
-	return CameraInfo(device, (const char *)vcap.card, mgb4);
+	return err
+	  ? CameraInfo()
+	  : CameraInfo(device, (const char *)vcap.card, mgb4);
 }
 
 QList<CameraInfo> CameraInfo::availableCameras()
