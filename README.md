@@ -7,11 +7,8 @@ streams from Digiteq Automotives FG4 grabber cards and MGB devices.
 * Play network streams with predefined setup for MGB devices.
 * Record the streams to h264 or MPEG2.
 * Capture video frames snapshots to PNG.
+* Configure FG4 devices.
 * Available for Windows & Linux.
-
-## Changelog
-* 1.1 (2021-01-26)
-    - First public version.
 
 ## License
 DQ Viewer is licensed under GPL-3.0 (only).
