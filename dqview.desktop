@@ -1,0 +1,8 @@
+[Desktop Entry]
+Name=DQ Viewer
+Comment=Digiteq Automotive video player
+Exec=dqview
+Icon=dqview
+Terminal=false
+Type=Application
+Categories=AudioVideo;Player;Recorder
