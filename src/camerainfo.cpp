@@ -122,7 +122,7 @@ QList<CameraInfo> CameraInfo::availableCameras()
 				QString devname(p_buf);
 				free(p_buf);
 
-				CameraInfo ci(devname, devname);
+				CameraInfo ci(devname, QString(), false);
 				int i = 0;
 				while (list.contains(ci)) {
 					QString name(devname + QString(" #%1").arg(++i));

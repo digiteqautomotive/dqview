@@ -8,7 +8,7 @@ QString Camera::url() const
 	url = QString("v4l2://%1").arg(_cameraInfo.device());
 #elif defined(Q_OS_WIN32) || defined(Q_OS_CYGWIN)
 	url = QString("dshow:// :dshow-vdev=%1 :dshow-adev=none")
-	  .arg(_cameraInfo.deviceName());
+	  .arg(_cameraInfo.device());
 #else
 #error "unsupported platform"
 #endif
