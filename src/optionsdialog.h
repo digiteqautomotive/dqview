@@ -10,7 +10,7 @@ class QCheckBox;
 class QLineEdit;
 class DirSelectWidget;
 class StreamTable;
-class Options;
+struct Options;
 
 
 class OptionsDialog : public QDialog
