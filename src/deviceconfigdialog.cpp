@@ -391,6 +391,7 @@ DeviceConfigDialog::DeviceConfigDialog(const QString &device, int id,
   _fpdl3InputWidth(0), _gmslMode(0), _gmslStreamId(0), _gmslFec(0)
 {
 #if defined(Q_OS_LINUX)
+	Q_UNUSED(id);
 	_device = device;
 #elif defined(Q_OS_WIN32) || defined(Q_OS_CYGWIN)
 	_config = config(id);
