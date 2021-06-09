@@ -275,7 +275,7 @@ bool DeviceConfigDialog::getFwVersion(unsigned *version)
 
 	if (!_config || FAILED(_config->GetFpgaFwId(&val)))
 		return false;
-	*version = (unsigned)(val & 0xFF);
+	*version = (unsigned)(val & 0xFFFF);
 
 	return true;
 }
