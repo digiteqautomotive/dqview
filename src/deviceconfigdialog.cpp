@@ -194,7 +194,6 @@ bool DeviceConfigDialog::setGMSLFEC(GMSLFEC fec)
 #include <Windows.h>
 #include <uuids.h>
 #include <strmif.h>
-#include "fg4.h"
 
 static IFG4KsproxySampleConfig *config(int id)
 {
