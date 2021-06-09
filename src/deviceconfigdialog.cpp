@@ -423,7 +423,7 @@ DeviceConfigDialog::DeviceConfigDialog(const QString &device, int id,
 	else
 		moduleVersionLabel->setText(tr("N/A"));
 
-	ModuleType fwType;
+	ModuleType fwType = None;
 	QLabel *fwTypeLabel = new QLabel();
 	if (!getFwType(&fwType))
 		fwTypeLabel->setText(tr("N/A"));
