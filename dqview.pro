@@ -43,4 +43,9 @@ LIBS += -lvlc
 win32 {
     RC_ICONS = icons/app.ico
     LIBS += -lstrmiids -lole32
+    IDL_FILES = fg4.idl
+    idl_compiler.output = ${QMAKE_FILE_BASE}.h
+    idl_compiler.commands = widl ${QMAKE_FILE_NAME}
+    idl_compiler.input = IDL_FILES
+    QMAKE_EXTRA_COMPILERS += idl_compiler
 }

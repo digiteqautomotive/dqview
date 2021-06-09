@@ -188,7 +188,66 @@ bool DeviceConfigDialog::setGMSLFEC(GMSLFEC fec)
 	return writeSysfsInt("gmsl_fec", fec);
 }
 
+
 #elif defined(Q_OS_WIN32) || defined(Q_OS_CYGWIN)
+
+#include <Windows.h>
+#include <uuids.h>
+#include <strmif.h>
+#include "fg4.h"
+
+static IFG4KsproxySampleConfig *config(int id)
+{
+	IFG4KsproxySampleConfig *piConfig = NULL;
+	HRESULT hr;
+	ICreateDevEnum *piCreateDevEnum;
+
+	hr = CoCreateInstance(CLSID_SystemDeviceEnum, NULL, CLSCTX_INPROC_SERVER,
+	  __uuidof(piCreateDevEnum), reinterpret_cast<void**>(&piCreateDevEnum));
+	if (SUCCEEDED(hr)) {
+		int Xorder = id;
+		IEnumMoniker *piEnumMoniker;
+
+		hr = piCreateDevEnum->CreateClassEnumerator(AM_KSCATEGORY_CAPTURE,
+		  &piEnumMoniker, 0);
+		piCreateDevEnum->Release();
+		if (SUCCEEDED(hr))
+			hr = piEnumMoniker->Reset();
+		if (SUCCEEDED(hr)) {
+			ULONG cFetched;
+			IMoniker *piMoniker;
+			while ((hr = piEnumMoniker->Next(1, &piMoniker, &cFetched)) == S_OK) {
+				IBaseFilter *piFilter;
+				hr = piMoniker->BindToObject(NULL, NULL, __uuidof(piFilter),
+				  reinterpret_cast<void**>(&piFilter));
+				if (SUCCEEDED(hr)) {
+					hr = piFilter->QueryInterface(__uuidof(piConfig),
+					  reinterpret_cast< void**>(&piConfig));
+					if (FAILED(hr))
+						piFilter->Release();
+					else {
+						if (Xorder > 0) {
+							Xorder--;
+							piFilter->Release(); piFilter=NULL;
+							piConfig->Release(); piConfig=NULL;
+							hr = E_FAIL;
+						} else {
+							piFilter->Release();
+							piMoniker->Release();
+							piEnumMoniker->Release();
+
+							return piConfig;
+						}
+					}
+				}
+				piMoniker->Release();
+			}
+		}
+		piEnumMoniker->Release();
+	}
+
+	return 0;
+}
 
 bool DeviceConfigDialog::getModuleType(ModuleType *type)
 {
@@ -202,12 +261,24 @@ bool DeviceConfigDialog::getModuleVersion(unsigned *version)
 
 bool DeviceConfigDialog::getFwType(ModuleType *type)
 {
-	return false;
+	long val;
+
+	if (!_config || FAILED(_config->GetFpgaFwId(&val)))
+		return false;
+	*type = (ModuleType)(val >> 24);
+
+	return true;
 }
 
 bool DeviceConfigDialog::getFwVersion(unsigned *version)
 {
-	return false;
+	long val;
+
+	if (!_config || FAILED(_config->GetFpgaFwId(&val)))
+		return false;
+	*version = (unsigned)(val & 0xFF);
+
+	return true;
 }
 
 bool DeviceConfigDialog::getSerialNumber(QString *serialNumber)
@@ -217,97 +288,97 @@ bool DeviceConfigDialog::getSerialNumber(QString *serialNumber)
 
 bool DeviceConfigDialog::getLinkStatus(LinkStatus *status)
 {
-	return false;
+	return (_config && SUCCEEDED(_config->GetLinkLckStatus((long int*)status)));
 }
 
 bool DeviceConfigDialog::getVSyncStatus(SyncStatus *status)
 {
-	return false;
+	return (_config && SUCCEEDED(_config->GetVsStatus((long int*)status)));
 }
 
 bool DeviceConfigDialog::getHSyncStatus(SyncStatus *status)
 {
-	return false;
+	return (_config && SUCCEEDED(_config->GetHsStatus((long int*)status)));
 }
 
 bool DeviceConfigDialog::getColorMapping(ColorMapping *mapping)
 {
-	return false;
+	return (_config && SUCCEEDED(_config->GetColorMapping((long int*)mapping)));
 }
 
 bool DeviceConfigDialog::setColorMapping(ColorMapping mapping)
 {
-	return false;
+	return (_config && SUCCEEDED(_config->SetColorMapping(mapping)));
 }
 
 bool DeviceConfigDialog::getLaneWidth(LineWidth *lineWidth)
 {
-	return false;
+	return (_config && SUCCEEDED(_config->GetOldiLink((long int*)lineWidth)));
 }
 
 bool DeviceConfigDialog::setLaneWidth(LineWidth lineWidth)
 {
-	return false;
+	return (_config && SUCCEEDED(_config->SetOldiLink(lineWidth)));
 }
 
 bool DeviceConfigDialog::getVSyncGapLength(unsigned *length)
 {
-	return false;
+	return (_config && SUCCEEDED(_config->GetDeGap2VS((long int*)length)));
 }
 
 bool DeviceConfigDialog::setVSyncGapLength(unsigned length)
 {
-	return false;
+	return (_config && SUCCEEDED(_config->SetDeGap2VS(length)));
 }
 
 bool DeviceConfigDialog::getHSyncGapLength(unsigned *length)
 {
-	return false;
+	return (_config && SUCCEEDED(_config->GetDeGap2HS((long int*)length)));
 }
 
 bool DeviceConfigDialog::setHSyncGapLength(unsigned length)
 {
-	return false;
+	return (_config && SUCCEEDED(_config->SetDeGap2HS(length)));
 }
 
 bool DeviceConfigDialog::getFPDL3InputWidth(FPDL3InputWidth *width)
 {
-	return false;
+	return (_config && SUCCEEDED(_config->GetFpdl3InputWidth((long int*)width)));
 }
 
 bool DeviceConfigDialog::setFPDL3InputWidth(FPDL3InputWidth width)
 {
-	return false;
+	return (_config && SUCCEEDED(_config->SetFpdl3InputWidth(width)));
 }
 
 bool DeviceConfigDialog::getGMSLMode(GMSLMode *mode)
 {
-	return false;
+	return (_config && SUCCEEDED(_config->GetGmslRate((long int*)mode)));
 }
 
 bool DeviceConfigDialog::setGMSLMode(GMSLMode mode)
 {
-	return false;
+	return (_config && SUCCEEDED(_config->SetGmslRate(mode)));
 }
 
 bool DeviceConfigDialog::getGMSLStreamId(unsigned *streamId)
 {
-	return false;
+	return (_config && SUCCEEDED(_config->GetStreamId((long int*)streamId)));
 }
 
 bool DeviceConfigDialog::setGMSLStreamId(unsigned streamId)
 {
-	return false;
+	return (_config && SUCCEEDED(_config->SetStreamId(streamId)));
 }
 
 bool DeviceConfigDialog::getGMSLFEC(GMSLFEC *fec)
 {
-	return false;
+	return (_config && SUCCEEDED(_config->GetGmslFEC((long int*)fec)));
 }
 
 bool DeviceConfigDialog::setGMSLFEC(GMSLFEC fec)
 {
-	return false;
+	return (_config && SUCCEEDED(_config->SetGmslFEC(fec)));
 }
 
 #else
@@ -315,11 +386,16 @@ bool DeviceConfigDialog::setGMSLFEC(GMSLFEC fec)
 #endif
 
 
-DeviceConfigDialog::DeviceConfigDialog(const QString &device, QWidget *parent)
-  : QDialog(parent, Qt::WindowSystemMenuHint | Qt::WindowTitleHint),
-  _device(device), _fpdl3InputWidth(0), _gmslMode(0), _gmslStreamId(0),
-  _gmslFec(0)
+DeviceConfigDialog::DeviceConfigDialog(const QString &device, int id,
+  QWidget *parent) : QDialog(parent, Qt::WindowSystemMenuHint | Qt::WindowTitleHint),
+  _fpdl3InputWidth(0), _gmslMode(0), _gmslStreamId(0), _gmslFec(0)
 {
+#if defined(Q_OS_LINUX)
+	_device = device;
+#elif defined(Q_OS_WIN32) || defined(Q_OS_CYGWIN)
+	_config = config(id);
+#endif
+
 	setModal(true);
 	setWindowTitle(tr("%1 Configuration").arg(device));
 
@@ -456,7 +532,7 @@ DeviceConfigDialog::DeviceConfigDialog(const QString &device, QWidget *parent)
 	QVBoxLayout *configLayout = new QVBoxLayout();
 	configLayout->addWidget(commonConfig);
 
-	if (moduleType == FPDL3) {
+	if (fwType == FPDL3) {
 		_fpdl3InputWidth = new QComboBox();
 		_fpdl3InputWidth->addItem(tr("Automatic"), QVariant(FPDL3Auto));
 		_fpdl3InputWidth->addItem(tr("Single"), QVariant(FPDL3Single));
@@ -472,7 +548,7 @@ DeviceConfigDialog::DeviceConfigDialog(const QString &device, QWidget *parent)
 		fpdl3Config->setLayout(fpdl3ConfigLayout);
 
 		configLayout->addWidget(fpdl3Config);
-	} else if (moduleType == GMSL) {
+	} else if (fwType == GMSL) {
 		_gmslMode = new QComboBox();
 		_gmslMode->addItem(tr("12Gb/s"), QVariant(GMSL12Gb));
 		_gmslMode->addItem(tr("6Gb/s"), QVariant(GMSL6Gb));
@@ -522,6 +598,14 @@ DeviceConfigDialog::DeviceConfigDialog(const QString &device, QWidget *parent)
 	layout->addWidget(tabWidget);
 	layout->addWidget(buttonBox);
 	show();
+}
+
+DeviceConfigDialog::~DeviceConfigDialog()
+{
+#if defined(Q_OS_WIN32) || defined(Q_OS_CYGWIN)
+	if (_config)
+		_config->Release();
+#endif
 }
 
 void DeviceConfigDialog::accept()

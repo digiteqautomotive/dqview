@@ -12,7 +12,7 @@
 #include <QRegExp>
 #include "camerainfo.h"
 
-CameraInfo CameraInfo::cameraInfo(const QString &device)
+CameraInfo CameraInfo::cameraInfo(const QString &device, int *id)
 {
 	QFileInfo fi(device);
 	QDir sysfsDir("/sys/class/video4linux/");
@@ -25,13 +25,15 @@ CameraInfo CameraInfo::cameraInfo(const QString &device)
 	int fd;
 
 	if ((fd = open(ba.constData(), O_RDWR)) < 0)
-		return mgb4 ? CameraInfo(device, "MGB4 PCIe Card", true) : CameraInfo();
+		return mgb4
+		  ? CameraInfo(device, *id++, "MGB4 PCIe Card")
+		  : CameraInfo();
 	int err = ioctl(fd, VIDIOC_QUERYCAP, &vcap);
 	close(fd);
 
 	return err
 	  ? CameraInfo()
-	  : CameraInfo(device, (const char *)vcap.card, mgb4);
+	  : CameraInfo(device, mgb4 ? *id++ : -1, (const char *)vcap.card);
 }
 
 QList<CameraInfo> CameraInfo::availableCameras()
@@ -39,11 +41,12 @@ QList<CameraInfo> CameraInfo::availableCameras()
 	QList<CameraInfo> list;
 	QRegExp re("video[0-9]+");
 	QDir dir("/dev");
+	int id = 0;
 
 	QFileInfoList files(dir.entryInfoList(QDir::System));
 	for (int i = 0; i < files.size(); i++) {
 		if (re.exactMatch(files.at(i).baseName())) {
-			CameraInfo info(cameraInfo(files.at(i).absoluteFilePath()));
+			CameraInfo info(cameraInfo(files.at(i).absoluteFilePath(), &id));
 			if (!info.isNull())
 				list.append(info);
 		}
@@ -60,6 +63,7 @@ QList<CameraInfo> CameraInfo::availableCameras()
 #include <wrl/client.h>
 #include <QDebug>
 #include "camerainfo.h"
+#include "fg4.h"
 
 static char *FromWide(const wchar_t *wide)
 {
@@ -121,12 +125,26 @@ QList<CameraInfo> CameraInfo::availableCameras()
 				char *p_buf = FromWide(var.bstrVal);
 				QString devname(p_buf);
 				free(p_buf);
+				bool mgb4 = false;
 
-				CameraInfo ci(devname, QString(), false);
+				/* Check whether the device is a MGB4 device */
+				IFG4KsproxySampleConfig *piConfig = NULL;
+				IBaseFilter* piFilter;
+				hr = p_moniker->BindToObject(NULL, NULL, __uuidof(piFilter),
+				  reinterpret_cast<void**>(&piFilter));
+				if (SUCCEEDED(hr)) {
+					hr = piFilter->QueryInterface(__uuidof(piConfig),
+					  reinterpret_cast<void**>(&piConfig));
+					if (SUCCEEDED(hr))
+						mgb4 = true;
+					piFilter->Release();
+				}
+
+				CameraInfo ci(devname, mgb4 ? 0 : -1);
 				int i = 0;
 				while (list.contains(ci)) {
 					QString name(devname + QString(" #%1").arg(++i));
-					ci = CameraInfo(name, QString(), false);
+					ci = CameraInfo(name, mgb4 ? i : -1);
 				}
 
 				list.append(ci);

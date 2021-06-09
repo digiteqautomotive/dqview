@@ -59,6 +59,7 @@ private:
 
 	VideoPlayer *_player;
 	QString _device;
+	int _id;
 
 	QActionGroup *_deviceActionGroup;
 	QActionGroup *_resizeActionGroup;

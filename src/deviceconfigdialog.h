@@ -2,6 +2,9 @@
 #define DEVICECONFIGDIALOG_H
 
 #include <QDialog>
+#if defined(Q_OS_WIN32) || defined(Q_OS_CYGWIN)
+#include "fg4.h"
+#endif
 
 class QComboBox;
 class QSpinBox;
@@ -9,7 +12,8 @@ class QSpinBox;
 class DeviceConfigDialog : public QDialog
 {
 public:
-	DeviceConfigDialog(const QString &device, QWidget *parent = 0);
+	DeviceConfigDialog(const QString &device, int id, QWidget *parent = 0);
+	~DeviceConfigDialog();
 
 public slots:
 	void accept();
@@ -56,7 +60,11 @@ private:
 	bool setGMSLStreamId(unsigned streamId);
 	bool setGMSLFEC(GMSLFEC fec);
 
+#if defined(Q_OS_LINUX)
 	QString _device;
+#elif defined(Q_OS_WIN32) || defined(Q_OS_CYGWIN)
+	IFG4KsproxySampleConfig *_config;
+#endif
 
 	QComboBox *_colorMapping;
 	QComboBox *_oldiLineWidth;

@@ -1,0 +1,39 @@
+import "unknwn.idl";
+
+[
+    object,
+    uuid( 17a9bb56-727e-449f-bf0a-fac840e4d1ff ),
+    pointer_default(unique)
+]
+
+interface IFG4KsproxySampleConfig: IUnknown
+{
+    HRESULT GetOldiLink([out, retval] long* plOldiLink);
+    HRESULT SetOldiLink([in] long lOldiLink);
+    HRESULT GetGmslRate([out, retval] long* plRate);
+    HRESULT SetGmslRate([in] long lRate);
+    HRESULT GetStreamId([out, retval] long* plStreamId);
+    HRESULT SetStreamId([in] long lStreamId);
+    HRESULT GetColorMapping([out, retval] long* plColorMapping);
+    HRESULT SetColorMapping([in] long lColorMapping);
+    HRESULT GetGmslFEC([out, retval] long* plGmslFEC);
+    HRESULT SetGmslFEC([in] long lGmslFEC);
+    HRESULT GetVFlip([out, retval] long* plVFlip);
+    HRESULT SetVFlip([in] long lVFlip);
+    HRESULT GetChannel([out, retval] long* plChannel);
+    HRESULT GetDeGap2VS([out, retval] long* plDeGap2VS);
+    HRESULT SetDeGap2VS([in] long lDeGap2VS);
+    HRESULT GetDeGap2HS([out, retval] long* plDeGap2HS);
+    HRESULT SetDeGap2HS([in] long lDeGap2HS);
+    HRESULT GetHsStatus([out, retval] long* plGetHsStatus);
+    HRESULT GetVsStatus([out, retval] long* plVsStatus);
+    HRESULT GetLinkLckStatus([out, retval] long* plLinkLckStatus);
+    HRESULT GetPclkStatus([out, retval] long* plPclkStatus);
+    HRESULT GetFrameCounter([out, retval] long* plFrameCounter);
+    HRESULT GetFpdl3InputWidth([out, retval] long* plInputWidth);
+    HRESULT SetFpdl3InputWidth([in] long lInputWidth);
+    HRESULT GetFpgaFwId([out,retval] long* FpgaFwId);
+    HRESULT GetEncodeTriggers([out, retval] long* plEncodeTriggers);
+    HRESULT SetEncodeTriggers([in] long lEncodeTriggers);
+    HRESULT GetDetectedResolution([out, retval] long* plResolution);
+};

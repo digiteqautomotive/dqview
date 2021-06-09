@@ -44,7 +44,7 @@ static QString timeSpan(int time)
 		  .arg(s, 2, 10, QChar('0'));
 }
 
-GUI::GUI()
+GUI::GUI() : _id(-1)
 {
 	setWindowIcon(QIcon(":/app.png"));
 	setWindowTitle(APP_NAME);
@@ -358,7 +358,8 @@ void GUI::openDevice(QObject *device)
 	_player->setVideo(video);
 	_deviceNameLabel->setText(video->name());
 	_device = video->device();
-	_configureDeviceAction->setEnabled(!_device.isNull());
+	_id = video->id();
+	_configureDeviceAction->setEnabled(_id >= 0);
 
 	_playAction->setEnabled(true);
 }
@@ -413,7 +414,7 @@ void GUI::openOptions()
 
 void GUI::configureDevice()
 {
-	DeviceConfigDialog dialog(_device, this);
+	DeviceConfigDialog dialog(_device, _id, this);
 	dialog.exec();
 }
 

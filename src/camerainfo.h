@@ -12,7 +12,7 @@ public:
 		return _description.isEmpty()
 		  ? _device : _device + " - " + _description;
 	}
-	bool isMGB4() const {return _mgb4;}
+	int id() const {return _id;}
 
 	bool isNull() {return _device.isNull();}
 
@@ -24,17 +24,17 @@ public:
 	static QList<CameraInfo> availableCameras();
 
 private:
-	CameraInfo() : _mgb4(false) {}
-	CameraInfo(const QString &device, const QString &description, bool mgb4)
-	  : _device(device), _description(description), _mgb4(mgb4) {}
+	CameraInfo() : _id(-1) {}
+	CameraInfo(const QString &device, int id, const QString &description = QString())
+	  : _device(device), _description(description), _id(id) {}
 
 #if defined(Q_OS_LINUX)
-	static CameraInfo cameraInfo(const QString &device);
+	static CameraInfo cameraInfo(const QString &device, int *id);
 #endif // Q_OS_LINUX
 
 	QString _device;
 	QString _description;
-	bool _mgb4;
+	int _id;
 };
 
 #endif // CAMERAINFO_H

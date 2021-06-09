@@ -15,8 +15,3 @@ QString Camera::url() const
 
 	return url;
 }
-
-QString Camera::device() const
-{
-	return _cameraInfo.isMGB4() ? _cameraInfo.device() : QString();
-}
