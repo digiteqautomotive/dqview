@@ -227,9 +227,8 @@ static IFG4KsproxySampleConfig *config(int id)
 					else {
 						if (Xorder > 0) {
 							Xorder--;
-							piFilter->Release(); piFilter=NULL;
-							piConfig->Release(); piConfig=NULL;
-							hr = E_FAIL;
+							piFilter->Release();
+							piConfig->Release();
 						} else {
 							piFilter->Release();
 							piMoniker->Release();
