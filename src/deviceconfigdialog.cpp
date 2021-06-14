@@ -480,16 +480,16 @@ DeviceConfigDialog::DeviceConfigDialog(const QString &device, int id,
 	else if (hsyncStatus == ActiveHigh)
 		hsyncStatusLabel->setText(tr("Active High"));
 
-	QGroupBox *outputStatus = new QGroupBox(tr("Video Output"));
-	QFormLayout *outputStatusLayout = new QFormLayout();
-	outputStatusLayout->addRow(tr("Link Status:"), linkStatusLabel);
-	outputStatusLayout->addRow(tr("VSync Status:"), vsyncStatusLabel);
-	outputStatusLayout->addRow(tr("HSync Status:"), hsyncStatusLabel);
-	outputStatus->setLayout(outputStatusLayout);
+	QGroupBox *inputStatus = new QGroupBox(tr("Video Input"));
+	QFormLayout *inputStatusLayout = new QFormLayout();
+	inputStatusLayout->addRow(tr("Link Status:"), linkStatusLabel);
+	inputStatusLayout->addRow(tr("VSync Status:"), vsyncStatusLabel);
+	inputStatusLayout->addRow(tr("HSync Status:"), hsyncStatusLabel);
+	inputStatus->setLayout(inputStatusLayout);
 
 	QVBoxLayout *statusLayout = new QVBoxLayout();
 	statusLayout->addWidget(deviceStatus);
-	statusLayout->addWidget(outputStatus);
+	statusLayout->addWidget(inputStatus);
 
 	_colorMapping = new QComboBox();
 	_colorMapping->addItem(tr("OLDI/JEIDA"), QVariant(OLDI));
