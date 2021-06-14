@@ -93,6 +93,11 @@ bool DeviceConfigDialog::getSerialNumber(QString *serialNumber)
 	return readSysfsString("device/serial_number", serialNumber);
 }
 
+bool DeviceConfigDialog::getInputId(unsigned *id)
+{
+	return readSysfsInt("input_id", id);
+}
+
 bool DeviceConfigDialog::getLinkStatus(LinkStatus *status)
 {
 	return readSysfsInt("link_status", (unsigned*)status);
@@ -284,6 +289,11 @@ bool DeviceConfigDialog::getSerialNumber(QString *serialNumber)
 	return false;
 }
 
+bool DeviceConfigDialog::getInputId(unsigned *id)
+{
+	return (_config && SUCCEEDED(_config->GetChannel((long int*)id)));
+}
+
 bool DeviceConfigDialog::getLinkStatus(LinkStatus *status)
 {
 	return (_config && SUCCEEDED(_config->GetLinkLckStatus((long int*)status)));
@@ -453,6 +463,14 @@ DeviceConfigDialog::DeviceConfigDialog(const QString &device, int id,
 	deviceStatusLayout->addRow(tr("Serial Number:"), serialNumberLabel);
 	deviceStatus->setLayout(deviceStatusLayout);
 
+
+	unsigned inputId;
+	QLabel *inputIdLabel = new QLabel();
+	if (!getInputId(&inputId))
+		inputIdLabel->setText("N/A");
+	else
+		inputIdLabel->setText(QString::number(inputId));
+
 	LinkStatus linkStatus;
 	QLabel *linkStatusLabel = new QLabel();
 	if (!getLinkStatus(&linkStatus))
@@ -482,6 +500,7 @@ DeviceConfigDialog::DeviceConfigDialog(const QString &device, int id,
 
 	QGroupBox *inputStatus = new QGroupBox(tr("Video Input"));
 	QFormLayout *inputStatusLayout = new QFormLayout();
+	inputStatusLayout->addRow(tr("Input ID:"), inputIdLabel);
 	inputStatusLayout->addRow(tr("Link Status:"), linkStatusLabel);
 	inputStatusLayout->addRow(tr("VSync Status:"), vsyncStatusLabel);
 	inputStatusLayout->addRow(tr("HSync Status:"), hsyncStatusLabel);
