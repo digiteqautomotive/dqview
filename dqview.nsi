@@ -6,7 +6,7 @@
 ; The name of the installer
 Name "DQ Viewer"
 ; Program version
-!define VERSION "2.0"
+!define VERSION "2.1"
 
 ; The file to write
 OutFile "DQView-${VERSION}.exe"
