@@ -93,6 +93,11 @@ bool DeviceConfigDialog::getSerialNumber(QString *serialNumber)
 	return readSysfsString("device/serial_number", serialNumber);
 }
 
+bool DeviceConfigDialog::getInputId(unsigned *id)
+{
+	return readSysfsInt("input_id", id);
+}
+
 bool DeviceConfigDialog::getLinkStatus(LinkStatus *status)
 {
 	return readSysfsInt("link_status", (unsigned*)status);
@@ -306,6 +311,11 @@ bool DeviceConfigDialog::getSerialNumber(QString *serialNumber)
 	return true;
 }
 
+bool DeviceConfigDialog::getInputId(unsigned *id)
+{
+	return (_config && SUCCEEDED(_config->GetChannel((long int*)id)));
+}
+
 bool DeviceConfigDialog::getLinkStatus(LinkStatus *status)
 {
 	return (_config && SUCCEEDED(_config->GetLinkLckStatus((long int*)status)));
@@ -475,6 +485,14 @@ DeviceConfigDialog::DeviceConfigDialog(const QString &device, int id,
 	deviceStatusLayout->addRow(tr("Serial Number:"), serialNumberLabel);
 	deviceStatus->setLayout(deviceStatusLayout);
 
+
+	unsigned inputId;
+	QLabel *inputIdLabel = new QLabel();
+	if (!getInputId(&inputId))
+		inputIdLabel->setText("N/A");
+	else
+		inputIdLabel->setText(QString::number(inputId));
+
 	LinkStatus linkStatus;
 	QLabel *linkStatusLabel = new QLabel();
 	if (!getLinkStatus(&linkStatus))
@@ -502,16 +520,17 @@ DeviceConfigDialog::DeviceConfigDialog(const QString &device, int id,
 	else if (hsyncStatus == ActiveHigh)
 		hsyncStatusLabel->setText(tr("Active High"));
 
-	QGroupBox *outputStatus = new QGroupBox(tr("Video Output"));
-	QFormLayout *outputStatusLayout = new QFormLayout();
-	outputStatusLayout->addRow(tr("Link Status:"), linkStatusLabel);
-	outputStatusLayout->addRow(tr("VSync Status:"), vsyncStatusLabel);
-	outputStatusLayout->addRow(tr("HSync Status:"), hsyncStatusLabel);
-	outputStatus->setLayout(outputStatusLayout);
+	QGroupBox *inputStatus = new QGroupBox(tr("Video Input"));
+	QFormLayout *inputStatusLayout = new QFormLayout();
+	inputStatusLayout->addRow(tr("Input ID:"), inputIdLabel);
+	inputStatusLayout->addRow(tr("Link Status:"), linkStatusLabel);
+	inputStatusLayout->addRow(tr("VSync Status:"), vsyncStatusLabel);
+	inputStatusLayout->addRow(tr("HSync Status:"), hsyncStatusLabel);
+	inputStatus->setLayout(inputStatusLayout);
 
 	QVBoxLayout *statusLayout = new QVBoxLayout();
 	statusLayout->addWidget(deviceStatus);
-	statusLayout->addWidget(outputStatus);
+	statusLayout->addWidget(inputStatus);
 
 	_colorMapping = new QComboBox();
 	_colorMapping->addItem(tr("OLDI/JEIDA"), QVariant(OLDI));

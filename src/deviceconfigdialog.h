@@ -39,6 +39,7 @@ private:
 	bool getFwType(ModuleType *type);
 	bool getFwVersion(unsigned *version);
 	bool getSerialNumber(QString *serialNumber);
+	bool getInputId(unsigned *id);
 	bool getLinkStatus(LinkStatus *status);
 	bool getVSyncStatus(SyncStatus *status);
 	bool getHSyncStatus(SyncStatus *status);
