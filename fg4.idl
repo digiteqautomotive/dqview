@@ -36,4 +36,8 @@ interface IFG4KsproxySampleConfig: IUnknown
     HRESULT GetEncodeTriggers([out, retval] long* plEncodeTriggers);
     HRESULT SetEncodeTriggers([in] long lEncodeTriggers);
     HRESULT GetDetectedResolution([out, retval] long* plResolution);
+    HRESULT GetPclkFrequency([out, retval] long* plPclkFrequency);
+    HRESULT GetCardSerial([out, retval] long* plSerialNum);
+    HRESULT GetModuleId([out, retval] long* plModuleId);
+    HRESULT GetDroppedFrames([out, retval] long* plDroppedFrames);
 };

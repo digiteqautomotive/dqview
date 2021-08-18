@@ -249,12 +249,24 @@ static IFG4KsproxySampleConfig *config(int id)
 
 bool DeviceConfigDialog::getModuleType(ModuleType *type)
 {
-	return false;
+	long val;
+
+	if (!_config || FAILED(_config->GetModuleId(&val)))
+		return false;
+	*type = (ModuleType)((unsigned)val >> 4);
+
+	return true;
 }
 
 bool DeviceConfigDialog::getModuleVersion(unsigned *version)
 {
-	return false;
+	long val;
+
+	if (!_config || FAILED(_config->GetModuleId(&val)))
+		return false;
+	*version = ((unsigned)val & 0x0F);
+
+	return true;
 }
 
 bool DeviceConfigDialog::getFwType(ModuleType *type)
@@ -281,7 +293,17 @@ bool DeviceConfigDialog::getFwVersion(unsigned *version)
 
 bool DeviceConfigDialog::getSerialNumber(QString *serialNumber)
 {
-	return false;
+	long val;
+	char buf[16];
+
+	if (!_config || FAILED(_config->GetCardSerial(&val)))
+		return false;
+	sprintf(buf, "%03u-%03u-%03u-%03u", (unsigned)val >> 24,
+	  ((unsigned)val >> 16) & 0xFF, ((unsigned)val >> 8) & 0xFF,
+	  (unsigned)val & 0xFF);
+	*serialNumber = QString(buf);
+
+	return true;
 }
 
 bool DeviceConfigDialog::getLinkStatus(LinkStatus *status)
