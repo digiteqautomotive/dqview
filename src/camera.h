@@ -15,8 +15,7 @@ public:
 
 	QString url() const;
 	QString name() const {return _cameraInfo.name();}
-	QString device() const {return _cameraInfo.device();}
-	int id() const {return _cameraInfo.id();}
+	Device device() const {return _cameraInfo.device();}
 
 private:
 	CameraInfo _cameraInfo;

@@ -3,6 +3,7 @@
 
 #include <QObject>
 #include <QString>
+#include "device.h"
 
 class Video : public QObject
 {
@@ -14,8 +15,7 @@ public:
 
 	virtual QString url() const = 0;
 	virtual QString name() const = 0;
-	virtual QString device() const {return QString();}
-	virtual int id() const {return -1;}
+	virtual Device device() const {return Device();}
 };
 
 #endif // VIDEO_H

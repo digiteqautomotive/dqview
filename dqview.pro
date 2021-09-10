@@ -21,6 +21,7 @@ SOURCES += src/main.cpp \
     src/videoplayer.cpp \
     src/camerainfo.cpp
 HEADERS += src/application.h \
+    src/device.h \
     src/deviceconfigdialog.h \
     src/gui.h \
     src/log.h \

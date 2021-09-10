@@ -1,5 +1,6 @@
 #include <QMainWindow>
 #include "options.h"
+#include "video.h"
 
 class QCloseEvent;
 class QKeyEvent;
@@ -58,8 +59,7 @@ private:
 	QSize sizeHint() const {return QSize(640, 480);}
 
 	VideoPlayer *_player;
-	QString _device;
-	int _id;
+	Device _device;
 
 	QActionGroup *_deviceActionGroup;
 	QActionGroup *_resizeActionGroup;

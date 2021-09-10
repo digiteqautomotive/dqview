@@ -2,6 +2,7 @@
 #define DEVICECONFIGDIALOG_H
 
 #include <QDialog>
+#include "device.h"
 #if defined(Q_OS_WIN32) || defined(Q_OS_CYGWIN)
 #include "fg4.h"
 #endif
@@ -12,14 +13,36 @@ class QSpinBox;
 class DeviceConfigDialog : public QDialog
 {
 public:
-	DeviceConfigDialog(const QString &device, int id, QWidget *parent = 0);
-	~DeviceConfigDialog();
+	DeviceConfigDialog(const Device &device, QWidget *parent = 0);
+
+protected:
+	enum ModuleType {None, FPDL3, GMSL};
+
+	bool getModuleType(ModuleType *type);
+	bool getModuleVersion(unsigned *version);
+	bool getFwType(ModuleType *type);
+	bool getFwVersion(unsigned *version);
+	bool getSerialNumber(QString *serialNumber);
+
+#if defined(Q_OS_LINUX)
+	bool readSysfsInt(const QString &path, unsigned *val);
+	bool readSysfsString(const QString &path, QString *val);
+	bool writeSysfsInt(const QString &path, unsigned val);
+
+	QString _device;
+#endif
+};
+
+class InputConfigDialog : public DeviceConfigDialog
+{
+public:
+	InputConfigDialog(const Device &device, QWidget *parent = 0);
+	~InputConfigDialog();
 
 public slots:
 	void accept();
 
 private:
-	enum ModuleType {None, FPDL3, GMSL};
 	enum LinkStatus {Unlocked, Locked};
 	enum SyncStatus {ActiveLow, ActiveHigh, NotAvailable};
 	enum ColorMapping {OLDI, SPWG};
@@ -28,17 +51,6 @@ private:
 	enum GMSLMode {GMSL12Gb, GMSL6Gb, GMSL3Gb, GMSL1GB};
 	enum GMSLFEC {GMSLFECDisabled, GMSLFECEnabled};
 
-#if defined(Q_OS_LINUX)
-	bool readSysfsInt(const QString &path, unsigned *val);
-	bool readSysfsString(const QString &path, QString *val);
-	bool writeSysfsInt(const QString &path, unsigned val);
-#endif
-
-	bool getModuleType(ModuleType *type);
-	bool getModuleVersion(unsigned *version);
-	bool getFwType(ModuleType *type);
-	bool getFwVersion(unsigned *version);
-	bool getSerialNumber(QString *serialNumber);
 	bool getInputId(unsigned *id);
 	bool getLinkStatus(LinkStatus *status);
 	bool getVSyncStatus(SyncStatus *status);
@@ -61,9 +73,7 @@ private:
 	bool setGMSLStreamId(unsigned streamId);
 	bool setGMSLFEC(GMSLFEC fec);
 
-#if defined(Q_OS_LINUX)
-	QString _device;
-#elif defined(Q_OS_WIN32) || defined(Q_OS_CYGWIN)
+#if defined(Q_OS_WIN32) || defined(Q_OS_CYGWIN)
 	IFG4KsproxySampleConfig *_config;
 #endif
 
@@ -75,6 +85,19 @@ private:
 	QComboBox *_gmslMode;
 	QComboBox *_gmslStreamId;
 	QComboBox *_gmslFec;
+};
+
+class OutputConfigDialog : public DeviceConfigDialog
+{
+public:
+	OutputConfigDialog(const Device &device, QWidget *parent = 0);
+	~OutputConfigDialog();
+
+public slots:
+	void accept();
+
+private:
+	bool getOutputId(unsigned *id);
 };
 
 #endif // DEVICECONFIGDIALOG_H

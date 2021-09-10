@@ -17,23 +17,29 @@ CameraInfo CameraInfo::cameraInfo(const QString &device, int *id)
 	QFileInfo fi(device);
 	QDir sysfsDir("/sys/class/video4linux/");
 	QDir deviceDir(sysfsDir.filePath(fi.fileName()));
-	bool mgb4 = deviceDir.exists("color_mapping")
+	// Use some mgb4-unique properties for detection
+	bool mgb4In = deviceDir.exists("color_mapping")
 	  && deviceDir.exists("oldi_lane_width");
+	bool mgb4Out = deviceDir.exists("display_height")
+	  && deviceDir.exists("frame_rate");
 
 	QByteArray ba = device.toLatin1();
 	struct v4l2_capability vcap;
 	int fd;
 
 	if ((fd = open(ba.constData(), O_RDWR)) < 0)
-		return mgb4
-		  ? CameraInfo(device, *id++, "MGB4 PCIe Card")
+		return mgb4In || mgb4Out
+		  ? CameraInfo(Device(mgb4In ? Device::Input : Device::Output,
+			*id++, device), "MGB4 PCIe Card")
 		  : CameraInfo();
+
 	int err = ioctl(fd, VIDIOC_QUERYCAP, &vcap);
 	close(fd);
 
 	return err
 	  ? CameraInfo()
-	  : CameraInfo(device, mgb4 ? *id++ : -1, (const char *)vcap.card);
+	  : CameraInfo(Device(mgb4In ? Device::Input : Device::Output,
+		mgb4In || mgb4Out ? *id++ : -1, device), (const char *)vcap.card);
 }
 
 QList<CameraInfo> CameraInfo::availableCameras()

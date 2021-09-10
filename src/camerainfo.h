@@ -2,39 +2,38 @@
 #define CAMERAINFO_H
 
 #include <QList>
+#include "device.h"
 
 class CameraInfo
 {
 public:
-	const QString &device() const {return _device;}
+	const Device &device() const {return _device;}
 	QString name() const
 	{
 		return _description.isEmpty()
-		  ? _device : _device + " - " + _description;
+		  ? _device.name() : _device.name() + " - " + _description;
 	}
-	int id() const {return _id;}
 
-	bool isNull() {return _device.isNull();}
+	bool isNull() {return _device.name().isNull();}
 
 	bool operator==(const CameraInfo &other) const
 	  {return (_device == other._device);}
 	bool operator<(const CameraInfo &other) const
-	  {return (_device < other._device);}
+	  {return (_device.name() < other._device.name());}
 
 	static QList<CameraInfo> availableCameras();
 
 private:
-	CameraInfo() : _id(-1) {}
-	CameraInfo(const QString &device, int id, const QString &description = QString())
-	  : _device(device), _description(description), _id(id) {}
+	CameraInfo() {}
+	CameraInfo(const Device &device, const QString &description = QString())
+	  : _device(device), _description(description) {}
 
 #if defined(Q_OS_LINUX)
 	static CameraInfo cameraInfo(const QString &device, int *id);
 #endif // Q_OS_LINUX
 
-	QString _device;
+	Device _device;
 	QString _description;
-	int _id;
 };
 
 #endif // CAMERAINFO_H

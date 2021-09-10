@@ -93,106 +93,110 @@ bool DeviceConfigDialog::getSerialNumber(QString *serialNumber)
 	return readSysfsString("device/serial_number", serialNumber);
 }
 
-bool DeviceConfigDialog::getInputId(unsigned *id)
+bool InputConfigDialog::getInputId(unsigned *id)
 {
 	return readSysfsInt("input_id", id);
 }
 
-bool DeviceConfigDialog::getLinkStatus(LinkStatus *status)
+bool InputConfigDialog::getLinkStatus(LinkStatus *status)
 {
 	return readSysfsInt("link_status", (unsigned*)status);
 }
 
-bool DeviceConfigDialog::getVSyncStatus(SyncStatus *status)
+bool InputConfigDialog::getVSyncStatus(SyncStatus *status)
 {
 	return readSysfsInt("vsync_status", (unsigned*)status);
 }
 
-bool DeviceConfigDialog::getHSyncStatus(SyncStatus *status)
+bool InputConfigDialog::getHSyncStatus(SyncStatus *status)
 {
 	return readSysfsInt("hsync_status", (unsigned*)status);
 }
 
-bool DeviceConfigDialog::getColorMapping(ColorMapping *mapping)
+bool InputConfigDialog::getColorMapping(ColorMapping *mapping)
 {
 	return readSysfsInt("color_mapping", (unsigned*)mapping);
 }
 
-bool DeviceConfigDialog::setColorMapping(ColorMapping mapping)
+bool InputConfigDialog::setColorMapping(ColorMapping mapping)
 {
 	return writeSysfsInt("color_mapping", mapping);
 }
 
-bool DeviceConfigDialog::getLaneWidth(LineWidth *lineWidth)
+bool InputConfigDialog::getLaneWidth(LineWidth *lineWidth)
 {
 	return readSysfsInt("oldi_lane_width", (unsigned*)lineWidth);
 }
 
-bool DeviceConfigDialog::setLaneWidth(LineWidth lineWidth)
+bool InputConfigDialog::setLaneWidth(LineWidth lineWidth)
 {
 	return writeSysfsInt("oldi_lane_width", lineWidth);
 }
 
-bool DeviceConfigDialog::getVSyncGapLength(unsigned *length)
+bool InputConfigDialog::getVSyncGapLength(unsigned *length)
 {
 	return readSysfsInt("vsync_gap_length", length);
 }
 
-bool DeviceConfigDialog::setVSyncGapLength(unsigned length)
+bool InputConfigDialog::setVSyncGapLength(unsigned length)
 {
 	return writeSysfsInt("vsync_gap_length", length);
 }
 
-bool DeviceConfigDialog::getHSyncGapLength(unsigned *length)
+bool InputConfigDialog::getHSyncGapLength(unsigned *length)
 {
 	return readSysfsInt("hsync_gap_length", length);
 }
 
-bool DeviceConfigDialog::setHSyncGapLength(unsigned length)
+bool InputConfigDialog::setHSyncGapLength(unsigned length)
 {
 	return writeSysfsInt("hsync_gap_length", length);
 }
 
-bool DeviceConfigDialog::getFPDL3InputWidth(FPDL3InputWidth *width)
+bool InputConfigDialog::getFPDL3InputWidth(FPDL3InputWidth *width)
 {
 	return readSysfsInt("fpdl3_input_width", (unsigned*)width);
 }
 
-bool DeviceConfigDialog::setFPDL3InputWidth(FPDL3InputWidth width)
+bool InputConfigDialog::setFPDL3InputWidth(FPDL3InputWidth width)
 {
 	return writeSysfsInt("fpdl3_input_width", width);
 }
 
-bool DeviceConfigDialog::getGMSLMode(GMSLMode *mode)
+bool InputConfigDialog::getGMSLMode(GMSLMode *mode)
 {
 	return readSysfsInt("gmsl_mode", (unsigned*)mode);
 }
 
-bool DeviceConfigDialog::setGMSLMode(GMSLMode mode)
+bool InputConfigDialog::setGMSLMode(GMSLMode mode)
 {
 	return writeSysfsInt("gmsl_mode", mode);
 }
 
-bool DeviceConfigDialog::getGMSLStreamId(unsigned *streamId)
+bool InputConfigDialog::getGMSLStreamId(unsigned *streamId)
 {
 	return readSysfsInt("gmsl_stream_id", streamId);
 }
 
-bool DeviceConfigDialog::setGMSLStreamId(unsigned streamId)
+bool InputConfigDialog::setGMSLStreamId(unsigned streamId)
 {
 	return writeSysfsInt("gmsl_stream_id", streamId);
 }
 
-bool DeviceConfigDialog::getGMSLFEC(GMSLFEC *fec)
+bool InputConfigDialog::getGMSLFEC(GMSLFEC *fec)
 {
 	return readSysfsInt("gmsl_fec", (unsigned*)fec);
 }
 
-bool DeviceConfigDialog::setGMSLFEC(GMSLFEC fec)
+bool InputConfigDialog::setGMSLFEC(GMSLFEC fec)
 {
 	return writeSysfsInt("gmsl_fec", fec);
 }
 
+bool OutputConfigDialog::getOutputId(unsigned *id)
+{
+	return readSysfsInt("output_id", id);
+}
 
 #elif defined(Q_OS_WIN32) || defined(Q_OS_CYGWIN)
 
@@ -416,19 +420,25 @@ bool DeviceConfigDialog::setGMSLFEC(GMSLFEC fec)
 #endif
 
 
-DeviceConfigDialog::DeviceConfigDialog(const QString &device, int id,
-  QWidget *parent) : QDialog(parent, Qt::WindowSystemMenuHint | Qt::WindowTitleHint),
-  _fpdl3InputWidth(0), _gmslMode(0), _gmslStreamId(0), _gmslFec(0)
+DeviceConfigDialog::DeviceConfigDialog(const Device &device, QWidget *parent)
+  : QDialog(parent, Qt::WindowSystemMenuHint | Qt::WindowTitleHint)
 {
 #if defined(Q_OS_LINUX)
-	Q_UNUSED(id);
-	_device = device;
-#elif defined(Q_OS_WIN32) || defined(Q_OS_CYGWIN)
-	_config = config(id);
+	_device = device.name();
 #endif
 
 	setModal(true);
-	setWindowTitle(tr("%1 Configuration").arg(device));
+	setWindowTitle(tr("%1 Configuration").arg(device.name()));
+}
+
+
+InputConfigDialog::InputConfigDialog(const Device &device, QWidget *parent)
+  : DeviceConfigDialog(device, parent), _fpdl3InputWidth(0), _gmslMode(0),
+  _gmslStreamId(0), _gmslFec(0)
+{
+#if defined(Q_OS_WIN32) || defined(Q_OS_CYGWIN)
+	_config = config(device.id());
+#endif
 
 	QDialogButtonBox *buttonBox = new QDialogButtonBox(QDialogButtonBox::Ok
 	  | QDialogButtonBox::Cancel);
@@ -640,7 +650,7 @@ DeviceConfigDialog::DeviceConfigDialog(const QString &device, int id,
 	show();
 }
 
-DeviceConfigDialog::~DeviceConfigDialog()
+InputConfigDialog::~InputConfigDialog()
 {
 #if defined(Q_OS_WIN32) || defined(Q_OS_CYGWIN)
 	if (_config)
@@ -648,7 +658,7 @@ DeviceConfigDialog::~DeviceConfigDialog()
 #endif
 }
 
-void DeviceConfigDialog::accept()
+void InputConfigDialog::accept()
 {
 	bool ret = true;
 
@@ -672,5 +682,110 @@ void DeviceConfigDialog::accept()
 		QMessageBox::critical(this, tr("Error"),
 		  tr("Error changing device configuration"));
 
+	QDialog::accept();
+}
+
+
+OutputConfigDialog::OutputConfigDialog(const Device &device, QWidget *parent)
+  : DeviceConfigDialog(device, parent)
+{
+	QDialogButtonBox *buttonBox = new QDialogButtonBox(QDialogButtonBox::Ok
+	  | QDialogButtonBox::Cancel);
+
+	connect(buttonBox, &QDialogButtonBox::accepted, this, &QDialog::accept);
+	connect(buttonBox, &QDialogButtonBox::rejected, this, &QDialog::reject);
+
+
+	ModuleType moduleType = None;
+	QLabel *moduleTypeLabel = new QLabel();
+	if (!getModuleType(&moduleType))
+		moduleTypeLabel->setText(tr("N/A"));
+	else if (moduleType == GMSL)
+		moduleTypeLabel->setText("GMSL");
+	else if (moduleType == FPDL3)
+		moduleTypeLabel->setText("FPDL3");
+
+	unsigned moduleVersion;
+	QLabel *moduleVersionLabel = new QLabel();
+	if (getModuleVersion(&moduleVersion))
+		moduleVersionLabel->setText(QString::number(moduleVersion));
+	else
+		moduleVersionLabel->setText(tr("N/A"));
+
+	ModuleType fwType = None;
+	QLabel *fwTypeLabel = new QLabel();
+	if (!getFwType(&fwType))
+		fwTypeLabel->setText(tr("N/A"));
+	else if (fwType == GMSL)
+		fwTypeLabel->setText("GMSL");
+	else if (fwType == FPDL3)
+		fwTypeLabel->setText("FPDL3");
+
+	unsigned fwVersion;
+	QLabel *fwVersionLabel = new QLabel();
+	if (getFwVersion(&fwVersion))
+		fwVersionLabel->setText(QString::number(fwVersion));
+	else
+		fwVersionLabel->setText(tr("N/A"));
+
+	QString serialNumber;
+	QLabel *serialNumberLabel = new QLabel();
+	if (getSerialNumber(&serialNumber))
+		serialNumberLabel->setText(serialNumber);
+	else
+		serialNumberLabel->setText(tr("N/A"));
+
+	QGroupBox *deviceStatus = new QGroupBox(tr("PCI Card"));
+	QFormLayout *deviceStatusLayout = new QFormLayout();
+	deviceStatusLayout->addRow(tr("Module Type:"), moduleTypeLabel);
+	deviceStatusLayout->addRow(tr("Module Version:"), moduleVersionLabel);
+	deviceStatusLayout->addRow(tr("Firmware Type:"), fwTypeLabel);
+	deviceStatusLayout->addRow(tr("Firmware Version:"), fwVersionLabel);
+	deviceStatusLayout->addRow(tr("Serial Number:"), serialNumberLabel);
+	deviceStatus->setLayout(deviceStatusLayout);
+
+
+	unsigned outputId;
+	QLabel *outputIdLabel = new QLabel();
+	if (!getOutputId(&outputId))
+		outputIdLabel->setText("N/A");
+	else
+		outputIdLabel->setText(QString::number(outputId));
+
+	QGroupBox *outputStatus = new QGroupBox(tr("Video Output"));
+	QFormLayout *outputStatusLayout = new QFormLayout();
+	outputStatusLayout->addRow(tr("Output ID:"), outputIdLabel);
+	outputStatus->setLayout(outputStatusLayout);
+
+	QVBoxLayout *statusLayout = new QVBoxLayout();
+	statusLayout->addWidget(deviceStatus);
+	statusLayout->addWidget(outputStatus);
+
+	QVBoxLayout *configLayout = new QVBoxLayout();
+
+	QWidget *statusPage = new QWidget();
+	statusPage->setLayout(statusLayout);
+	QWidget *configPage = new QWidget();
+	configPage->setLayout(configLayout);
+
+	QTabWidget *tabWidget = new QTabWidget();
+	tabWidget->addTab(statusPage, tr("Status"));
+	tabWidget->addTab(configPage, tr("Configuration"));
+
+	QVBoxLayout *layout = new QVBoxLayout(this);
+	layout->addWidget(tabWidget);
+	layout->addWidget(buttonBox);
+	show();
+}
+
+OutputConfigDialog::~OutputConfigDialog()
+{
+#if defined(Q_OS_WIN32) || defined(Q_OS_CYGWIN)
+	// TODO
+#endif
+}
+
+void OutputConfigDialog::accept()
+{
 	QDialog::accept();
 }
