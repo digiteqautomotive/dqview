@@ -7,3 +7,7 @@ SUBSYSTEM=="video4linux", SUBSYSTEMS=="pci", ATTRS{vendor}=="0x1ed8", ATTRS{devi
 SUBSYSTEM=="video4linux", SUBSYSTEMS=="pci", ATTRS{vendor}=="0x1ed8", ATTRS{device}=="0x0101", ACTION=="add", RUN+="/bin/chgrp video %S%p/gmsl_mode", RUN+="/bin/chmod g=u %S%p/gmsl_mode"
 SUBSYSTEM=="video4linux", SUBSYSTEMS=="pci", ATTRS{vendor}=="0x1ed8", ATTRS{device}=="0x0101", ACTION=="add", RUN+="/bin/chgrp video %S%p/gmsl_stream_id", RUN+="/bin/chmod g=u %S%p/gmsl_stream_id"
 SUBSYSTEM=="video4linux", SUBSYSTEMS=="pci", ATTRS{vendor}=="0x1ed8", ATTRS{device}=="0x0101", ACTION=="add", RUN+="/bin/chgrp video %S%p/gmsl_fec", RUN+="/bin/chmod g=u %S%p/gmsl_fec"
+SUBSYSTEM=="video4linux", SUBSYSTEMS=="pci", ATTRS{vendor}=="0x1ed8", ATTRS{device}=="0x0101", ACTION=="add", RUN+="/bin/chgrp video %S%p/display_width", RUN+="/bin/chmod g=u %S%p/display_width"
+SUBSYSTEM=="video4linux", SUBSYSTEMS=="pci", ATTRS{vendor}=="0x1ed8", ATTRS{device}=="0x0101", ACTION=="add", RUN+="/bin/chgrp video %S%p/display_height", RUN+="/bin/chmod g=u %S%p/display_height"
+SUBSYSTEM=="video4linux", SUBSYSTEMS=="pci", ATTRS{vendor}=="0x1ed8", ATTRS{device}=="0x0101", ACTION=="add", RUN+="/bin/chgrp video %S%p/frame_rate", RUN+="/bin/chmod g=u %S%p/frame_rate"
+SUBSYSTEM=="video4linux", SUBSYSTEMS=="pci", ATTRS{vendor}=="0x1ed8", ATTRS{device}=="0x0101", ACTION=="add", RUN+="/bin/chgrp video %S%p/video_source", RUN+="/bin/chmod g=u %S%p/video_source"
