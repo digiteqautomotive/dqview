@@ -198,6 +198,46 @@ bool OutputConfigDialog::getOutputId(unsigned *id)
 	return readSysfsInt("output_id", id);
 }
 
+bool OutputConfigDialog::getDisplayWidth(unsigned *width)
+{
+	return readSysfsInt("display_width", width);
+}
+
+bool OutputConfigDialog::setDisplayWidth(unsigned int width)
+{
+	return writeSysfsInt("display_width", width);
+}
+
+bool OutputConfigDialog::getDisplayHeight(unsigned *height)
+{
+	return readSysfsInt("display_height", height);
+}
+
+bool OutputConfigDialog::setDisplayHeight(unsigned int height)
+{
+	return writeSysfsInt("display_height", height);
+}
+
+bool OutputConfigDialog::getFrameRate(unsigned *frameRate)
+{
+	return readSysfsInt("frame_rate", frameRate);
+}
+
+bool OutputConfigDialog::setFrameRate(unsigned frameRate)
+{
+	return writeSysfsInt("frame_rate", frameRate);
+}
+
+bool OutputConfigDialog::getVideoSource(unsigned *source)
+{
+	return readSysfsInt("video_source", source);
+}
+
+bool OutputConfigDialog::setVideoSource(unsigned source)
+{
+	return writeSysfsInt("video_source", source);
+}
+
 #elif defined(Q_OS_WIN32) || defined(Q_OS_CYGWIN)
 
 #include <Windows.h>
@@ -761,7 +801,38 @@ OutputConfigDialog::OutputConfigDialog(const Device &device, QWidget *parent)
 	statusLayout->addWidget(deviceStatus);
 	statusLayout->addWidget(outputStatus);
 
+	unsigned val;
+	_displayWidth = new QSpinBox();
+	_displayWidth->setMaximum(8192);
+	if (getDisplayWidth(&val))
+		_displayWidth->setValue(val);
+	_displayHeight = new QSpinBox();
+	_displayHeight->setMaximum(8192);
+	if (getDisplayHeight(&val))
+		_displayHeight->setValue(val);
+	_frameRate = new QSpinBox();
+	_frameRate->setMaximum(200);
+	if (getFrameRate(&val))
+		_frameRate->setValue(val);
+
+	_videoSource = new QComboBox();
+	_videoSource->addItem(tr("Input 0"), QVariant(0));
+	_videoSource->addItem(tr("Input 1"), QVariant(1));
+	_videoSource->addItem(tr("PC Output 0"), QVariant(2));
+	_videoSource->addItem(tr("PC Output 1"), QVariant(3));
+	if (getVideoSource(&val))
+		_videoSource->setCurrentIndex(_videoSource->findData((int)val));
+
+	QGroupBox *commonConfig = new QGroupBox(tr("Common"));
+	QFormLayout *commonConfigLayout = new QFormLayout();
+	commonConfigLayout->addRow(tr("Display Width:"), _displayWidth);
+	commonConfigLayout->addRow(tr("Display Height:"), _displayHeight);
+	commonConfigLayout->addRow(tr("Frame Rate:"), _frameRate);
+	commonConfigLayout->addRow(tr("Video Source:"), _videoSource);
+	commonConfig->setLayout(commonConfigLayout);
+
 	QVBoxLayout *configLayout = new QVBoxLayout();
+	configLayout->addWidget(commonConfig);
 
 	QWidget *statusPage = new QWidget();
 	statusPage->setLayout(statusLayout);
@@ -787,5 +858,16 @@ OutputConfigDialog::~OutputConfigDialog()
 
 void OutputConfigDialog::accept()
 {
+	bool ret = true;
+
+	ret &= setDisplayWidth(_displayWidth->value());
+	ret &= setDisplayHeight(_displayHeight->value());
+	ret &= setFrameRate(_frameRate->value());
+	ret &= setVideoSource(_videoSource->currentData().toUInt());
+
+	if (!ret)
+		QMessageBox::critical(this, tr("Error"),
+		  tr("Error changing device configuration"));
+
 	QDialog::accept();
 }

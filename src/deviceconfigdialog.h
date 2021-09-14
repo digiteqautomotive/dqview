@@ -98,6 +98,20 @@ public slots:
 
 private:
 	bool getOutputId(unsigned *id);
+	bool getDisplayWidth(unsigned *width);
+	bool getDisplayHeight(unsigned *height);
+	bool getFrameRate(unsigned *frameRate);
+	bool getVideoSource(unsigned *source);
+
+	bool setDisplayWidth(unsigned width);
+	bool setDisplayHeight(unsigned height);
+	bool setFrameRate(unsigned frameRate);
+	bool setVideoSource(unsigned source);
+
+	QSpinBox *_displayWidth;
+	QSpinBox *_displayHeight;
+	QSpinBox *_frameRate;
+	QComboBox *_videoSource;
 };
 
 #endif // DEVICECONFIGDIALOG_H
