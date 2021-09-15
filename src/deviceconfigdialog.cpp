@@ -355,104 +355,149 @@ bool DeviceConfigDialog::getSerialNumber(QString *serialNumber)
 	return true;
 }
 
-bool DeviceConfigDialog::getInputId(unsigned *id)
+bool InputConfigDialog::getInputId(unsigned *id)
 {
 	return (_config && SUCCEEDED(_config->GetChannel((long int*)id)));
 }
 
-bool DeviceConfigDialog::getLinkStatus(LinkStatus *status)
+bool InputConfigDialog::getLinkStatus(LinkStatus *status)
 {
 	return (_config && SUCCEEDED(_config->GetLinkLckStatus((long int*)status)));
 }
 
-bool DeviceConfigDialog::getVSyncStatus(SyncStatus *status)
+bool InputConfigDialog::getVSyncStatus(SyncStatus *status)
 {
 	return (_config && SUCCEEDED(_config->GetVsStatus((long int*)status)));
 }
 
-bool DeviceConfigDialog::getHSyncStatus(SyncStatus *status)
+bool InputConfigDialog::getHSyncStatus(SyncStatus *status)
 {
 	return (_config && SUCCEEDED(_config->GetHsStatus((long int*)status)));
 }
 
-bool DeviceConfigDialog::getColorMapping(ColorMapping *mapping)
+bool InputConfigDialog::getColorMapping(ColorMapping *mapping)
 {
 	return (_config && SUCCEEDED(_config->GetColorMapping((long int*)mapping)));
 }
 
-bool DeviceConfigDialog::setColorMapping(ColorMapping mapping)
+bool InputConfigDialog::setColorMapping(ColorMapping mapping)
 {
 	return (_config && SUCCEEDED(_config->SetColorMapping(mapping)));
 }
 
-bool DeviceConfigDialog::getLaneWidth(LineWidth *lineWidth)
+bool InputConfigDialog::getLaneWidth(LineWidth *lineWidth)
 {
 	return (_config && SUCCEEDED(_config->GetOldiLink((long int*)lineWidth)));
 }
 
-bool DeviceConfigDialog::setLaneWidth(LineWidth lineWidth)
+bool InputConfigDialog::setLaneWidth(LineWidth lineWidth)
 {
 	return (_config && SUCCEEDED(_config->SetOldiLink(lineWidth)));
 }
 
-bool DeviceConfigDialog::getVSyncGapLength(unsigned *length)
+bool InputConfigDialog::getVSyncGapLength(unsigned *length)
 {
 	return (_config && SUCCEEDED(_config->GetDeGap2VS((long int*)length)));
 }
 
-bool DeviceConfigDialog::setVSyncGapLength(unsigned length)
+bool InputConfigDialog::setVSyncGapLength(unsigned length)
 {
 	return (_config && SUCCEEDED(_config->SetDeGap2VS(length)));
 }
 
-bool DeviceConfigDialog::getHSyncGapLength(unsigned *length)
+bool InputConfigDialog::getHSyncGapLength(unsigned *length)
 {
 	return (_config && SUCCEEDED(_config->GetDeGap2HS((long int*)length)));
 }
 
-bool DeviceConfigDialog::setHSyncGapLength(unsigned length)
+bool InputConfigDialog::setHSyncGapLength(unsigned length)
 {
 	return (_config && SUCCEEDED(_config->SetDeGap2HS(length)));
 }
 
-bool DeviceConfigDialog::getFPDL3InputWidth(FPDL3InputWidth *width)
+bool InputConfigDialog::getFPDL3InputWidth(FPDL3InputWidth *width)
 {
 	return (_config && SUCCEEDED(_config->GetFpdl3InputWidth((long int*)width)));
 }
 
-bool DeviceConfigDialog::setFPDL3InputWidth(FPDL3InputWidth width)
+bool InputConfigDialog::setFPDL3InputWidth(FPDL3InputWidth width)
 {
 	return (_config && SUCCEEDED(_config->SetFpdl3InputWidth(width)));
 }
 
-bool DeviceConfigDialog::getGMSLMode(GMSLMode *mode)
+bool InputConfigDialog::getGMSLMode(GMSLMode *mode)
 {
 	return (_config && SUCCEEDED(_config->GetGmslRate((long int*)mode)));
 }
 
-bool DeviceConfigDialog::setGMSLMode(GMSLMode mode)
+bool InputConfigDialog::setGMSLMode(GMSLMode mode)
 {
 	return (_config && SUCCEEDED(_config->SetGmslRate(mode)));
 }
 
-bool DeviceConfigDialog::getGMSLStreamId(unsigned *streamId)
+bool InputConfigDialog::getGMSLStreamId(unsigned *streamId)
 {
 	return (_config && SUCCEEDED(_config->GetStreamId((long int*)streamId)));
 }
 
-bool DeviceConfigDialog::setGMSLStreamId(unsigned streamId)
+bool InputConfigDialog::setGMSLStreamId(unsigned streamId)
 {
 	return (_config && SUCCEEDED(_config->SetStreamId(streamId)));
 }
 
-bool DeviceConfigDialog::getGMSLFEC(GMSLFEC *fec)
+bool InputConfigDialog::getGMSLFEC(GMSLFEC *fec)
 {
 	return (_config && SUCCEEDED(_config->GetGmslFEC((long int*)fec)));
 }
 
-bool DeviceConfigDialog::setGMSLFEC(GMSLFEC fec)
+bool InputConfigDialog::setGMSLFEC(GMSLFEC fec)
 {
 	return (_config && SUCCEEDED(_config->SetGmslFEC(fec)));
+}
+
+bool OutputConfigDialog::getOutputId(unsigned *id)
+{
+	return false;
+}
+
+bool OutputConfigDialog::getDisplayWidth(unsigned *width)
+{
+	return false;
+}
+
+bool OutputConfigDialog::setDisplayWidth(unsigned int width)
+{
+	return false;
+}
+
+bool OutputConfigDialog::getDisplayHeight(unsigned *height)
+{
+	return false;
+}
+
+bool OutputConfigDialog::setDisplayHeight(unsigned int height)
+{
+	return false;
+}
+
+bool OutputConfigDialog::getFrameRate(unsigned *frameRate)
+{
+	return false;
+}
+
+bool OutputConfigDialog::setFrameRate(unsigned frameRate)
+{
+	return false;
+}
+
+bool OutputConfigDialog::getVideoSource(unsigned *source)
+{
+	return false;
+}
+
+bool OutputConfigDialog::setVideoSource(unsigned source)
+{
+	return false;
 }
 
 #else
@@ -465,10 +510,19 @@ DeviceConfigDialog::DeviceConfigDialog(const Device &device, QWidget *parent)
 {
 #if defined(Q_OS_LINUX)
 	_device = device.name();
+#elif defined(Q_OS_WIN32) || defined(Q_OS_CYGWIN)
+	_config = config(device.id());
 #endif
-
 	setModal(true);
 	setWindowTitle(tr("%1 Configuration").arg(device.name()));
+}
+
+DeviceConfigDialog::~DeviceConfigDialog()
+{
+#if defined(Q_OS_WIN32) || defined(Q_OS_CYGWIN)
+	if (_config)
+		_config->Release();
+#endif
 }
 
 
@@ -476,10 +530,6 @@ InputConfigDialog::InputConfigDialog(const Device &device, QWidget *parent)
   : DeviceConfigDialog(device, parent), _fpdl3InputWidth(0), _gmslMode(0),
   _gmslStreamId(0), _gmslFec(0)
 {
-#if defined(Q_OS_WIN32) || defined(Q_OS_CYGWIN)
-	_config = config(device.id());
-#endif
-
 	QDialogButtonBox *buttonBox = new QDialogButtonBox(QDialogButtonBox::Ok
 	  | QDialogButtonBox::Cancel);
 
@@ -690,14 +740,6 @@ InputConfigDialog::InputConfigDialog(const Device &device, QWidget *parent)
 	show();
 }
 
-InputConfigDialog::~InputConfigDialog()
-{
-#if defined(Q_OS_WIN32) || defined(Q_OS_CYGWIN)
-	if (_config)
-		_config->Release();
-#endif
-}
-
 void InputConfigDialog::accept()
 {
 	bool ret = true;
@@ -847,13 +889,6 @@ OutputConfigDialog::OutputConfigDialog(const Device &device, QWidget *parent)
 	layout->addWidget(tabWidget);
 	layout->addWidget(buttonBox);
 	show();
-}
-
-OutputConfigDialog::~OutputConfigDialog()
-{
-#if defined(Q_OS_WIN32) || defined(Q_OS_CYGWIN)
-	// TODO
-#endif
 }
 
 void OutputConfigDialog::accept()

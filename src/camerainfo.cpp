@@ -146,11 +146,11 @@ QList<CameraInfo> CameraInfo::availableCameras()
 					piFilter->Release();
 				}
 
-				CameraInfo ci(devname, mgb4 ? 0 : -1);
+				CameraInfo ci(Device(Device::Input, mgb4 ? 0 : -1, devname));
 				int i = 0;
 				while (list.contains(ci)) {
 					QString name(devname + QString(" #%1").arg(++i));
-					ci = CameraInfo(name, mgb4 ? i : -1);
+					ci = CameraInfo(Device(Device::Input, mgb4 ? i : -1, name));
 				}
 
 				list.append(ci);

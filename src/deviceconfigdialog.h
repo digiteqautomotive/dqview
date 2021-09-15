@@ -14,6 +14,7 @@ class DeviceConfigDialog : public QDialog
 {
 public:
 	DeviceConfigDialog(const Device &device, QWidget *parent = 0);
+	~DeviceConfigDialog();
 
 protected:
 	enum ModuleType {None, FPDL3, GMSL};
@@ -30,6 +31,8 @@ protected:
 	bool writeSysfsInt(const QString &path, unsigned val);
 
 	QString _device;
+#elif defined(Q_OS_WIN32) || defined(Q_OS_CYGWIN)
+	IFG4KsproxySampleConfig *_config;
 #endif
 };
 
@@ -37,7 +40,6 @@ class InputConfigDialog : public DeviceConfigDialog
 {
 public:
 	InputConfigDialog(const Device &device, QWidget *parent = 0);
-	~InputConfigDialog();
 
 public slots:
 	void accept();
@@ -73,10 +75,6 @@ private:
 	bool setGMSLStreamId(unsigned streamId);
 	bool setGMSLFEC(GMSLFEC fec);
 
-#if defined(Q_OS_WIN32) || defined(Q_OS_CYGWIN)
-	IFG4KsproxySampleConfig *_config;
-#endif
-
 	QComboBox *_colorMapping;
 	QComboBox *_oldiLineWidth;
 	QSpinBox *_vsyncGapLength;
@@ -91,7 +89,6 @@ class OutputConfigDialog : public DeviceConfigDialog
 {
 public:
 	OutputConfigDialog(const Device &device, QWidget *parent = 0);
-	~OutputConfigDialog();
 
 public slots:
 	void accept();
