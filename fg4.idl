@@ -6,7 +6,7 @@ import "unknwn.idl";
     pointer_default(unique)
 ]
 
-interface IFG4KsproxySampleConfig: IUnknown
+interface IFG4InputConfig: IUnknown
 {
     HRESULT GetOldiLink([out, retval] long* plOldiLink);
     HRESULT SetOldiLink([in] long lOldiLink);
@@ -40,4 +40,43 @@ interface IFG4KsproxySampleConfig: IUnknown
     HRESULT GetCardSerial([out, retval] long* plSerialNum);
     HRESULT GetModuleId([out, retval] long* plModuleId);
     HRESULT GetDroppedFrames([out, retval] long* plDroppedFrames);
+};
+
+
+[
+    object,
+    uuid( 050E4C9D-153B-4a62-A482-A7FFAEE1B4A6 ),
+    pointer_default(unique)
+]
+
+interface IFG4OutputConfig: IUnknown
+{
+    HRESULT GetChannel([out, retval] long* plChannel);
+    HRESULT GetFpgaFwId([out,retval] long* FpgaFwId);
+    HRESULT GetSignalSource([out, retval] long *plSignalSource);
+    HRESULT SetSignalSource([in] long lSignalSource);
+    HRESULT GetResolution([out, retval] long* plResolution);
+    HRESULT SetResolution([in] long lResolution);
+    HRESULT GetFramerate([out, retval] long *plFramerate);
+    HRESULT SetFramerate([in] long lFramerate);
+    HRESULT GetPolarityHSYNC([out, retval] long *plPolHSYNC);
+    HRESULT SetPolarityHSYNC([in] long lPolHSYNC);
+    HRESULT GetPolarityVSYNC([out, retval] long *pPolVSYNC);
+    HRESULT SetPolarityVSYNC([in] long lPolVSYNC);
+    HRESULT GetPolarityDE([out, retval] long *plPolDE);
+    HRESULT SetPolarityDE([in] long lPolDE);
+    HRESULT GetHFrontPorch([out, retval] long *plHFrontPorch);
+    HRESULT SetHFrontPorch([in] long lHFrontPorch);
+    HRESULT GetVFrontPorch([out, retval] long *plVFrontPorch);
+    HRESULT SetVFrontPorch([in] long lVFrontPorch);
+    HRESULT GetHBackPorch([out, retval] long *plHBackPorch);
+    HRESULT SetHBackPorch([in] long lHBackPorch);
+    HRESULT GetVBackPorch([out, retval] long *plVBackPorch);
+    HRESULT SetVBackPorch([in] long lVBackPorch);
+    HRESULT GetCardSerial([out, retval] long* plSerialNum);
+    HRESULT GetModuleId([out, retval] long* plModuleId);
+    HRESULT GetFpdl3OutputWidth([out, retval] long* plOutputWidth);
+    HRESULT SetFpdl3OutputWidth([in] long lOutputWidth);
+    HRESULT GetChannelActive([out, retval] long *plChActive);
+    HRESULT SetChannelActive([in] long lChActive);
 };

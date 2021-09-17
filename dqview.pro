@@ -9,6 +9,7 @@ DEFINES += APP_VERSION=\\\"$$VERSION\\\" \
 SOURCES += src/main.cpp \
     src/application.cpp \
     src/deviceconfigdialog.cpp \
+    src/deviceinfo.cpp \
     src/gui.cpp \
     src/logdialog.cpp \
     src/optionsdialog.cpp \
@@ -18,11 +19,11 @@ SOURCES += src/main.cpp \
     src/stream.cpp \
     src/camera.cpp \
     src/timer.cpp \
-    src/videoplayer.cpp \
-    src/camerainfo.cpp
+    src/videoplayer.cpp
 HEADERS += src/application.h \
     src/device.h \
     src/deviceconfigdialog.h \
+    src/deviceinfo.h \
     src/gui.h \
     src/log.h \
     src/logdialog.h \
@@ -36,7 +37,6 @@ HEADERS += src/application.h \
     src/video.h \
     src/timer.h \
     src/videoplayer.h \
-    src/camerainfo.h \
     src/options.h
 
 RESOURCES += dqview.qrc

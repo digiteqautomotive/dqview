@@ -12,7 +12,7 @@
 #include <QRegExp>
 #include "camerainfo.h"
 
-CameraInfo CameraInfo::cameraInfo(const QString &device, int *id)
+CameraInfo DeviceInfo::deviceInfo(const QString &device, int *id)
 {
 	QFileInfo fi(device);
 	QDir sysfsDir("/sys/class/video4linux/");
@@ -29,22 +29,22 @@ CameraInfo CameraInfo::cameraInfo(const QString &device, int *id)
 
 	if ((fd = open(ba.constData(), O_RDWR)) < 0)
 		return mgb4In || mgb4Out
-		  ? CameraInfo(Device(mgb4In ? Device::Input : Device::Output,
+		  ? DeviceInfo(Device(mgb4In ? Device::Input : Device::Output,
 			*id++, device), "MGB4 PCIe Card")
-		  : CameraInfo();
+		  : DeviceInfo();
 
 	int err = ioctl(fd, VIDIOC_QUERYCAP, &vcap);
 	close(fd);
 
 	return err
-	  ? CameraInfo()
-	  : CameraInfo(Device(mgb4In ? Device::Input : Device::Output,
+	  ? DeviceInfo()
+	  : DeviceInfo(Device(mgb4In ? Device::Input : Device::Output,
 		mgb4In || mgb4Out ? *id++ : -1, device), (const char *)vcap.card);
 }
 
-QList<CameraInfo> CameraInfo::availableCameras()
+QList<DeviceInfo> DeviceInfo::availableDevices()
 {
-	QList<CameraInfo> list;
+	QList<DeviceInfo> list;
 	QRegExp re("video[0-9]+");
 	QDir dir("/dev");
 	int id = 0;
@@ -52,7 +52,7 @@ QList<CameraInfo> CameraInfo::availableCameras()
 	QFileInfoList files(dir.entryInfoList(QDir::System));
 	for (int i = 0; i < files.size(); i++) {
 		if (re.exactMatch(files.at(i).baseName())) {
-			CameraInfo info(cameraInfo(files.at(i).absoluteFilePath(), &id));
+			DeviceInfo info(deviceInfo(files.at(i).absoluteFilePath(), &id));
 			if (!info.isNull())
 				list.append(info);
 		}
@@ -68,7 +68,7 @@ QList<CameraInfo> CameraInfo::availableCameras()
 #include <dshow.h>
 #include <wrl/client.h>
 #include <QDebug>
-#include "camerainfo.h"
+#include "deviceinfo.h"
 #include "fg4.h"
 
 static char *FromWide(const wchar_t *wide)
@@ -82,12 +82,12 @@ static char *FromWide(const wchar_t *wide)
 	return out;
 }
 
-QList<CameraInfo> CameraInfo::availableCameras()
+QList<DeviceInfo> DeviceInfo::inputDevices()
 {
 	Microsoft::WRL::ComPtr<IMoniker> p_moniker;
 	ULONG i_fetched;
 	HRESULT hr;
-	QList<CameraInfo> list;
+	QList<DeviceInfo> list;
 
 	/* Create the system device enumerator */
 	Microsoft::WRL::ComPtr<ICreateDevEnum> p_dev_enum;
@@ -134,7 +134,7 @@ QList<CameraInfo> CameraInfo::availableCameras()
 				bool mgb4 = false;
 
 				/* Check whether the device is a MGB4 device */
-				IFG4KsproxySampleConfig *piConfig = NULL;
+				IFG4InputConfig *piConfig = NULL;
 				IBaseFilter* piFilter;
 				hr = p_moniker->BindToObject(NULL, NULL, __uuidof(piFilter),
 				  reinterpret_cast<void**>(&piFilter));
@@ -146,11 +146,11 @@ QList<CameraInfo> CameraInfo::availableCameras()
 					piFilter->Release();
 				}
 
-				CameraInfo ci(Device(Device::Input, mgb4 ? 0 : -1, devname));
+				DeviceInfo ci(Device(Device::Input, mgb4 ? 0 : -1, devname));
 				int i = 0;
 				while (list.contains(ci)) {
 					QString name(devname + QString(" #%1").arg(++i));
-					ci = CameraInfo(Device(Device::Input, mgb4 ? i : -1, name));
+					ci = DeviceInfo(Device(Device::Input, mgb4 ? i : -1, name));
 				}
 
 				list.append(ci);
@@ -159,6 +159,16 @@ QList<CameraInfo> CameraInfo::availableCameras()
 	}
 
 	return list;
+}
+
+QList<DeviceInfo> DeviceInfo::outputDevices()
+{
+	return QList<DeviceInfo>();
+}
+
+QList<DeviceInfo> DeviceInfo::availableDevices()
+{
+	return inputDevices() + outputDevices();
 }
 
 #else

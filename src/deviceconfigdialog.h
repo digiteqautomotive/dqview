@@ -14,25 +14,22 @@ class DeviceConfigDialog : public QDialog
 {
 public:
 	DeviceConfigDialog(const Device &device, QWidget *parent = 0);
-	~DeviceConfigDialog();
 
 protected:
 	enum ModuleType {None, FPDL3, GMSL};
 
+#if defined(Q_OS_LINUX)
 	bool getModuleType(ModuleType *type);
 	bool getModuleVersion(unsigned *version);
 	bool getFwType(ModuleType *type);
 	bool getFwVersion(unsigned *version);
 	bool getSerialNumber(QString *serialNumber);
 
-#if defined(Q_OS_LINUX)
 	bool readSysfsInt(const QString &path, unsigned *val);
 	bool readSysfsString(const QString &path, QString *val);
 	bool writeSysfsInt(const QString &path, unsigned val);
 
 	QString _device;
-#elif defined(Q_OS_WIN32) || defined(Q_OS_CYGWIN)
-	IFG4KsproxySampleConfig *_config;
 #endif
 };
 
@@ -40,6 +37,7 @@ class InputConfigDialog : public DeviceConfigDialog
 {
 public:
 	InputConfigDialog(const Device &device, QWidget *parent = 0);
+	~InputConfigDialog();
 
 public slots:
 	void accept();
@@ -52,6 +50,14 @@ private:
 	enum FPDL3InputWidth {FPDL3Auto, FPDL3Single, FPDL3Dual};
 	enum GMSLMode {GMSL12Gb, GMSL6Gb, GMSL3Gb, GMSL1GB};
 	enum GMSLFEC {GMSLFECDisabled, GMSLFECEnabled};
+
+#if defined(Q_OS_WIN32) || defined(Q_OS_CYGWIN)
+	bool getModuleType(ModuleType *type);
+	bool getModuleVersion(unsigned *version);
+	bool getFwType(ModuleType *type);
+	bool getFwVersion(unsigned *version);
+	bool getSerialNumber(QString *serialNumber);
+#endif
 
 	bool getInputId(unsigned *id);
 	bool getLinkStatus(LinkStatus *status);
@@ -83,17 +89,30 @@ private:
 	QComboBox *_gmslMode;
 	QComboBox *_gmslStreamId;
 	QComboBox *_gmslFec;
+
+#if defined(Q_OS_WIN32) || defined(Q_OS_CYGWIN)
+	IFG4InputConfig *_config;
+#endif
 };
 
 class OutputConfigDialog : public DeviceConfigDialog
 {
 public:
 	OutputConfigDialog(const Device &device, QWidget *parent = 0);
+	~OutputConfigDialog();
 
 public slots:
 	void accept();
 
 private:
+#if defined(Q_OS_WIN32) || defined(Q_OS_CYGWIN)
+	bool getModuleType(ModuleType *type);
+	bool getModuleVersion(unsigned *version);
+	bool getFwType(ModuleType *type);
+	bool getFwVersion(unsigned *version);
+	bool getSerialNumber(QString *serialNumber);
+#endif
+
 	bool getOutputId(unsigned *id);
 	bool getDisplayWidth(unsigned *width);
 	bool getDisplayHeight(unsigned *height);
@@ -109,6 +128,10 @@ private:
 	QSpinBox *_displayHeight;
 	QSpinBox *_frameRate;
 	QComboBox *_videoSource;
+
+#if defined(Q_OS_WIN32) || defined(Q_OS_CYGWIN)
+	IFG4OutputConfig *_config;
+#endif
 };
 
 #endif // DEVICECONFIGDIALOG_H

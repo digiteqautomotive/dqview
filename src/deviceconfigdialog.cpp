@@ -93,6 +93,7 @@ bool DeviceConfigDialog::getSerialNumber(QString *serialNumber)
 	return readSysfsString("device/serial_number", serialNumber);
 }
 
+
 bool InputConfigDialog::getInputId(unsigned *id)
 {
 	return readSysfsInt("input_id", id);
@@ -193,6 +194,7 @@ bool InputConfigDialog::setGMSLFEC(GMSLFEC fec)
 	return writeSysfsInt("gmsl_fec", fec);
 }
 
+
 bool OutputConfigDialog::getOutputId(unsigned *id)
 {
 	return readSysfsInt("output_id", id);
@@ -244,9 +246,9 @@ bool OutputConfigDialog::setVideoSource(unsigned source)
 #include <uuids.h>
 #include <strmif.h>
 
-static IFG4KsproxySampleConfig *config(int id)
+static IFG4InputConfig *inputConfig(int id)
 {
-	IFG4KsproxySampleConfig *piConfig = NULL;
+	IFG4InputConfig *piConfig = NULL;
 	HRESULT hr;
 	ICreateDevEnum *piCreateDevEnum;
 
@@ -296,7 +298,13 @@ static IFG4KsproxySampleConfig *config(int id)
 	return 0;
 }
 
-bool DeviceConfigDialog::getModuleType(ModuleType *type)
+static IFG4OutputConfig *outputConfig(int id)
+{
+	return 0;
+}
+
+
+bool InputConfigDialog::getModuleType(ModuleType *type)
 {
 	long val;
 
@@ -307,7 +315,7 @@ bool DeviceConfigDialog::getModuleType(ModuleType *type)
 	return true;
 }
 
-bool DeviceConfigDialog::getModuleVersion(unsigned *version)
+bool InputConfigDialog::getModuleVersion(unsigned *version)
 {
 	long val;
 
@@ -318,7 +326,7 @@ bool DeviceConfigDialog::getModuleVersion(unsigned *version)
 	return true;
 }
 
-bool DeviceConfigDialog::getFwType(ModuleType *type)
+bool InputConfigDialog::getFwType(ModuleType *type)
 {
 	long val;
 
@@ -329,7 +337,7 @@ bool DeviceConfigDialog::getFwType(ModuleType *type)
 	return true;
 }
 
-bool DeviceConfigDialog::getFwVersion(unsigned *version)
+bool InputConfigDialog::getFwVersion(unsigned *version)
 {
 	long val;
 
@@ -340,7 +348,7 @@ bool DeviceConfigDialog::getFwVersion(unsigned *version)
 	return true;
 }
 
-bool DeviceConfigDialog::getSerialNumber(QString *serialNumber)
+bool InputConfigDialog::getSerialNumber(QString *serialNumber)
 {
 	long val;
 	char buf[16];
@@ -455,6 +463,66 @@ bool InputConfigDialog::setGMSLFEC(GMSLFEC fec)
 	return (_config && SUCCEEDED(_config->SetGmslFEC(fec)));
 }
 
+
+bool OutputConfigDialog::getModuleType(ModuleType *type)
+{
+	long val;
+
+	if (!_config || FAILED(_config->GetModuleId(&val)))
+		return false;
+	*type = (ModuleType)((unsigned)val >> 4);
+
+	return true;
+}
+
+bool OutputConfigDialog::getModuleVersion(unsigned *version)
+{
+	long val;
+
+	if (!_config || FAILED(_config->GetModuleId(&val)))
+		return false;
+	*version = ((unsigned)val & 0x0F);
+
+	return true;
+}
+
+bool OutputConfigDialog::getFwType(ModuleType *type)
+{
+	long val;
+
+	if (!_config || FAILED(_config->GetFpgaFwId(&val)))
+		return false;
+	*type = (ModuleType)(val >> 24);
+
+	return true;
+}
+
+bool OutputConfigDialog::getFwVersion(unsigned *version)
+{
+	long val;
+
+	if (!_config || FAILED(_config->GetFpgaFwId(&val)))
+		return false;
+	*version = (unsigned)(val & 0xFFFF);
+
+	return true;
+}
+
+bool OutputConfigDialog::getSerialNumber(QString *serialNumber)
+{
+	long val;
+	char buf[16];
+
+	if (!_config || FAILED(_config->GetCardSerial(&val)))
+		return false;
+	sprintf(buf, "%03u-%03u-%03u-%03u", (unsigned)val >> 24,
+	  ((unsigned)val >> 16) & 0xFF, ((unsigned)val >> 8) & 0xFF,
+	  (unsigned)val & 0xFF);
+	*serialNumber = QString(buf);
+
+	return true;
+}
+
 bool OutputConfigDialog::getOutputId(unsigned *id)
 {
 	return false;
@@ -510,19 +578,10 @@ DeviceConfigDialog::DeviceConfigDialog(const Device &device, QWidget *parent)
 {
 #if defined(Q_OS_LINUX)
 	_device = device.name();
-#elif defined(Q_OS_WIN32) || defined(Q_OS_CYGWIN)
-	_config = config(device.id());
 #endif
+
 	setModal(true);
 	setWindowTitle(tr("%1 Configuration").arg(device.name()));
-}
-
-DeviceConfigDialog::~DeviceConfigDialog()
-{
-#if defined(Q_OS_WIN32) || defined(Q_OS_CYGWIN)
-	if (_config)
-		_config->Release();
-#endif
 }
 
 
@@ -530,12 +589,15 @@ InputConfigDialog::InputConfigDialog(const Device &device, QWidget *parent)
   : DeviceConfigDialog(device, parent), _fpdl3InputWidth(0), _gmslMode(0),
   _gmslStreamId(0), _gmslFec(0)
 {
+#if defined(Q_OS_WIN32) || defined(Q_OS_CYGWIN)
+	_config = inputConfig(device.id());
+#endif
+
 	QDialogButtonBox *buttonBox = new QDialogButtonBox(QDialogButtonBox::Ok
 	  | QDialogButtonBox::Cancel);
 
 	connect(buttonBox, &QDialogButtonBox::accepted, this, &QDialog::accept);
 	connect(buttonBox, &QDialogButtonBox::rejected, this, &QDialog::reject);
-
 
 	ModuleType moduleType = None;
 	QLabel *moduleTypeLabel = new QLabel();
@@ -740,6 +802,14 @@ InputConfigDialog::InputConfigDialog(const Device &device, QWidget *parent)
 	show();
 }
 
+InputConfigDialog::~InputConfigDialog()
+{
+#if defined(Q_OS_WIN32) || defined(Q_OS_CYGWIN)
+	if (_config)
+		_config->Release();
+#endif
+}
+
 void InputConfigDialog::accept()
 {
 	bool ret = true;
@@ -771,12 +841,15 @@ void InputConfigDialog::accept()
 OutputConfigDialog::OutputConfigDialog(const Device &device, QWidget *parent)
   : DeviceConfigDialog(device, parent)
 {
+#if defined(Q_OS_WIN32) || defined(Q_OS_CYGWIN)
+	_config = outputConfig(device.id());
+#endif
+
 	QDialogButtonBox *buttonBox = new QDialogButtonBox(QDialogButtonBox::Ok
 	  | QDialogButtonBox::Cancel);
 
 	connect(buttonBox, &QDialogButtonBox::accepted, this, &QDialog::accept);
 	connect(buttonBox, &QDialogButtonBox::rejected, this, &QDialog::reject);
-
 
 	ModuleType moduleType = None;
 	QLabel *moduleTypeLabel = new QLabel();
@@ -889,6 +962,14 @@ OutputConfigDialog::OutputConfigDialog(const Device &device, QWidget *parent)
 	layout->addWidget(tabWidget);
 	layout->addWidget(buttonBox);
 	show();
+}
+
+OutputConfigDialog::~OutputConfigDialog()
+{
+#if defined(Q_OS_WIN32) || defined(Q_OS_CYGWIN)
+	if (_config)
+		_config->Release();
+#endif
 }
 
 void OutputConfigDialog::accept()

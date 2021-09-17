@@ -79,22 +79,22 @@ GUI::GUI()
 		devices.first()->trigger();
 }
 
-QList<QAction*> GUI::cameraActions()
+QList<QAction*> GUI::deviceActions()
 {
-	QList<CameraInfo> cameras = CameraInfo::availableCameras();
+	QList<DeviceInfo> devices = DeviceInfo::availableDevices();
 	QList<QAction*> list;
 
 	QSignalMapper *signalMapper = new QSignalMapper(this);
 	connect(signalMapper, QOverload<QObject *>::of(&QSignalMapper::mapped),
 	  this, &GUI::openDevice);
 
-	qSort(cameras);
+	qSort(devices);
 
-	for (int i = 0; i < cameras.size(); i++) {
-		QAction *a = new QAction(cameras.at(i).name(), this);
+	for (int i = 0; i < devices.size(); i++) {
+		QAction *a = new QAction(devices.at(i).name(), this);
 		a->setActionGroup(_deviceActionGroup);
 		a->setCheckable(true);
-		Camera *cam = new Camera(cameras.at(i), this);
+		Camera *cam = new Camera(devices.at(i), this);
 		signalMapper->setMapping(a, cam);
 		connect(a, &QAction::triggered, signalMapper,
 		  QOverload<>::of(&QSignalMapper::map));
@@ -188,7 +188,7 @@ void GUI::createActions()
 void GUI::createMenus()
 {
 	_deviceMenu = menuBar()->addMenu(tr("&Device"));
-	_deviceMenu->addActions(cameraActions());
+	_deviceMenu->addActions(deviceActions());
 	_deviceMenu->addActions(streamActions());
 	_deviceSeparator = _deviceMenu->addSeparator();
 	_deviceMenu->addAction(_openStreamAction);

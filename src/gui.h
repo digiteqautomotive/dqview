@@ -40,7 +40,7 @@ private:
 	void createMenus();
 	void createActions();
 	QAction *streamAction(Stream *stream);
-	QList<QAction*> cameraActions();
+	QList<QAction*> deviceActions();
 	QList<QAction*> streamActions();
 	bool findStream(const StreamInfo &stream) const;
 	void createToolbars();
