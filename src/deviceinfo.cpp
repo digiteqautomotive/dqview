@@ -163,7 +163,82 @@ QList<DeviceInfo> DeviceInfo::inputDevices()
 
 QList<DeviceInfo> DeviceInfo::outputDevices()
 {
-	return QList<DeviceInfo>();
+	Microsoft::WRL::ComPtr<IMoniker> p_moniker;
+	ULONG i_fetched;
+	HRESULT hr;
+	QList<DeviceInfo> list;
+
+	/* Create the system device enumerator */
+	Microsoft::WRL::ComPtr<ICreateDevEnum> p_dev_enum;
+	hr = CoCreateInstance(CLSID_SystemDeviceEnum, NULL, CLSCTX_INPROC,
+	  IID_ICreateDevEnum, (void**)p_dev_enum.GetAddressOf());
+	if (FAILED(hr)) {
+		qWarning("failed to create the device enumerator (0x%lX)", hr);
+		return list;
+	}
+
+	/* Create an enumerator for the video capture devices */
+	Microsoft::WRL::ComPtr<IEnumMoniker> p_class_enum;
+	hr = p_dev_enum->CreateClassEnumerator(AM_KSCATEGORY_RENDER,
+	  p_class_enum.GetAddressOf(), 0);
+	if (FAILED(hr)) {
+		qWarning("failed to create the class enumerator (0x%lX)", hr);
+		return list;
+	}
+
+	/* If there are no enumerators for the requested type, then
+	 * CreateClassEnumerator will succeed, but p_class_enum will be NULL */
+	if (p_class_enum == NULL) {
+		qWarning("no video output device was detected");
+		return list;
+	}
+
+	/* Enumerate the devices */
+	/* Note that if the Next() call succeeds but there are no monikers,
+	 * it will return S_FALSE (which is not a failure). Therefore, we check
+	 * that the return code is S_OK instead of using SUCCEEDED() macro. */
+	while (p_class_enum->Next(1, p_moniker.ReleaseAndGetAddressOf(),
+	  &i_fetched) == S_OK) {
+		Microsoft::WRL::ComPtr<IPropertyBag> p_bag;
+		hr = p_moniker->BindToStorage(0, 0, IID_IPropertyBag,
+		  (void**)p_bag.GetAddressOf());
+		if (SUCCEEDED(hr)) {
+			VARIANT var;
+			var.vt = VT_BSTR;
+			hr = p_bag->Read(L"FriendlyName", &var, NULL);
+			if (SUCCEEDED(hr)) {
+				char *p_buf = FromWide(var.bstrVal);
+				QString devname(p_buf);
+				free(p_buf);
+
+				/* Check whether the device is a MGB4 device */
+				IFG4OutputConfig *piConfig = NULL;
+				IBaseFilter* piFilter;
+				hr = p_moniker->BindToObject(NULL, NULL, __uuidof(piFilter),
+				  reinterpret_cast<void**>(&piFilter));
+				if (SUCCEEDED(hr)) {
+					hr = piFilter->QueryInterface(__uuidof(piConfig),
+					  reinterpret_cast<void**>(&piConfig));
+					/* There is nothing we can do with output devices other
+					   than mgb4, so skip such devices. */
+					if (!SUCCEEDED(hr))
+						continue;
+					piFilter->Release();
+				}
+
+				DeviceInfo ci(Device(Device::Output, 0, devname));
+				int i = 0;
+				while (list.contains(ci)) {
+					QString name(devname + QString(" #%1").arg(++i));
+					ci = DeviceInfo(Device(Device::Output, i, name));
+				}
+
+				list.append(ci);
+			}
+		}
+	}
+
+	return list;
 }
 
 QList<DeviceInfo> DeviceInfo::availableDevices()

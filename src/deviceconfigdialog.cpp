@@ -300,6 +300,53 @@ static IFG4InputConfig *inputConfig(int id)
 
 static IFG4OutputConfig *outputConfig(int id)
 {
+	IFG4OutputConfig *piConfig = NULL;
+	HRESULT hr;
+	ICreateDevEnum *piCreateDevEnum;
+
+	hr = CoCreateInstance(CLSID_SystemDeviceEnum, NULL, CLSCTX_INPROC_SERVER,
+	  __uuidof(piCreateDevEnum), reinterpret_cast<void**>(&piCreateDevEnum));
+	if (SUCCEEDED(hr)) {
+		int Xorder = id;
+		IEnumMoniker *piEnumMoniker;
+
+		hr = piCreateDevEnum->CreateClassEnumerator(AM_KSCATEGORY_RENDER,
+		  &piEnumMoniker, 0);
+		piCreateDevEnum->Release();
+		if (SUCCEEDED(hr))
+			hr = piEnumMoniker->Reset();
+		if (SUCCEEDED(hr)) {
+			ULONG cFetched;
+			IMoniker *piMoniker;
+			while ((hr = piEnumMoniker->Next(1, &piMoniker, &cFetched)) == S_OK) {
+				IBaseFilter *piFilter;
+				hr = piMoniker->BindToObject(NULL, NULL, __uuidof(piFilter),
+				  reinterpret_cast<void**>(&piFilter));
+				if (SUCCEEDED(hr)) {
+					hr = piFilter->QueryInterface(__uuidof(piConfig),
+					  reinterpret_cast< void**>(&piConfig));
+					if (FAILED(hr))
+						piFilter->Release();
+					else {
+						if (Xorder > 0) {
+							Xorder--;
+							piFilter->Release();
+							piConfig->Release();
+						} else {
+							piFilter->Release();
+							piMoniker->Release();
+							piEnumMoniker->Release();
+
+							return piConfig;
+						}
+					}
+				}
+				piMoniker->Release();
+			}
+		}
+		piEnumMoniker->Release();
+	}
+
 	return 0;
 }
 
@@ -525,47 +572,67 @@ bool OutputConfigDialog::getSerialNumber(QString *serialNumber)
 
 bool OutputConfigDialog::getOutputId(unsigned *id)
 {
-	return false;
+	return (_config && SUCCEEDED(_config->GetChannel((long int*)id)));
 }
 
 bool OutputConfigDialog::getDisplayWidth(unsigned *width)
 {
-	return false;
+	long val;
+
+	if (!_config || FAILED(_config->GetResolution(&val)))
+		return false;
+	*width = val >> 16;
+
+	return true;
 }
 
 bool OutputConfigDialog::setDisplayWidth(unsigned int width)
 {
-	return false;
+	unsigned height;
+	if (!getDisplayHeight(&height))
+		return false;
+
+	return (SUCCEEDED(_config->SetResolution(width << 16 | height)));
 }
 
 bool OutputConfigDialog::getDisplayHeight(unsigned *height)
 {
-	return false;
+	long val;
+
+	if (!_config || FAILED(_config->GetResolution(&val)))
+		return false;
+	*height = val & 0xFFFF;
+
+	return true;
 }
 
 bool OutputConfigDialog::setDisplayHeight(unsigned int height)
 {
-	return false;
+	unsigned width;
+	if (!getDisplayWidth(&width))
+		return false;
+
+	return (SUCCEEDED(_config->SetResolution(width << 16 | height)));
 }
 
 bool OutputConfigDialog::getFrameRate(unsigned *frameRate)
 {
-	return false;
+	return (_config && SUCCEEDED(_config->GetFramerate((long int*)frameRate)));
 }
 
 bool OutputConfigDialog::setFrameRate(unsigned frameRate)
 {
-	return false;
+	return (_config && SUCCEEDED(_config->SetFramerate(frameRate)));
 }
 
 bool OutputConfigDialog::getVideoSource(unsigned *source)
 {
-	return false;
+	return (_config && SUCCEEDED(_config->GetSignalSource((long int*)source)));
 }
 
 bool OutputConfigDialog::setVideoSource(unsigned source)
 {
-	return false;
+	return (_config && SUCCEEDED(_config->SetSignalSource(source)));
 }
 
 #else
