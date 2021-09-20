@@ -10,9 +10,9 @@
 #include <linux/videodev2.h>
 #include <QDir>
 #include <QRegExp>
-#include "camerainfo.h"
+#include "deviceinfo.h"
 
-CameraInfo DeviceInfo::deviceInfo(const QString &device, int *id)
+DeviceInfo DeviceInfo::deviceInfo(const QString &device, int *id)
 {
 	QFileInfo fi(device);
 	QDir sysfsDir("/sys/class/video4linux/");
