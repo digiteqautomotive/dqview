@@ -1,5 +1,5 @@
 Name:           dqview
-Version:        2.1
+Version:        2.2
 Release:        1
 Summary:        Digiteq Automotive video player
 License:        GPL-3.0-only
@@ -54,9 +54,12 @@ fi
 %{_sysconfdir}/udev/rules.d/99-mgb4.rules
 
 %changelog
+* Thu Sep 23 14:06:28 CEST 2021 - martin.tuma@digiteqautomotive.com 2.2-1
+- Added output devices configuration.
+
 * Wed Aug 18 11:07:11 CEST 2021 - martin.tuma@digiteqautomotive.com 2.1-1
-- Added missing module ID and card serial number properties on Windows
+- Added missing module ID and card serial number properties on Windows.
 
 * Thu May 20 08:59:57 CEST 2021 - martin.tuma@digiteqautomotive.com 2.0-1
 - Added MGB4 device configuration.
-- RPM package
+- RPM package.
