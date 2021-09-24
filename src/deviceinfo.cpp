@@ -28,7 +28,7 @@ DeviceInfo DeviceInfo::deviceInfo(const QString &device, int *id)
 	int fd;
 
 	if ((fd = open(ba.constData(), O_RDWR)) < 0)
-		return mgb4In || mgb4Out
+		return (mgb4In || mgb4Out)
 		  ? DeviceInfo(Device(mgb4In ? Device::Input : Device::Output,
 			*id++, device), "MGB4 PCIe Card")
 		  : DeviceInfo();
@@ -36,13 +36,19 @@ DeviceInfo DeviceInfo::deviceInfo(const QString &device, int *id)
 	int err = ioctl(fd, VIDIOC_QUERYCAP, &vcap);
 	close(fd);
 
-	return err
-	  ? DeviceInfo()
-	  : DeviceInfo(Device(mgb4In ? Device::Input : Device::Output,
-		mgb4In || mgb4Out ? *id++ : -1, device), (const char *)vcap.card);
+	if (err)
+		return DeviceInfo();
+	else if (vcap.capabilities & V4L2_CAP_VIDEO_CAPTURE)
+		return DeviceInfo(Device(Device::Input, mgb4In ? *id++ : -1, device),
+		  (const char *)vcap.card);
+	else if (vcap.capabilities & V4L2_CAP_VIDEO_OUTPUT)
+		return DeviceInfo(Device(Device::Output, mgb4Out ? *id++ : -1, device),
+		  (const char *)vcap.card);
+	else
+		return DeviceInfo();
 }
 
-QList<DeviceInfo> DeviceInfo::availableDevices()
+QList<DeviceInfo> DeviceInfo::devices(Device::Type type)
 {
 	QList<DeviceInfo> list;
 	QRegExp re("video[0-9]+");
@@ -53,7 +59,7 @@ QList<DeviceInfo> DeviceInfo::availableDevices()
 	for (int i = 0; i < files.size(); i++) {
 		if (re.exactMatch(files.at(i).baseName())) {
 			DeviceInfo info(deviceInfo(files.at(i).absoluteFilePath(), &id));
-			if (!info.isNull())
+			if (!info.isNull() && info.device().type() == type)
 				list.append(info);
 		}
 	}
@@ -61,6 +67,15 @@ QList<DeviceInfo> DeviceInfo::availableDevices()
 	return list;
 }
 
+QList<DeviceInfo> DeviceInfo::inputDevices()
+{
+	return devices(Device::Input);
+}
+
+QList<DeviceInfo> DeviceInfo::outputDevices()
+{
+	return devices(Device::Output);
+}
 
 #elif defined(Q_OS_WIN32) || defined(Q_OS_CYGWIN)
 
@@ -240,12 +255,6 @@ QList<DeviceInfo> DeviceInfo::outputDevices()
 
 	return list;
 }
-
-QList<DeviceInfo> DeviceInfo::availableDevices()
-{
-	return inputDevices() + outputDevices();
-}
-
 #else
 #error "unsupported platform"
 #endif

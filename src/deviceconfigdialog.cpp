@@ -1039,6 +1039,7 @@ OutputConfigDialog::~OutputConfigDialog()
 #endif
 }
 
+#include <QDebug>
 void OutputConfigDialog::accept()
 {
 	bool ret = true;

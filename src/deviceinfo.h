@@ -21,7 +21,8 @@ public:
 	bool operator<(const DeviceInfo &other) const
 	  {return (_device.name() < other._device.name());}
 
-	static QList<DeviceInfo> availableDevices();
+	static QList<DeviceInfo> inputDevices();
+	static QList<DeviceInfo> outputDevices();
 
 private:
 	DeviceInfo() {}
@@ -30,11 +31,7 @@ private:
 
 #if defined(Q_OS_LINUX)
 	static DeviceInfo deviceInfo(const QString &device, int *id);
-#elif defined(Q_OS_WIN32) || defined(Q_OS_CYGWIN)
-	static QList<DeviceInfo> inputDevices();
-	static QList<DeviceInfo> outputDevices();
-#else
-#error "unsupported platform"
+	static QList<DeviceInfo> devices(Device::Type type);
 #endif // Q_OS_LINUX
 
 	Device _device;

@@ -79,9 +79,10 @@ GUI::GUI()
 		devices.first()->trigger();
 }
 
-QList<QAction*> GUI::deviceActions()
+QList<QAction*> GUI::deviceActions(Device::Type type)
 {
-	QList<DeviceInfo> devices = DeviceInfo::availableDevices();
+	QList<DeviceInfo> devices = (type == Device::Input)
+	  ? DeviceInfo::inputDevices() : DeviceInfo::outputDevices();
 	QList<QAction*> list;
 
 	QSignalMapper *signalMapper = new QSignalMapper(this);
@@ -187,12 +188,21 @@ void GUI::createActions()
 
 void GUI::createMenus()
 {
+	QList<QAction*> inputDevices(deviceActions(Device::Input));
+	QList<QAction*> outputDevices(deviceActions(Device::Output));
+
 	_deviceMenu = menuBar()->addMenu(tr("&Device"));
-	_deviceMenu->addActions(deviceActions());
+	if (!outputDevices.isEmpty())
+		_deviceMenu->addSection(tr("Input Devices"));
+	_deviceMenu->addActions(inputDevices);
 	_deviceMenu->addActions(streamActions());
-	_deviceSeparator = _deviceMenu->addSeparator();
+	if (!outputDevices.isEmpty()) {
+		_deviceSeparator = _deviceMenu->addSection(tr("Output Devices"));
+		_deviceMenu->addActions(outputDevices);
+		_deviceMenu->addSeparator();
+	} else
+		_deviceSeparator = _deviceMenu->addSeparator();
 	_deviceMenu->addAction(_openStreamAction);
-	_deviceMenu->addSeparator();
 	_deviceMenu->addAction(_configureDeviceAction);
 	_deviceMenu->addSeparator();
 	_deviceMenu->addAction(_exitAction);
