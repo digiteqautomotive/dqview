@@ -143,7 +143,7 @@ void GUI::createActions()
 	_openStreamAction = new QAction(tr("Open Remote Device..."), this);
 	connect(_openStreamAction, &QAction::triggered, this,
 	  QOverload<>::of(&GUI::openStream));
-	_configureDeviceAction = new QAction(tr("Configure Device.."), this);
+	_configureDeviceAction = new QAction(tr("Configure Device..."), this);
 	_configureDeviceAction->setEnabled(false);
 	connect(_configureDeviceAction, &QAction::triggered, this,
 	  &GUI::configureDevice);
