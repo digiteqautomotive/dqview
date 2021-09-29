@@ -460,12 +460,12 @@ bool InputConfigDialog::getLinkStatus(LinkStatus *status)
 	return (_config && SUCCEEDED(_config->GetLinkLckStatus((long int*)status)));
 }
 
-bool InputConfigDialog::getVSyncStatus(SyncStatus *status)
+bool InputConfigDialog::getVSyncStatus(SyncType *status)
 {
 	return (_config && SUCCEEDED(_config->GetVsStatus((long int*)status)));
 }
 
-bool InputConfigDialog::getHSyncStatus(SyncStatus *status)
+bool InputConfigDialog::getHSyncStatus(SyncType *status)
 {
 	return (_config && SUCCEEDED(_config->GetHsStatus((long int*)status)));
 }
@@ -510,12 +510,12 @@ bool InputConfigDialog::setHSyncGapLength(unsigned length)
 	return (_config && SUCCEEDED(_config->SetDeGap2HS(length)));
 }
 
-bool InputConfigDialog::getFPDL3InputWidth(FPDL3InputWidth *width)
+bool InputConfigDialog::getFPDL3InputWidth(FPDL3Width *width)
 {
 	return (_config && SUCCEEDED(_config->GetFpdl3InputWidth((long int*)width)));
 }
 
-bool InputConfigDialog::setFPDL3InputWidth(FPDL3InputWidth width)
+bool InputConfigDialog::setFPDL3InputWidth(FPDL3Width width)
 {
 	return (_config && SUCCEEDED(_config->SetFpdl3InputWidth(width)));
 }
@@ -707,12 +707,12 @@ bool OutputConfigDialog::setDePolarity(SyncType polarity)
 
 bool OutputConfigDialog::getFPDL3OutputWidth(FPDL3Width *width)
 {
-	return (_config && SUCCEEDED(_config->GetFpdl3InputWidth((long int*)width)));
+	return (_config && SUCCEEDED(_config->GetFpdl3OutputWidth((long int*)width)));
 }
 
 bool OutputConfigDialog::setFPDL3OutputWidth(FPDL3Width width)
 {
-	return (_config && SUCCEEDED(_config->SetFpdl3InputWidth(width)));
+	return (_config && SUCCEEDED(_config->SetFpdl3OutputWidth(width)));
 }
 
 #else
