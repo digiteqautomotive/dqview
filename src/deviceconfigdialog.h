@@ -18,6 +18,7 @@ public:
 protected:
 	enum ModuleType {None, FPDL3, GMSL};
 	enum SyncType {ActiveLow, ActiveHigh, NotAvailable};
+	enum FPDL3Width {FPDL3Auto, FPDL3Single, FPDL3Dual};
 
 #if defined(Q_OS_LINUX)
 	bool getModuleType(ModuleType *type);
@@ -47,7 +48,6 @@ private:
 	enum LinkStatus {Unlocked, Locked};
 	enum ColorMapping {OLDI, SPWG};
 	enum LineWidth {Single, Dual};
-	enum FPDL3InputWidth {FPDL3Auto, FPDL3Single, FPDL3Dual};
 	enum GMSLMode {GMSL12Gb, GMSL6Gb, GMSL3Gb, GMSL1GB};
 	enum GMSLFEC {GMSLFECDisabled, GMSLFECEnabled};
 
@@ -67,7 +67,7 @@ private:
 	bool getLaneWidth(LineWidth *lineWidth);
 	bool getVSyncGapLength(unsigned *length);
 	bool getHSyncGapLength(unsigned *length);
-	bool getFPDL3InputWidth(FPDL3InputWidth *width);
+	bool getFPDL3InputWidth(FPDL3Width *width);
 	bool getGMSLMode(GMSLMode *mode);
 	bool getGMSLStreamId(unsigned *streamId);
 	bool getGMSLFEC(GMSLFEC *fec);
@@ -76,7 +76,7 @@ private:
 	bool setLaneWidth(LineWidth lineWidth);
 	bool setVSyncGapLength(unsigned length);
 	bool setHSyncGapLength(unsigned length);
-	bool setFPDL3InputWidth(FPDL3InputWidth width);
+	bool setFPDL3InputWidth(FPDL3Width width);
 	bool setGMSLMode(GMSLMode mode);
 	bool setGMSLStreamId(unsigned streamId);
 	bool setGMSLFEC(GMSLFEC fec);
@@ -121,6 +121,7 @@ private:
 	bool getHsyncPolarity(SyncType *polarity);
 	bool getVsyncPolarity(SyncType *polarity);
 	bool getDePolarity(SyncType *polarity);
+	bool getFPDL3OutputWidth(FPDL3Width *width);
 
 	bool setDisplayWidth(unsigned width);
 	bool setDisplayHeight(unsigned height);
@@ -129,6 +130,7 @@ private:
 	bool setHsyncPolarity(SyncType polarity);
 	bool setVsyncPolarity(SyncType polarity);
 	bool setDePolarity(SyncType polarity);
+	bool setFPDL3OutputWidth(FPDL3Width width);
 
 	QSpinBox *_displayWidth;
 	QSpinBox *_displayHeight;
@@ -137,6 +139,7 @@ private:
 	QComboBox *_hsyncPolarity;
 	QComboBox *_vsyncPolarity;
 	QComboBox *_dePolarity;
+	QComboBox *_fpdl3OutputWidth;
 
 #if defined(Q_OS_WIN32) || defined(Q_OS_CYGWIN)
 	IFG4OutputConfig *_config;

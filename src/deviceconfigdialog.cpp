@@ -154,12 +154,12 @@ bool InputConfigDialog::setHSyncGapLength(unsigned length)
 	return writeSysfsInt("hsync_gap_length", length);
 }
 
-bool InputConfigDialog::getFPDL3InputWidth(FPDL3InputWidth *width)
+bool InputConfigDialog::getFPDL3InputWidth(FPDL3Width *width)
 {
 	return readSysfsInt("fpdl3_input_width", (unsigned*)width);
 }
 
-bool InputConfigDialog::setFPDL3InputWidth(FPDL3InputWidth width)
+bool InputConfigDialog::setFPDL3InputWidth(FPDL3Width width)
 {
 	return writeSysfsInt("fpdl3_input_width", width);
 }
@@ -268,6 +268,16 @@ bool OutputConfigDialog::getDePolarity(SyncType *polarity)
 bool OutputConfigDialog::setDePolarity(SyncType polarity)
 {
 	return writeSysfsInt("de_polarity", polarity);
+}
+
+bool OutputConfigDialog::getFPDL3OutputWidth(FPDL3Width *width)
+{
+	return readSysfsInt("fpdl3_output_width", (unsigned*)width);
+}
+
+bool OutputConfigDialog::setFPDL3OutputWidth(FPDL3Width width)
+{
+	return writeSysfsInt("fpdl3_output_width", width);
 }
 
 #elif defined(Q_OS_WIN32) || defined(Q_OS_CYGWIN)
@@ -695,6 +705,16 @@ bool OutputConfigDialog::setDePolarity(SyncType polarity)
 	return (_config && SUCCEEDED(_config->SetPolarityDE(polarity)));
 }
 
+bool OutputConfigDialog::getFPDL3OutputWidth(FPDL3Width *width)
+{
+	return (_config && SUCCEEDED(_config->GetFpdl3InputWidth((long int*)width)));
+}
+
+bool OutputConfigDialog::setFPDL3OutputWidth(FPDL3Width width)
+{
+	return (_config && SUCCEEDED(_config->SetFpdl3InputWidth(width)));
+}
+
 #else
 #error "unsupported platform"
 #endif
@@ -866,7 +886,7 @@ InputConfigDialog::InputConfigDialog(const Device &device, QWidget *parent)
 		_fpdl3InputWidth->addItem(tr("Automatic"), QVariant(FPDL3Auto));
 		_fpdl3InputWidth->addItem(tr("Single"), QVariant(FPDL3Single));
 		_fpdl3InputWidth->addItem(tr("Dual"), QVariant(FPDL3Dual));
-		FPDL3InputWidth inputWidth;
+		FPDL3Width inputWidth;
 		if (getFPDL3InputWidth(&inputWidth))
 			_fpdl3InputWidth->setCurrentIndex(_fpdl3InputWidth->findData(
 			  (int)inputWidth));
@@ -949,7 +969,7 @@ void InputConfigDialog::accept()
 		ret &= setHSyncGapLength(_hsyncGapLength->value());
 	if (_fpdl3InputWidth)
 		ret &= setFPDL3InputWidth(
-		  (FPDL3InputWidth)_fpdl3InputWidth->currentData().toUInt());
+		  (FPDL3Width)_fpdl3InputWidth->currentData().toUInt());
 	if (_gmslMode)
 		ret &= setGMSLMode((GMSLMode)_gmslMode->currentData().toUInt());
 	if (_gmslStreamId)
@@ -966,7 +986,7 @@ void InputConfigDialog::accept()
 
 
 OutputConfigDialog::OutputConfigDialog(const Device &device, QWidget *parent)
-  : DeviceConfigDialog(device, parent)
+  : DeviceConfigDialog(device, parent), _fpdl3OutputWidth(0)
 {
 #if defined(Q_OS_WIN32) || defined(Q_OS_CYGWIN)
 	_config = outputConfig(device.id());
@@ -1083,19 +1103,40 @@ OutputConfigDialog::OutputConfigDialog(const Device &device, QWidget *parent)
 		_dePolarity->setCurrentIndex(_dePolarity->findData((int)polarity));
 
 	QGroupBox *commonConfig = new QGroupBox(tr("Common"));
-	QFormLayout *commonConfigLayout = new QFormLayout();
-	commonConfigLayout->addRow(tr("Display Width:"), _displayWidth);
-	commonConfigLayout->addRow(tr("Display Height:"), _displayHeight);
-	commonConfigLayout->addRow(tr("Frame Rate:"), _frameRate);
-	commonConfigLayout->addRow(tr("Video Source:"), _videoSource);
-	commonConfigLayout->addWidget(new QWidget());
-	commonConfigLayout->addRow(tr("HSYNC polarity:"), _hsyncPolarity);
-	commonConfigLayout->addRow(tr("VSYNC polarity:"), _vsyncPolarity);
-	commonConfigLayout->addRow(tr("DE polarity:"), _dePolarity);
+	QHBoxLayout *commonConfigLayout = new QHBoxLayout();
+	QFormLayout *commonConfigLayout1 = new QFormLayout();
+	commonConfigLayout1->addRow(tr("Display Width:"), _displayWidth);
+	commonConfigLayout1->addRow(tr("Display Height:"), _displayHeight);
+	commonConfigLayout1->addRow(tr("Frame Rate:"), _frameRate);
+	commonConfigLayout1->addRow(tr("Video Source:"), _videoSource);
+	QFormLayout *commonConfigLayout2 = new QFormLayout();
+	commonConfigLayout2->addRow(tr("HSYNC polarity:"), _hsyncPolarity);
+	commonConfigLayout2->addRow(tr("VSYNC polarity:"), _vsyncPolarity);
+	commonConfigLayout2->addRow(tr("DE polarity:"), _dePolarity);
+	commonConfigLayout->addLayout(commonConfigLayout1);
+	commonConfigLayout->addLayout(commonConfigLayout2);
 	commonConfig->setLayout(commonConfigLayout);
 
 	QVBoxLayout *configLayout = new QVBoxLayout();
 	configLayout->addWidget(commonConfig);
+
+	if (fwType == FPDL3) {
+		_fpdl3OutputWidth = new QComboBox();
+		_fpdl3OutputWidth->addItem(tr("Automatic"), QVariant(FPDL3Auto));
+		_fpdl3OutputWidth->addItem(tr("Single"), QVariant(FPDL3Single));
+		_fpdl3OutputWidth->addItem(tr("Dual"), QVariant(FPDL3Dual));
+		FPDL3Width outputWidth;
+		if (getFPDL3OutputWidth(&outputWidth))
+			_fpdl3OutputWidth->setCurrentIndex(_fpdl3OutputWidth->findData(
+			  (int)outputWidth));
+
+		QGroupBox *fpdl3Config = new QGroupBox(tr("FPDL3"));
+		QFormLayout *fpdl3ConfigLayout = new QFormLayout();
+		fpdl3ConfigLayout->addRow(tr("FPDL3 Output Width:"), _fpdl3OutputWidth);
+		fpdl3Config->setLayout(fpdl3ConfigLayout);
+
+		configLayout->addWidget(fpdl3Config);
+	}
 
 	QWidget *statusPage = new QWidget();
 	statusPage->setLayout(statusLayout);
@@ -1131,6 +1172,10 @@ void OutputConfigDialog::accept()
 	ret &= setHsyncPolarity((SyncType)_hsyncPolarity->currentData().toUInt());
 	ret &= setVsyncPolarity((SyncType)_vsyncPolarity->currentData().toUInt());
 	ret &= setDePolarity((SyncType)_dePolarity->currentData().toUInt());
+
+	if (_fpdl3OutputWidth)
+		ret &= setFPDL3OutputWidth((FPDL3Width)_fpdl3OutputWidth->currentData()
+		  .toUInt());
 
 	if (!ret)
 		QMessageBox::critical(this, tr("Error"),
