@@ -17,6 +17,7 @@ public:
 
 protected:
 	enum ModuleType {None, FPDL3, GMSL};
+	enum SyncType {ActiveLow, ActiveHigh, NotAvailable};
 
 #if defined(Q_OS_LINUX)
 	bool getModuleType(ModuleType *type);
@@ -44,7 +45,6 @@ public slots:
 
 private:
 	enum LinkStatus {Unlocked, Locked};
-	enum SyncStatus {ActiveLow, ActiveHigh, NotAvailable};
 	enum ColorMapping {OLDI, SPWG};
 	enum LineWidth {Single, Dual};
 	enum FPDL3InputWidth {FPDL3Auto, FPDL3Single, FPDL3Dual};
@@ -61,8 +61,8 @@ private:
 
 	bool getInputId(unsigned *id);
 	bool getLinkStatus(LinkStatus *status);
-	bool getVSyncStatus(SyncStatus *status);
-	bool getHSyncStatus(SyncStatus *status);
+	bool getVSyncStatus(SyncType *status);
+	bool getHSyncStatus(SyncType *status);
 	bool getColorMapping(ColorMapping *mapping);
 	bool getLaneWidth(LineWidth *lineWidth);
 	bool getVSyncGapLength(unsigned *length);
@@ -118,16 +118,25 @@ private:
 	bool getDisplayHeight(unsigned *height);
 	bool getFrameRate(unsigned *frameRate);
 	bool getVideoSource(unsigned *source);
+	bool getHsyncPolarity(SyncType *polarity);
+	bool getVsyncPolarity(SyncType *polarity);
+	bool getDePolarity(SyncType *polarity);
 
 	bool setDisplayWidth(unsigned width);
 	bool setDisplayHeight(unsigned height);
 	bool setFrameRate(unsigned frameRate);
 	bool setVideoSource(unsigned source);
+	bool setHsyncPolarity(SyncType polarity);
+	bool setVsyncPolarity(SyncType polarity);
+	bool setDePolarity(SyncType polarity);
 
 	QSpinBox *_displayWidth;
 	QSpinBox *_displayHeight;
 	QSpinBox *_frameRate;
 	QComboBox *_videoSource;
+	QComboBox *_hsyncPolarity;
+	QComboBox *_vsyncPolarity;
+	QComboBox *_dePolarity;
 
 #if defined(Q_OS_WIN32) || defined(Q_OS_CYGWIN)
 	IFG4OutputConfig *_config;

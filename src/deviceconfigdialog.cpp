@@ -104,12 +104,12 @@ bool InputConfigDialog::getLinkStatus(LinkStatus *status)
 	return readSysfsInt("link_status", (unsigned*)status);
 }
 
-bool InputConfigDialog::getVSyncStatus(SyncStatus *status)
+bool InputConfigDialog::getVSyncStatus(SyncType *status)
 {
 	return readSysfsInt("vsync_status", (unsigned*)status);
 }
 
-bool InputConfigDialog::getHSyncStatus(SyncStatus *status)
+bool InputConfigDialog::getHSyncStatus(SyncType *status)
 {
 	return readSysfsInt("hsync_status", (unsigned*)status);
 }
@@ -238,6 +238,36 @@ bool OutputConfigDialog::getVideoSource(unsigned *source)
 bool OutputConfigDialog::setVideoSource(unsigned source)
 {
 	return writeSysfsInt("video_source", source);
+}
+
+bool OutputConfigDialog::getHsyncPolarity(SyncType *polarity)
+{
+	return readSysfsInt("hsync_polarity", (unsigned*)polarity);
+}
+
+bool OutputConfigDialog::setHsyncPolarity(SyncType polarity)
+{
+	return writeSysfsInt("hsync_polarity", polarity);
+}
+
+bool OutputConfigDialog::getVsyncPolarity(SyncType *polarity)
+{
+	return readSysfsInt("vsync_polarity", (unsigned*)polarity);
+}
+
+bool OutputConfigDialog::setVsyncPolarity(SyncType polarity)
+{
+	return writeSysfsInt("vsync_polarity", polarity);
+}
+
+bool OutputConfigDialog::getDePolarity(SyncType *polarity)
+{
+	return readSysfsInt("de_polarity", (unsigned*)polarity);
+}
+
+bool OutputConfigDialog::setDePolarity(SyncType polarity)
+{
+	return writeSysfsInt("de_polarity", polarity);
 }
 
 #elif defined(Q_OS_WIN32) || defined(Q_OS_CYGWIN)
@@ -635,6 +665,36 @@ bool OutputConfigDialog::setVideoSource(unsigned source)
 	return (_config && SUCCEEDED(_config->SetSignalSource(source)));
 }
 
+bool OutputConfigDialog::getHsyncPolarity(SyncType *polarity)
+{
+	return (_config && SUCCEEDED(_config->GetPolarityHSYNC((long int*)polarity)));
+}
+
+bool OutputConfigDialog::setHsyncPolarity(SyncType polarity)
+{
+	return (_config && SUCCEEDED(_config->SetPolarityHSYNC(polarity)));
+}
+
+bool OutputConfigDialog::getVsyncPolarity(SyncType *polarity)
+{
+	return (_config && SUCCEEDED(_config->GetPolarityVSYNC((long int*)polarity)));
+}
+
+bool OutputConfigDialog::setVsyncPolarity(SyncType polarity)
+{
+	return (_config && SUCCEEDED(_config->SetPolarityVSYNC(polarity)));
+}
+
+bool OutputConfigDialog::getDePolarity(SyncType *polarity)
+{
+	return (_config && SUCCEEDED(_config->GetPolarityDE((long int*)polarity)));
+}
+
+bool OutputConfigDialog::setDePolarity(SyncType polarity)
+{
+	return (_config && SUCCEEDED(_config->SetPolarityDE(polarity)));
+}
+
 #else
 #error "unsupported platform"
 #endif
@@ -731,7 +791,7 @@ InputConfigDialog::InputConfigDialog(const Device &device, QWidget *parent)
 	else if (linkStatus == Unlocked)
 		linkStatusLabel->setText(tr("Unlocked"));
 
-	SyncStatus vsyncStatus = NotAvailable;
+	SyncType vsyncStatus = NotAvailable;
 	QLabel *vsyncStatusLabel = new QLabel();
 	if (!getVSyncStatus(&vsyncStatus)|| vsyncStatus == NotAvailable)
 		vsyncStatusLabel->setText(tr("N/A"));
@@ -740,7 +800,7 @@ InputConfigDialog::InputConfigDialog(const Device &device, QWidget *parent)
 	else if (vsyncStatus == ActiveHigh)
 		vsyncStatusLabel->setText(tr("Active High"));
 
-	SyncStatus hsyncStatus = NotAvailable;
+	SyncType hsyncStatus = NotAvailable;
 	QLabel *hsyncStatusLabel = new QLabel();
 	if (!getHSyncStatus(&hsyncStatus) || hsyncStatus == NotAvailable)
 		hsyncStatusLabel->setText(tr("N/A"));
@@ -1005,12 +1065,33 @@ OutputConfigDialog::OutputConfigDialog(const Device &device, QWidget *parent)
 	if (getVideoSource(&val))
 		_videoSource->setCurrentIndex(_videoSource->findData((int)val));
 
+	SyncType polarity;
+	_hsyncPolarity = new QComboBox();
+	_hsyncPolarity->addItem(tr("Active low"), QVariant(ActiveLow));
+	_hsyncPolarity->addItem(tr("Active high"), QVariant(ActiveHigh));
+	if (getHsyncPolarity(&polarity))
+		_hsyncPolarity->setCurrentIndex(_hsyncPolarity->findData((int)polarity));
+	_vsyncPolarity = new QComboBox();
+	_vsyncPolarity->addItem(tr("Active low"), QVariant(ActiveLow));
+	_vsyncPolarity->addItem(tr("Active high"), QVariant(ActiveHigh));
+	if (getVsyncPolarity(&polarity))
+		_vsyncPolarity->setCurrentIndex(_vsyncPolarity->findData((int)polarity));
+	_dePolarity = new QComboBox() ;
+	_dePolarity->addItem(tr("Active low"), QVariant(ActiveLow));
+	_dePolarity->addItem(tr("Active high"), QVariant(ActiveHigh));
+	if (getDePolarity(&polarity))
+		_dePolarity->setCurrentIndex(_dePolarity->findData((int)polarity));
+
 	QGroupBox *commonConfig = new QGroupBox(tr("Common"));
 	QFormLayout *commonConfigLayout = new QFormLayout();
 	commonConfigLayout->addRow(tr("Display Width:"), _displayWidth);
 	commonConfigLayout->addRow(tr("Display Height:"), _displayHeight);
 	commonConfigLayout->addRow(tr("Frame Rate:"), _frameRate);
 	commonConfigLayout->addRow(tr("Video Source:"), _videoSource);
+	commonConfigLayout->addWidget(new QWidget());
+	commonConfigLayout->addRow(tr("HSYNC polarity:"), _hsyncPolarity);
+	commonConfigLayout->addRow(tr("VSYNC polarity:"), _vsyncPolarity);
+	commonConfigLayout->addRow(tr("DE polarity:"), _dePolarity);
 	commonConfig->setLayout(commonConfigLayout);
 
 	QVBoxLayout *configLayout = new QVBoxLayout();
@@ -1047,6 +1128,9 @@ void OutputConfigDialog::accept()
 	ret &= setDisplayHeight(_displayHeight->value());
 	ret &= setFrameRate(_frameRate->value());
 	ret &= setVideoSource(_videoSource->currentData().toUInt());
+	ret &= setHsyncPolarity((SyncType)_hsyncPolarity->currentData().toUInt());
+	ret &= setVsyncPolarity((SyncType)_vsyncPolarity->currentData().toUInt());
+	ret &= setDePolarity((SyncType)_dePolarity->currentData().toUInt());
 
 	if (!ret)
 		QMessageBox::critical(this, tr("Error"),
