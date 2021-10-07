@@ -370,7 +370,7 @@ void GUI::openDevice(QObject *device)
 	_device = video->device();
 	_configureDeviceAction->setEnabled(_device.isValid());
 
-	_playAction->setEnabled(true);
+	_playAction->setEnabled(_device.type() == Device::Input);
 }
 
 void GUI::openStream()
