@@ -15,6 +15,7 @@ public:
 
 	QString url() const;
 	QString name() const;
+	Device device() const {return Device(Device::Input, -1, "Network stream");}
 
 	const StreamInfo &info() const {return _streamInfo;}
 
