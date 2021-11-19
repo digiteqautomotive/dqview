@@ -48,6 +48,7 @@ private:
 	enum LinkStatus {Unlocked, Locked};
 	enum ColorMapping {OLDI, SPWG};
 	enum LineWidth {Single, Dual};
+	enum FreqRange {Under50MHz, Over50MHz};
 	enum GMSLMode {GMSL12Gb, GMSL6Gb, GMSL3Gb, GMSL1GB};
 	enum GMSLFEC {GMSLFECDisabled, GMSLFECEnabled};
 
@@ -67,6 +68,11 @@ private:
 	bool getLaneWidth(LineWidth *lineWidth);
 	bool getVSyncGapLength(unsigned *length);
 	bool getHSyncGapLength(unsigned *length);
+	bool getPclkFreq(unsigned *freq);
+	bool getHSyncWidth(unsigned *width);
+	bool getHBackPorche(unsigned *porche);
+	bool getHFrontPorche(unsigned *porche);
+	bool getFreqRange(FreqRange *range);
 	bool getFPDL3InputWidth(FPDL3Width *width);
 	bool getGMSLMode(GMSLMode *mode);
 	bool getGMSLStreamId(unsigned *streamId);
@@ -76,6 +82,7 @@ private:
 	bool setLaneWidth(LineWidth lineWidth);
 	bool setVSyncGapLength(unsigned length);
 	bool setHSyncGapLength(unsigned length);
+	bool setFreqRange(FreqRange range);
 	bool setFPDL3InputWidth(FPDL3Width width);
 	bool setGMSLMode(GMSLMode mode);
 	bool setGMSLStreamId(unsigned streamId);
@@ -85,6 +92,7 @@ private:
 	QComboBox *_oldiLineWidth;
 	QSpinBox *_vsyncGapLength;
 	QSpinBox *_hsyncGapLength;
+	QComboBox *_freqRange;
 	QComboBox *_fpdl3InputWidth;
 	QComboBox *_gmslMode;
 	QComboBox *_gmslStreamId;

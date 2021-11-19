@@ -154,6 +154,36 @@ bool InputConfigDialog::setHSyncGapLength(unsigned length)
 	return writeSysfsInt("hsync_gap_length", length);
 }
 
+bool InputConfigDialog::getPclkFreq(unsigned *freq)
+{
+	return readSysfsInt("pclk_frequency", freq);
+}
+
+bool InputConfigDialog::getHSyncWidth(unsigned *width)
+{
+	return readSysfsInt("hsync_width", width);
+}
+
+bool InputConfigDialog::getHBackPorche(unsigned *porche)
+{
+	return readSysfsInt("hback_porche", porche);
+}
+
+bool InputConfigDialog::getHFrontPorche(unsigned *porche)
+{
+	return readSysfsInt("hfront_porche", porche);
+}
+
+bool InputConfigDialog::getFreqRange(FreqRange *range)
+{
+	return readSysfsInt("frequency_range", (unsigned*)range);
+}
+
+bool InputConfigDialog::setFreqRange(FreqRange range)
+{
+	return writeSysfsInt("frequency_range", range);
+}
+
 bool InputConfigDialog::getFPDL3InputWidth(FPDL3Width *width)
 {
 	return readSysfsInt("fpdl3_input_width", (unsigned*)width);
@@ -510,6 +540,36 @@ bool InputConfigDialog::setHSyncGapLength(unsigned length)
 	return (_config && SUCCEEDED(_config->SetDeGap2HS(length)));
 }
 
+bool InputConfigDialog::getPclkFreq(unsigned *freq)
+{
+	return false;
+}
+
+bool InputConfigDialog::getHSyncWidth(unsigned *width)
+{
+	return false;
+}
+
+bool InputConfigDialog::getHBackPorche(unsigned *porche)
+{
+	return false;
+}
+
+bool InputConfigDialog::getHFrontPorche(unsigned *porche)
+{
+	return false;
+}
+
+bool InputConfigDialog::getFreqRange(FreqRange *range)
+{
+	return false;
+}
+
+bool InputConfigDialog::setFreqRange(FreqRange range)
+{
+	return false;
+}
+
 bool InputConfigDialog::getFPDL3InputWidth(FPDL3Width *width)
 {
 	return (_config && SUCCEEDED(_config->GetFpdl3InputWidth((long int*)width)));
@@ -829,12 +889,43 @@ InputConfigDialog::InputConfigDialog(const Device &device, QWidget *parent)
 	else if (hsyncStatus == ActiveHigh)
 		hsyncStatusLabel->setText(tr("Active High"));
 
+	unsigned freq;
+	QLabel *pclkFreqLabel = new QLabel();
+	if (!getPclkFreq(&freq))
+		pclkFreqLabel->setText(tr("N/A"));
+	else
+		pclkFreqLabel->setText(QString::number(freq));
+
+	unsigned width;
+	QLabel *hsyncWidthLabel = new QLabel();
+	if (!getHSyncWidth(&width))
+		hsyncWidthLabel->setText(tr("N/A"));
+	else
+		hsyncWidthLabel->setText(QString::number(width));
+
+	unsigned porche;
+	QLabel *hbackPorcheLabel = new QLabel();
+	if (!getHBackPorche(&porche))
+		hbackPorcheLabel->setText(tr("N/A"));
+	else
+		hbackPorcheLabel->setText(QString::number(porche));
+	QLabel *hfrontPorcheLabel = new QLabel();
+	if (!getHFrontPorche(&porche))
+		hfrontPorcheLabel->setText(tr("N/A"));
+	else
+		hfrontPorcheLabel->setText(QString::number(porche));
+
+
 	QGroupBox *inputStatus = new QGroupBox(tr("Video Input"));
 	QFormLayout *inputStatusLayout = new QFormLayout();
 	inputStatusLayout->addRow(tr("Input ID:"), inputIdLabel);
 	inputStatusLayout->addRow(tr("Link Status:"), linkStatusLabel);
 	inputStatusLayout->addRow(tr("VSync Status:"), vsyncStatusLabel);
 	inputStatusLayout->addRow(tr("HSync Status:"), hsyncStatusLabel);
+	inputStatusLayout->addRow(tr("HSync Width:"), hsyncWidthLabel);
+	inputStatusLayout->addRow(tr("HBack Porche:"), hbackPorcheLabel);
+	inputStatusLayout->addRow(tr("HFront Porche:"), hfrontPorcheLabel);
+	inputStatusLayout->addRow(tr("PCLK Frequency:"), pclkFreqLabel);
 	inputStatus->setLayout(inputStatusLayout);
 
 	QVBoxLayout *statusLayout = new QVBoxLayout();
@@ -869,12 +960,20 @@ InputConfigDialog::InputConfigDialog(const Device &device, QWidget *parent)
 	if (hsyncStatus != NotAvailable)
 		_hsyncGapLength->setEnabled(false);
 
+	_freqRange = new QComboBox();
+	_freqRange->addItem(tr("Under 50MHz"), QVariant(Under50MHz));
+	_freqRange->addItem(tr("Over 50MHz"), QVariant(Over50MHz));
+	FreqRange range;
+	if (getFreqRange(&range))
+		_freqRange->setCurrentIndex(_freqRange->findData((int)range));
+
 	QGroupBox *commonConfig = new QGroupBox(tr("Common"));
 	QFormLayout *commonConfigLayout = new QFormLayout();
 	commonConfigLayout->addRow(tr("Color Mapping:"), _colorMapping);
 	commonConfigLayout->addRow(tr("OLDI Line Width:"), _oldiLineWidth);
 	commonConfigLayout->addRow(tr("VSYNC Gap Length:"), _vsyncGapLength);
 	commonConfigLayout->addRow(tr("HSYNC Gap Length:"), _hsyncGapLength);
+	commonConfigLayout->addRow(tr("Frequency Range:"), _freqRange);
 	commonConfig->setLayout(commonConfigLayout);
 
 
@@ -967,6 +1066,7 @@ void InputConfigDialog::accept()
 		ret &= setVSyncGapLength(_vsyncGapLength->value());
 	if (_hsyncGapLength->isEnabled())
 		ret &= setHSyncGapLength(_hsyncGapLength->value());
+	ret &= setFreqRange((FreqRange)_freqRange->currentData().toUInt());
 	if (_fpdl3InputWidth)
 		ret &= setFPDL3InputWidth(
 		  (FPDL3Width)_fpdl3InputWidth->currentData().toUInt());
