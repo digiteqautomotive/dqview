@@ -126,27 +126,39 @@ private:
 	bool getDisplayHeight(unsigned *height);
 	bool getFrameRate(unsigned *frameRate);
 	bool getVideoSource(unsigned *source);
+	bool getPclkFreq(unsigned *freq);
 	bool getHsyncPolarity(SyncType *polarity);
 	bool getVsyncPolarity(SyncType *polarity);
 	bool getDePolarity(SyncType *polarity);
+	bool getHSyncWidth(unsigned *width);
+	bool getHBackPorche(unsigned *porche);
+	bool getHFrontPorche(unsigned *porche);
 	bool getFPDL3OutputWidth(FPDL3Width *width);
 
 	bool setDisplayWidth(unsigned width);
 	bool setDisplayHeight(unsigned height);
 	bool setFrameRate(unsigned frameRate);
 	bool setVideoSource(unsigned source);
+	bool setPclkFreq(unsigned freq);
 	bool setHsyncPolarity(SyncType polarity);
 	bool setVsyncPolarity(SyncType polarity);
 	bool setDePolarity(SyncType polarity);
+	bool setHSyncWidth(unsigned width);
+	bool setHBackPorche(unsigned porche);
+	bool setHFrontPorche(unsigned porche);
 	bool setFPDL3OutputWidth(FPDL3Width width);
 
 	QSpinBox *_displayWidth;
 	QSpinBox *_displayHeight;
 	QSpinBox *_frameRate;
 	QComboBox *_videoSource;
+	QSpinBox *_pclkFreq;
 	QComboBox *_hsyncPolarity;
 	QComboBox *_vsyncPolarity;
 	QComboBox *_dePolarity;
+	QSpinBox *_hsyncWidth;
+	QSpinBox *_hbackPorche;
+	QSpinBox *_hfrontPorche;
 	QComboBox *_fpdl3OutputWidth;
 
 #if defined(Q_OS_WIN32) || defined(Q_OS_CYGWIN)

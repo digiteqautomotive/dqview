@@ -270,6 +270,16 @@ bool OutputConfigDialog::setVideoSource(unsigned source)
 	return writeSysfsInt("video_source", source);
 }
 
+bool OutputConfigDialog::getPclkFreq(unsigned *freq)
+{
+	return readSysfsInt("pclk_frequency", freq);
+}
+
+bool OutputConfigDialog::setPclkFreq(unsigned freq)
+{
+	return writeSysfsInt("pclk_frequency", freq);
+}
+
 bool OutputConfigDialog::getHsyncPolarity(SyncType *polarity)
 {
 	return readSysfsInt("hsync_polarity", (unsigned*)polarity);
@@ -298,6 +308,36 @@ bool OutputConfigDialog::getDePolarity(SyncType *polarity)
 bool OutputConfigDialog::setDePolarity(SyncType polarity)
 {
 	return writeSysfsInt("de_polarity", polarity);
+}
+
+bool OutputConfigDialog::getHSyncWidth(unsigned *width)
+{
+	return readSysfsInt("hsync_width", width);
+}
+
+bool OutputConfigDialog::setHSyncWidth(unsigned width)
+{
+	return writeSysfsInt("hsync_width", width);
+}
+
+bool OutputConfigDialog::getHBackPorche(unsigned *porche)
+{
+	return readSysfsInt("hback_porche", porche);
+}
+
+bool OutputConfigDialog::setHBackPorche(unsigned porche)
+{
+	return writeSysfsInt("hback_porche", porche);
+}
+
+bool OutputConfigDialog::getHFrontPorche(unsigned *porche)
+{
+	return readSysfsInt("hfront_porche", porche);
+}
+
+bool OutputConfigDialog::setHFrontPorche(unsigned porche)
+{
+	return writeSysfsInt("hfront_porche", porche);
 }
 
 bool OutputConfigDialog::getFPDL3OutputWidth(FPDL3Width *width)
@@ -735,6 +775,16 @@ bool OutputConfigDialog::setVideoSource(unsigned source)
 	return (_config && SUCCEEDED(_config->SetSignalSource(source)));
 }
 
+bool OutputConfigDialog::getPclkFreq(unsigned *freq)
+{
+	return false;
+}
+
+bool OutputConfigDialog::setPclkFreq(unsigned freq)
+{
+	return false;
+}
+
 bool OutputConfigDialog::getHsyncPolarity(SyncType *polarity)
 {
 	return (_config && SUCCEEDED(_config->GetPolarityHSYNC((long int*)polarity)));
@@ -763,6 +813,36 @@ bool OutputConfigDialog::getDePolarity(SyncType *polarity)
 bool OutputConfigDialog::setDePolarity(SyncType polarity)
 {
 	return (_config && SUCCEEDED(_config->SetPolarityDE(polarity)));
+}
+
+bool OutputConfigDialog::getHSyncWidth(unsigned *width)
+{
+	return false;
+}
+
+bool OutputConfigDialog::setHSyncWidth(unsigned width)
+{
+	return false;
+}
+
+bool OutputConfigDialog::getHBackPorche(unsigned *porche)
+{
+	return false;
+}
+
+bool OutputConfigDialog::setHBackPorche(unsigned porche)
+{
+	return false;
+}
+
+bool OutputConfigDialog::getHFrontPorche(unsigned *porche)
+{
+	return false;
+}
+
+bool OutputConfigDialog::setHFrontPorche(unsigned porche)
+{
+	return false;
 }
 
 bool OutputConfigDialog::getFPDL3OutputWidth(FPDL3Width *width)
@@ -1185,6 +1265,11 @@ OutputConfigDialog::OutputConfigDialog(const Device &device, QWidget *parent)
 	if (getVideoSource(&val))
 		_videoSource->setCurrentIndex(_videoSource->findData((int)val));
 
+	_pclkFreq = new QSpinBox();
+	_pclkFreq->setMinimum(25000);
+	_pclkFreq->setMaximum(95000);
+	if (getPclkFreq(&val))
+		_pclkFreq->setValue(val);
 	SyncType polarity;
 	_hsyncPolarity = new QComboBox();
 	_hsyncPolarity->addItem(tr("Active low"), QVariant(ActiveLow));
@@ -1201,6 +1286,18 @@ OutputConfigDialog::OutputConfigDialog(const Device &device, QWidget *parent)
 	_dePolarity->addItem(tr("Active high"), QVariant(ActiveHigh));
 	if (getDePolarity(&polarity))
 		_dePolarity->setCurrentIndex(_dePolarity->findData((int)polarity));
+	_hsyncWidth = new QSpinBox();
+	_hsyncWidth->setMaximum(8192);
+	if (getHSyncWidth(&val))
+		_hsyncWidth->setValue(val);
+	_hbackPorche = new QSpinBox();
+	_hbackPorche->setMaximum(128);
+	if (getHBackPorche(&val))
+		_hbackPorche->setValue(val);
+	_hfrontPorche = new QSpinBox();
+	_hfrontPorche->setMaximum(128);
+	if (getHFrontPorche(&val))
+		_hfrontPorche->setValue(val);
 
 	QGroupBox *commonConfig = new QGroupBox(tr("Common"));
 	QHBoxLayout *commonConfigLayout = new QHBoxLayout();
@@ -1210,9 +1307,13 @@ OutputConfigDialog::OutputConfigDialog(const Device &device, QWidget *parent)
 	commonConfigLayout1->addRow(tr("Frame Rate:"), _frameRate);
 	commonConfigLayout1->addRow(tr("Video Source:"), _videoSource);
 	QFormLayout *commonConfigLayout2 = new QFormLayout();
-	commonConfigLayout2->addRow(tr("HSYNC polarity:"), _hsyncPolarity);
-	commonConfigLayout2->addRow(tr("VSYNC polarity:"), _vsyncPolarity);
-	commonConfigLayout2->addRow(tr("DE polarity:"), _dePolarity);
+	commonConfigLayout2->addRow(tr("PCLK Frequency:"), _pclkFreq);
+	commonConfigLayout2->addRow(tr("HSYNC Polarity:"), _hsyncPolarity);
+	commonConfigLayout2->addRow(tr("VSYNC Polarity:"), _vsyncPolarity);
+	commonConfigLayout2->addRow(tr("DE Polarity:"), _dePolarity);
+	commonConfigLayout2->addRow(tr("HSYNC Width:"), _hsyncWidth);
+	commonConfigLayout2->addRow(tr("HBack Porche:"), _hbackPorche);
+	commonConfigLayout2->addRow(tr("HFront Porche:"), _hfrontPorche);
 	commonConfigLayout->addLayout(commonConfigLayout1);
 	commonConfigLayout->addLayout(commonConfigLayout2);
 	commonConfig->setLayout(commonConfigLayout);
@@ -1269,9 +1370,13 @@ void OutputConfigDialog::accept()
 	ret &= setDisplayHeight(_displayHeight->value());
 	ret &= setFrameRate(_frameRate->value());
 	ret &= setVideoSource(_videoSource->currentData().toUInt());
+	ret &= setPclkFreq(_pclkFreq->value());
 	ret &= setHsyncPolarity((SyncType)_hsyncPolarity->currentData().toUInt());
 	ret &= setVsyncPolarity((SyncType)_vsyncPolarity->currentData().toUInt());
 	ret &= setDePolarity((SyncType)_dePolarity->currentData().toUInt());
+	ret &= setHSyncWidth(_hsyncWidth->value());
+	ret &= setHBackPorche(_hbackPorche->value());
+	ret &= setHFrontPorche(_hfrontPorche->value());
 
 	if (_fpdl3OutputWidth)
 		ret &= setFPDL3OutputWidth((FPDL3Width)_fpdl3OutputWidth->currentData()
