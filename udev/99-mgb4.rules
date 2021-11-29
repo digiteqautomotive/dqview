@@ -17,6 +17,6 @@ SUBSYSTEM=="video4linux", SUBSYSTEMS=="pci", ATTRS{vendor}=="0x1ed8", ATTRS{devi
 SUBSYSTEM=="video4linux", SUBSYSTEMS=="pci", ATTRS{vendor}=="0x1ed8", ATTRS{device}=="0x0101", ACTION=="add", RUN+="/bin/chgrp video %S%p/frequency_range", RUN+="/bin/chmod g=u %S%p/frequency_range"
 SUBSYSTEM=="video4linux", SUBSYSTEMS=="pci", ATTRS{vendor}=="0x1ed8", ATTRS{device}=="0x0101", ACTION=="add", RUN+="/bin/chgrp video %S%p/pclk_frequency", RUN+="/bin/chmod g=u %S%p/pclk_frequency"
 SUBSYSTEM=="video4linux", SUBSYSTEMS=="pci", ATTRS{vendor}=="0x1ed8", ATTRS{device}=="0x0101", ACTION=="add", RUN+="/bin/chgrp video %S%p/hsync_width", RUN+="/bin/chmod g=u %S%p/hsync_width"
-SUBSYSTEM=="video4linux", SUBSYSTEMS=="pci", ATTRS{vendor}=="0x1ed8", ATTRS{device}=="0x0101", ACTION=="add", RUN+="/bin/chgrp video %S%p/hback_porche", RUN+="/bin/chmod g=u %S%p/hback_porche"
-SUBSYSTEM=="video4linux", SUBSYSTEMS=="pci", ATTRS{vendor}=="0x1ed8", ATTRS{device}=="0x0101", ACTION=="add", RUN+="/bin/chgrp video %S%p/hfront_porche", RUN+="/bin/chmod g=u %S%p/hfront_porche"
+SUBSYSTEM=="video4linux", SUBSYSTEMS=="pci", ATTRS{vendor}=="0x1ed8", ATTRS{device}=="0x0101", ACTION=="add", RUN+="/bin/chgrp video %S%p/hback_porch", RUN+="/bin/chmod g=u %S%p/hback_porch"
+SUBSYSTEM=="video4linux", SUBSYSTEMS=="pci", ATTRS{vendor}=="0x1ed8", ATTRS{device}=="0x0101", ACTION=="add", RUN+="/bin/chgrp video %S%p/hfront_porch", RUN+="/bin/chmod g=u %S%p/hfront_porch"
 SUBSYSTEM=="video4linux", SUBSYSTEMS=="pci", ATTRS{vendor}=="0x1ed8", ATTRS{device}=="0x0101", ACTION=="add", RUN+="/bin/chgrp video %S%p/fpdl3_output_width", RUN+="/bin/chmod g=u %S%p/fpdl3_output_width"
