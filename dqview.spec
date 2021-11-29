@@ -1,5 +1,5 @@
 Name:           dqview
-Version:        2.2
+Version:        2.3
 Release:        1
 Summary:        Digiteq Automotive video player
 License:        GPL-3.0-only
@@ -54,6 +54,9 @@ fi
 %{_sysconfdir}/udev/rules.d/99-mgb4.rules
 
 %changelog
+* Mon Nov 29 12:36:15 CET 2021 - martin.tuma@digiteqautomotive.com 2.3-1
+- Added some more signal configuration parameters (porch, HSync width, PCLK)
+
 * Thu Sep 23 14:06:28 CEST 2021 - martin.tuma@digiteqautomotive.com 2.2-1
 - Added output devices configuration.
 
