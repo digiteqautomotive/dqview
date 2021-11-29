@@ -164,14 +164,14 @@ bool InputConfigDialog::getHSyncWidth(unsigned *width)
 	return readSysfsInt("hsync_width", width);
 }
 
-bool InputConfigDialog::getHBackPorche(unsigned *porche)
+bool InputConfigDialog::getHBackPorch(unsigned *porch)
 {
-	return readSysfsInt("hback_porche", porche);
+	return readSysfsInt("hback_porch", porch);
 }
 
-bool InputConfigDialog::getHFrontPorche(unsigned *porche)
+bool InputConfigDialog::getHFrontPorch(unsigned *porch)
 {
-	return readSysfsInt("hfront_porche", porche);
+	return readSysfsInt("hfront_porch", porch);
 }
 
 bool InputConfigDialog::getFreqRange(FreqRange *range)
@@ -320,24 +320,24 @@ bool OutputConfigDialog::setHSyncWidth(unsigned width)
 	return writeSysfsInt("hsync_width", width);
 }
 
-bool OutputConfigDialog::getHBackPorche(unsigned *porche)
+bool OutputConfigDialog::getHBackPorch(unsigned *porch)
 {
-	return readSysfsInt("hback_porche", porche);
+	return readSysfsInt("hback_porch", porch);
 }
 
-bool OutputConfigDialog::setHBackPorche(unsigned porche)
+bool OutputConfigDialog::setHBackPorch(unsigned porch)
 {
-	return writeSysfsInt("hback_porche", porche);
+	return writeSysfsInt("hback_porch", porch);
 }
 
-bool OutputConfigDialog::getHFrontPorche(unsigned *porche)
+bool OutputConfigDialog::getHFrontPorch(unsigned *porch)
 {
-	return readSysfsInt("hfront_porche", porche);
+	return readSysfsInt("hfront_Porch", porch);
 }
 
-bool OutputConfigDialog::setHFrontPorche(unsigned porche)
+bool OutputConfigDialog::setHFrontPorch(unsigned porch)
 {
-	return writeSysfsInt("hfront_porche", porche);
+	return writeSysfsInt("hfront_porch", porch);
 }
 
 bool OutputConfigDialog::getFPDL3OutputWidth(FPDL3Width *width)
@@ -522,27 +522,27 @@ bool InputConfigDialog::getSerialNumber(QString *serialNumber)
 
 bool InputConfigDialog::getInputId(unsigned *id)
 {
-	return (_config && SUCCEEDED(_config->GetChannel((long int*)id)));
+	return (_config && SUCCEEDED(_config->GetChannel((long*)id)));
 }
 
 bool InputConfigDialog::getLinkStatus(LinkStatus *status)
 {
-	return (_config && SUCCEEDED(_config->GetLinkLckStatus((long int*)status)));
+	return (_config && SUCCEEDED(_config->GetLinkLckStatus((long*)status)));
 }
 
 bool InputConfigDialog::getVSyncStatus(SyncType *status)
 {
-	return (_config && SUCCEEDED(_config->GetVsStatus((long int*)status)));
+	return (_config && SUCCEEDED(_config->GetVsStatus((long*)status)));
 }
 
 bool InputConfigDialog::getHSyncStatus(SyncType *status)
 {
-	return (_config && SUCCEEDED(_config->GetHsStatus((long int*)status)));
+	return (_config && SUCCEEDED(_config->GetHsStatus((long*)status)));
 }
 
 bool InputConfigDialog::getColorMapping(ColorMapping *mapping)
 {
-	return (_config && SUCCEEDED(_config->GetColorMapping((long int*)mapping)));
+	return (_config && SUCCEEDED(_config->GetColorMapping((long*)mapping)));
 }
 
 bool InputConfigDialog::setColorMapping(ColorMapping mapping)
@@ -552,7 +552,7 @@ bool InputConfigDialog::setColorMapping(ColorMapping mapping)
 
 bool InputConfigDialog::getLaneWidth(LineWidth *lineWidth)
 {
-	return (_config && SUCCEEDED(_config->GetOldiLink((long int*)lineWidth)));
+	return (_config && SUCCEEDED(_config->GetOldiLink((long*)lineWidth)));
 }
 
 bool InputConfigDialog::setLaneWidth(LineWidth lineWidth)
@@ -562,7 +562,7 @@ bool InputConfigDialog::setLaneWidth(LineWidth lineWidth)
 
 bool InputConfigDialog::getVSyncGapLength(unsigned *length)
 {
-	return (_config && SUCCEEDED(_config->GetDeGap2VS((long int*)length)));
+	return (_config && SUCCEEDED(_config->GetDeGap2VS((long*)length)));
 }
 
 bool InputConfigDialog::setVSyncGapLength(unsigned length)
@@ -572,7 +572,7 @@ bool InputConfigDialog::setVSyncGapLength(unsigned length)
 
 bool InputConfigDialog::getHSyncGapLength(unsigned *length)
 {
-	return (_config && SUCCEEDED(_config->GetDeGap2HS((long int*)length)));
+	return (_config && SUCCEEDED(_config->GetDeGap2HS((long*)length)));
 }
 
 bool InputConfigDialog::setHSyncGapLength(unsigned length)
@@ -582,37 +582,37 @@ bool InputConfigDialog::setHSyncGapLength(unsigned length)
 
 bool InputConfigDialog::getPclkFreq(unsigned *freq)
 {
-	return false;
+	return (_config && SUCCEEDED(_config->GetPclkFrequency((long*)freq)));
 }
 
 bool InputConfigDialog::getHSyncWidth(unsigned *width)
 {
-	return false;
+	return (_config && SUCCEEDED(_config->GetWidthHSYNC((long*)width)));
 }
 
-bool InputConfigDialog::getHBackPorche(unsigned *porche)
+bool InputConfigDialog::getHBackPorch(unsigned *porch)
 {
-	return false;
+	return (_config && SUCCEEDED(_config->GetHBackPorch((long*)porch)));
 }
 
-bool InputConfigDialog::getHFrontPorche(unsigned *porche)
+bool InputConfigDialog::getHFrontPorch(unsigned *porch)
 {
-	return false;
+	return (_config && SUCCEEDED(_config->GetHFrontPorch((long*)porch)));
 }
 
 bool InputConfigDialog::getFreqRange(FreqRange *range)
 {
-	return false;
+	return (_config && SUCCEEDED(_config->GetInputFrequencyRange((long*)range)));
 }
 
 bool InputConfigDialog::setFreqRange(FreqRange range)
 {
-	return false;
+	return (_config && SUCCEEDED(_config->SetInputFrequencyRange(range)));
 }
 
 bool InputConfigDialog::getFPDL3InputWidth(FPDL3Width *width)
 {
-	return (_config && SUCCEEDED(_config->GetFpdl3InputWidth((long int*)width)));
+	return (_config && SUCCEEDED(_config->GetFpdl3InputWidth((long*)width)));
 }
 
 bool InputConfigDialog::setFPDL3InputWidth(FPDL3Width width)
@@ -622,7 +622,7 @@ bool InputConfigDialog::setFPDL3InputWidth(FPDL3Width width)
 
 bool InputConfigDialog::getGMSLMode(GMSLMode *mode)
 {
-	return (_config && SUCCEEDED(_config->GetGmslRate((long int*)mode)));
+	return (_config && SUCCEEDED(_config->GetGmslRate((long*)mode)));
 }
 
 bool InputConfigDialog::setGMSLMode(GMSLMode mode)
@@ -632,7 +632,7 @@ bool InputConfigDialog::setGMSLMode(GMSLMode mode)
 
 bool InputConfigDialog::getGMSLStreamId(unsigned *streamId)
 {
-	return (_config && SUCCEEDED(_config->GetStreamId((long int*)streamId)));
+	return (_config && SUCCEEDED(_config->GetStreamId((long*)streamId)));
 }
 
 bool InputConfigDialog::setGMSLStreamId(unsigned streamId)
@@ -642,7 +642,7 @@ bool InputConfigDialog::setGMSLStreamId(unsigned streamId)
 
 bool InputConfigDialog::getGMSLFEC(GMSLFEC *fec)
 {
-	return (_config && SUCCEEDED(_config->GetGmslFEC((long int*)fec)));
+	return (_config && SUCCEEDED(_config->GetGmslFEC((long*)fec)));
 }
 
 bool InputConfigDialog::setGMSLFEC(GMSLFEC fec)
@@ -712,7 +712,7 @@ bool OutputConfigDialog::getSerialNumber(QString *serialNumber)
 
 bool OutputConfigDialog::getOutputId(unsigned *id)
 {
-	return (_config && SUCCEEDED(_config->GetChannel((long int*)id)));
+	return (_config && SUCCEEDED(_config->GetChannel((long*)id)));
 }
 
 bool OutputConfigDialog::getDisplayWidth(unsigned *width)
@@ -757,7 +757,7 @@ bool OutputConfigDialog::setDisplayHeight(unsigned int height)
 
 bool OutputConfigDialog::getFrameRate(unsigned *frameRate)
 {
-	return (_config && SUCCEEDED(_config->GetFramerate((long int*)frameRate)));
+	return (_config && SUCCEEDED(_config->GetFramerate((long*)frameRate)));
 }
 
 bool OutputConfigDialog::setFrameRate(unsigned frameRate)
@@ -767,7 +767,7 @@ bool OutputConfigDialog::setFrameRate(unsigned frameRate)
 
 bool OutputConfigDialog::getVideoSource(unsigned *source)
 {
-	return (_config && SUCCEEDED(_config->GetSignalSource((long int*)source)));
+	return (_config && SUCCEEDED(_config->GetSignalSource((long*)source)));
 }
 
 bool OutputConfigDialog::setVideoSource(unsigned source)
@@ -777,17 +777,17 @@ bool OutputConfigDialog::setVideoSource(unsigned source)
 
 bool OutputConfigDialog::getPclkFreq(unsigned *freq)
 {
-	return false;
+	return (_config && SUCCEEDED(_config->GetPclkFreq((long*)freq)));
 }
 
 bool OutputConfigDialog::setPclkFreq(unsigned freq)
 {
-	return false;
+	return (_config && SUCCEEDED(_config->SetPclkFreq(freq)));
 }
 
 bool OutputConfigDialog::getHsyncPolarity(SyncType *polarity)
 {
-	return (_config && SUCCEEDED(_config->GetPolarityHSYNC((long int*)polarity)));
+	return (_config && SUCCEEDED(_config->GetPolarityHSYNC((long*)polarity)));
 }
 
 bool OutputConfigDialog::setHsyncPolarity(SyncType polarity)
@@ -797,7 +797,7 @@ bool OutputConfigDialog::setHsyncPolarity(SyncType polarity)
 
 bool OutputConfigDialog::getVsyncPolarity(SyncType *polarity)
 {
-	return (_config && SUCCEEDED(_config->GetPolarityVSYNC((long int*)polarity)));
+	return (_config && SUCCEEDED(_config->GetPolarityVSYNC((long*)polarity)));
 }
 
 bool OutputConfigDialog::setVsyncPolarity(SyncType polarity)
@@ -807,7 +807,7 @@ bool OutputConfigDialog::setVsyncPolarity(SyncType polarity)
 
 bool OutputConfigDialog::getDePolarity(SyncType *polarity)
 {
-	return (_config && SUCCEEDED(_config->GetPolarityDE((long int*)polarity)));
+	return (_config && SUCCEEDED(_config->GetPolarityDE((long*)polarity)));
 }
 
 bool OutputConfigDialog::setDePolarity(SyncType polarity)
@@ -817,32 +817,32 @@ bool OutputConfigDialog::setDePolarity(SyncType polarity)
 
 bool OutputConfigDialog::getHSyncWidth(unsigned *width)
 {
-	return false;
+	return (_config && SUCCEEDED(_config->GetWidthHSYNC((long*)width)));
 }
 
 bool OutputConfigDialog::setHSyncWidth(unsigned width)
 {
-	return false;
+	return (_config && SUCCEEDED(_config->SetWidthHSYNC(width)));
 }
 
-bool OutputConfigDialog::getHBackPorche(unsigned *porche)
+bool OutputConfigDialog::getHBackPorch(unsigned *porch)
 {
-	return false;
+	return (_config && SUCCEEDED(_config->GetHBackPorch((long*)porch)));
 }
 
-bool OutputConfigDialog::setHBackPorche(unsigned porche)
+bool OutputConfigDialog::setHBackPorch(unsigned porch)
 {
-	return false;
+	return (_config && SUCCEEDED(_config->SetHBackPorch(porch)));
 }
 
-bool OutputConfigDialog::getHFrontPorche(unsigned *porche)
+bool OutputConfigDialog::getHFrontPorch(unsigned *porch)
 {
-	return false;
+	return (_config && SUCCEEDED(_config->GetHFrontPorch((long*)porch)));
 }
 
-bool OutputConfigDialog::setHFrontPorche(unsigned porche)
+bool OutputConfigDialog::setHFrontPorch(unsigned porch)
 {
-	return false;
+	return (_config && SUCCEEDED(_config->SetHFrontPorch(porch)));
 }
 
 bool OutputConfigDialog::getFPDL3OutputWidth(FPDL3Width *width)
@@ -983,17 +983,17 @@ InputConfigDialog::InputConfigDialog(const Device &device, QWidget *parent)
 	else
 		hsyncWidthLabel->setText(QString::number(width));
 
-	unsigned porche;
-	QLabel *hbackPorcheLabel = new QLabel();
-	if (!getHBackPorche(&porche))
-		hbackPorcheLabel->setText(tr("N/A"));
+	unsigned porch;
+	QLabel *hbackPorchLabel = new QLabel();
+	if (!getHBackPorch(&porch))
+		hbackPorchLabel->setText(tr("N/A"));
 	else
-		hbackPorcheLabel->setText(QString::number(porche));
-	QLabel *hfrontPorcheLabel = new QLabel();
-	if (!getHFrontPorche(&porche))
-		hfrontPorcheLabel->setText(tr("N/A"));
+		hbackPorchLabel->setText(QString::number(porch));
+	QLabel *hfrontPorchLabel = new QLabel();
+	if (!getHFrontPorch(&porch))
+		hfrontPorchLabel->setText(tr("N/A"));
 	else
-		hfrontPorcheLabel->setText(QString::number(porche));
+		hfrontPorchLabel->setText(QString::number(porch));
 
 
 	QGroupBox *inputStatus = new QGroupBox(tr("Video Input"));
@@ -1003,8 +1003,8 @@ InputConfigDialog::InputConfigDialog(const Device &device, QWidget *parent)
 	inputStatusLayout->addRow(tr("VSync Status:"), vsyncStatusLabel);
 	inputStatusLayout->addRow(tr("HSync Status:"), hsyncStatusLabel);
 	inputStatusLayout->addRow(tr("HSync Width:"), hsyncWidthLabel);
-	inputStatusLayout->addRow(tr("HBack Porche:"), hbackPorcheLabel);
-	inputStatusLayout->addRow(tr("HFront Porche:"), hfrontPorcheLabel);
+	inputStatusLayout->addRow(tr("HBack Porch:"), hbackPorchLabel);
+	inputStatusLayout->addRow(tr("HFront Porch:"), hfrontPorchLabel);
 	inputStatusLayout->addRow(tr("PCLK Frequency:"), pclkFreqLabel);
 	inputStatus->setLayout(inputStatusLayout);
 
@@ -1290,14 +1290,14 @@ OutputConfigDialog::OutputConfigDialog(const Device &device, QWidget *parent)
 	_hsyncWidth->setMaximum(8192);
 	if (getHSyncWidth(&val))
 		_hsyncWidth->setValue(val);
-	_hbackPorche = new QSpinBox();
-	_hbackPorche->setMaximum(128);
-	if (getHBackPorche(&val))
-		_hbackPorche->setValue(val);
-	_hfrontPorche = new QSpinBox();
-	_hfrontPorche->setMaximum(128);
-	if (getHFrontPorche(&val))
-		_hfrontPorche->setValue(val);
+	_hbackPorch = new QSpinBox();
+	_hbackPorch->setMaximum(128);
+	if (getHBackPorch(&val))
+		_hbackPorch->setValue(val);
+	_hfrontPorch = new QSpinBox();
+	_hfrontPorch->setMaximum(128);
+	if (getHFrontPorch(&val))
+		_hfrontPorch->setValue(val);
 
 	QGroupBox *commonConfig = new QGroupBox(tr("Common"));
 	QHBoxLayout *commonConfigLayout = new QHBoxLayout();
@@ -1312,8 +1312,8 @@ OutputConfigDialog::OutputConfigDialog(const Device &device, QWidget *parent)
 	commonConfigLayout2->addRow(tr("VSYNC Polarity:"), _vsyncPolarity);
 	commonConfigLayout2->addRow(tr("DE Polarity:"), _dePolarity);
 	commonConfigLayout2->addRow(tr("HSYNC Width:"), _hsyncWidth);
-	commonConfigLayout2->addRow(tr("HBack Porche:"), _hbackPorche);
-	commonConfigLayout2->addRow(tr("HFront Porche:"), _hfrontPorche);
+	commonConfigLayout2->addRow(tr("HBack Porch:"), _hbackPorch);
+	commonConfigLayout2->addRow(tr("HFront Porch:"), _hfrontPorch);
 	commonConfigLayout->addLayout(commonConfigLayout1);
 	commonConfigLayout->addLayout(commonConfigLayout2);
 	commonConfig->setLayout(commonConfigLayout);
@@ -1375,8 +1375,8 @@ void OutputConfigDialog::accept()
 	ret &= setVsyncPolarity((SyncType)_vsyncPolarity->currentData().toUInt());
 	ret &= setDePolarity((SyncType)_dePolarity->currentData().toUInt());
 	ret &= setHSyncWidth(_hsyncWidth->value());
-	ret &= setHBackPorche(_hbackPorche->value());
-	ret &= setHFrontPorche(_hfrontPorche->value());
+	ret &= setHBackPorch(_hbackPorch->value());
+	ret &= setHFrontPorch(_hfrontPorch->value());
 
 	if (_fpdl3OutputWidth)
 		ret &= setFPDL3OutputWidth((FPDL3Width)_fpdl3OutputWidth->currentData()
