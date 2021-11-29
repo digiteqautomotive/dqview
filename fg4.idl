@@ -40,6 +40,22 @@ interface IFG4InputConfig: IUnknown
     HRESULT GetCardSerial([out, retval] long* plSerialNum);
     HRESULT GetModuleId([out, retval] long* plModuleId);
     HRESULT GetDroppedFrames([out, retval] long* plDroppedFrames);
+    HRESULT GetTriggerStatus([out, retval] long *plTriggerStatus);
+    HRESULT GetDriverVersion([out] long *pAppVersion, [out] long *pAppRevision, [out] long *pAppSubRevision);
+    HRESULT GetVideoValid([out, retval] long *plVideoValid);
+    HRESULT GetDefaultColor([out, retval] long* plDefaultColor);
+    HRESULT SetDefaultColor([in] long lDefaultColor);
+    HRESULT GetInputFrequencyRange([out, retval] long* plInputFreqRange);
+    HRESULT SetInputFrequencyRange([in] long lInputFreqRange);
+    HRESULT GetPolarityHSYNC([out, retval] long *plPolHSYNC);
+    HRESULT GetPolarityVSYNC([out, retval] long *pPolVSYNC);
+    HRESULT GetHFrontPorch([out, retval] long *plHFrontPorch);
+    HRESULT GetVFrontPorch([out, retval] long *plVFrontPorch);
+    HRESULT GetHBackPorch([out, retval] long *plHBackPorch);
+    HRESULT GetVBackPorch([out, retval] long *plVBackPorch);
+    HRESULT GetWidthHSYNC([out, retval] long *plPolHSYNC);
+    HRESULT GetWidthVSYNC([out, retval] long *pPolVSYNC);
+    HRESULT GetCoreTemp([out, retval] float *pCoreTemp);
 };
 
 
@@ -79,4 +95,14 @@ interface IFG4OutputConfig: IUnknown
     HRESULT SetFpdl3OutputWidth([in] long lOutputWidth);
     HRESULT GetChannelActive([out, retval] long *plChActive);
     HRESULT SetChannelActive([in] long lChActive);
+    HRESULT GetVFlip([out, retval] long* plVFlip);
+    HRESULT SetVFlip([in] long lVFlip);
+    HRESULT GetDriverVersion([out] long *pAppVersion, [out] long *pAppRevision, [out] long *pAppSubRevision);
+    HRESULT GetPclkFreq([out, retval] long* plPclkFreq);
+    HRESULT SetPclkFreq([in] long lPclkFreq);
+    HRESULT GetWidthHSYNC([out, retval] long *plPolHSYNC);
+    HRESULT SetWidthHSYNC([in] long lPolHSYNC);
+    HRESULT GetWidthVSYNC([out, retval] long *pPolVSYNC);
+    HRESULT SetWidthVSYNC([in] long lPolVSYNC);
+    HRESULT GetCoreTemp([out, retval] float *pCoreTemp);
 };
