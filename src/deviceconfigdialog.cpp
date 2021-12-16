@@ -332,7 +332,7 @@ bool OutputConfigDialog::setHBackPorch(unsigned porch)
 
 bool OutputConfigDialog::getHFrontPorch(unsigned *porch)
 {
-	return readSysfsInt("hfront_Porch", porch);
+	return readSysfsInt("hfront_porch", porch);
 }
 
 bool OutputConfigDialog::setHFrontPorch(unsigned porch)
