@@ -46,7 +46,10 @@ bool DeviceConfigDialog::writeSysfsInt(const QString &path, unsigned val)
 	}
 
 	QByteArray ba(QByteArray::number(val));
-	return (f.write(ba) == ba.size());
+	if (f.write(ba) != ba.size())
+		return false;
+
+	return f.flush();
 }
 
 bool DeviceConfigDialog::readSysfsString(const QString &path, QString *val)
