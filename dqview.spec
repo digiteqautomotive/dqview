@@ -1,5 +1,5 @@
 Name:           dqview
-Version:        2.3
+Version:        2.4
 Release:        1
 Summary:        Digiteq Automotive video player
 License:        GPL-3.0-only
@@ -54,6 +54,9 @@ fi
 %{_sysconfdir}/udev/rules.d/99-mgb4.rules
 
 %changelog
+* Thu Feb 10 12:42:23 CET 2022 - martin.tuma@digiteqautomotive.com 2.4-1
+- Added VFronPotch, VBackPorch and VSyncWidth configuration parameters.
+
 * Thu Jan 20 13:18:17 CET 2022 - martin.tuma@digiteqautomotive.com 2.3-1
 - Added some more signal configuration parameters (porch, HSync width, PCLK).
 - Fixed property write error checking.
