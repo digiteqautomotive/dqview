@@ -918,6 +918,26 @@ bool OutputConfigDialog::setHFrontPorch(unsigned porch)
 	return (_config && SUCCEEDED(_config->SetHFrontPorch(porch)));
 }
 
+bool OutputConfigDialog::getVBackPorch(unsigned *porch)
+{
+	return (_config && SUCCEEDED(_config->GetVBackPorch((long*)porch)));
+}
+
+bool OutputConfigDialog::setVBackPorch(unsigned porch)
+{
+	return (_config && SUCCEEDED(_config->SetVBackPorch(porch)));
+}
+
+bool OutputConfigDialog::getVFrontPorch(unsigned *porch)
+{
+	return (_config && SUCCEEDED(_config->GetVFrontPorch((long*)porch)));
+}
+
+bool OutputConfigDialog::setHFrontPorch(unsigned porch)
+{
+	return (_config && SUCCEEDED(_config->SetVFrontPorch(porch)));
+}
+
 bool OutputConfigDialog::getFPDL3OutputWidth(FPDL3Width *width)
 {
 	return (_config && SUCCEEDED(_config->GetFpdl3OutputWidth((long int*)width)));
