@@ -70,8 +70,11 @@ private:
 	bool getHSyncGapLength(unsigned *length);
 	bool getPclkFreq(unsigned *freq);
 	bool getHSyncWidth(unsigned *width);
+	bool getVSyncWidth(unsigned *width);
 	bool getHBackPorch(unsigned *porch);
 	bool getHFrontPorch(unsigned *porch);
+	bool getVBackPorch(unsigned *porch);
+	bool getVFrontPorch(unsigned *porch);
 	bool getFreqRange(FreqRange *range);
 	bool getFPDL3InputWidth(FPDL3Width *width);
 	bool getGMSLMode(GMSLMode *mode);
@@ -131,8 +134,11 @@ private:
 	bool getVsyncPolarity(SyncType *polarity);
 	bool getDePolarity(SyncType *polarity);
 	bool getHSyncWidth(unsigned *width);
+	bool getVSyncWidth(unsigned *width);
 	bool getHBackPorch(unsigned *porch);
 	bool getHFrontPorch(unsigned *porch);
+	bool getVBackPorch(unsigned *porch);
+	bool getVFrontPorch(unsigned *porch);
 	bool getFPDL3OutputWidth(FPDL3Width *width);
 
 	bool setDisplayWidth(unsigned width);
@@ -144,8 +150,11 @@ private:
 	bool setVsyncPolarity(SyncType polarity);
 	bool setDePolarity(SyncType polarity);
 	bool setHSyncWidth(unsigned width);
+	bool setVSyncWidth(unsigned width);
 	bool setHBackPorch(unsigned porch);
 	bool setHFrontPorch(unsigned porch);
+	bool setVBackPorch(unsigned porch);
+	bool setVFrontPorch(unsigned porch);
 	bool setFPDL3OutputWidth(FPDL3Width width);
 
 	QSpinBox *_displayWidth;
@@ -157,8 +166,11 @@ private:
 	QComboBox *_vsyncPolarity;
 	QComboBox *_dePolarity;
 	QSpinBox *_hsyncWidth;
+	QSpinBox *_vsyncWidth;
 	QSpinBox *_hbackPorch;
 	QSpinBox *_hfrontPorch;
+	QSpinBox *_vbackPorch;
+	QSpinBox *_vfrontPorch;
 	QComboBox *_fpdl3OutputWidth;
 
 #if defined(Q_OS_WIN32) || defined(Q_OS_CYGWIN)

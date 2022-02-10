@@ -167,6 +167,11 @@ bool InputConfigDialog::getHSyncWidth(unsigned *width)
 	return readSysfsInt("hsync_width", width);
 }
 
+bool InputConfigDialog::getVSyncWidth(unsigned *width)
+{
+	return readSysfsInt("vsync_width", width);
+}
+
 bool InputConfigDialog::getHBackPorch(unsigned *porch)
 {
 	return readSysfsInt("hback_porch", porch);
@@ -175,6 +180,16 @@ bool InputConfigDialog::getHBackPorch(unsigned *porch)
 bool InputConfigDialog::getHFrontPorch(unsigned *porch)
 {
 	return readSysfsInt("hfront_porch", porch);
+}
+
+bool InputConfigDialog::getVBackPorch(unsigned *porch)
+{
+	return readSysfsInt("vback_porch", porch);
+}
+
+bool InputConfigDialog::getVFrontPorch(unsigned *porch)
+{
+	return readSysfsInt("vfront_porch", porch);
 }
 
 bool InputConfigDialog::getFreqRange(FreqRange *range)
@@ -323,6 +338,16 @@ bool OutputConfigDialog::setHSyncWidth(unsigned width)
 	return writeSysfsInt("hsync_width", width);
 }
 
+bool OutputConfigDialog::getVSyncWidth(unsigned *width)
+{
+	return readSysfsInt("vsync_width", width);
+}
+
+bool OutputConfigDialog::setVSyncWidth(unsigned width)
+{
+	return writeSysfsInt("vsync_width", width);
+}
+
 bool OutputConfigDialog::getHBackPorch(unsigned *porch)
 {
 	return readSysfsInt("hback_porch", porch);
@@ -341,6 +366,26 @@ bool OutputConfigDialog::getHFrontPorch(unsigned *porch)
 bool OutputConfigDialog::setHFrontPorch(unsigned porch)
 {
 	return writeSysfsInt("hfront_porch", porch);
+}
+
+bool OutputConfigDialog::getVBackPorch(unsigned *porch)
+{
+	return readSysfsInt("vback_porch", porch);
+}
+
+bool OutputConfigDialog::setVBackPorch(unsigned porch)
+{
+	return writeSysfsInt("vback_porch", porch);
+}
+
+bool OutputConfigDialog::getVFrontPorch(unsigned *porch)
+{
+	return readSysfsInt("vfront_porch", porch);
+}
+
+bool OutputConfigDialog::setVFrontPorch(unsigned porch)
+{
+	return writeSysfsInt("vfront_porch", porch);
 }
 
 bool OutputConfigDialog::getFPDL3OutputWidth(FPDL3Width *width)
@@ -593,6 +638,11 @@ bool InputConfigDialog::getHSyncWidth(unsigned *width)
 	return (_config && SUCCEEDED(_config->GetWidthHSYNC((long*)width)));
 }
 
+bool InputConfigDialog::getVSyncWidth(unsigned *width)
+{
+	return (_config && SUCCEEDED(_config->GetWidthVSYNC((long*)width)));
+}
+
 bool InputConfigDialog::getHBackPorch(unsigned *porch)
 {
 	return (_config && SUCCEEDED(_config->GetHBackPorch((long*)porch)));
@@ -601,6 +651,16 @@ bool InputConfigDialog::getHBackPorch(unsigned *porch)
 bool InputConfigDialog::getHFrontPorch(unsigned *porch)
 {
 	return (_config && SUCCEEDED(_config->GetHFrontPorch((long*)porch)));
+}
+
+bool InputConfigDialog::getVBackPorch(unsigned *porch)
+{
+	return (_config && SUCCEEDED(_config->GetVBackPorch((long*)porch)));
+}
+
+bool InputConfigDialog::getVFrontPorch(unsigned *porch)
+{
+	return (_config && SUCCEEDED(_config->GetVFrontPorch((long*)porch)));
 }
 
 bool InputConfigDialog::getFreqRange(FreqRange *range)
@@ -828,6 +888,16 @@ bool OutputConfigDialog::setHSyncWidth(unsigned width)
 	return (_config && SUCCEEDED(_config->SetWidthHSYNC(width)));
 }
 
+bool OutputConfigDialog::getVSyncWidth(unsigned *width)
+{
+	return (_config && SUCCEEDED(_config->GetWidthVSYNC((long*)width)));
+}
+
+bool OutputConfigDialog::setVSyncWidth(unsigned width)
+{
+	return (_config && SUCCEEDED(_config->SetWidthVSYNC(width)));
+}
+
 bool OutputConfigDialog::getHBackPorch(unsigned *porch)
 {
 	return (_config && SUCCEEDED(_config->GetHBackPorch((long*)porch)));
@@ -985,6 +1055,11 @@ InputConfigDialog::InputConfigDialog(const Device &device, QWidget *parent)
 		hsyncWidthLabel->setText(tr("N/A"));
 	else
 		hsyncWidthLabel->setText(QString::number(width));
+	QLabel *vsyncWidthLabel = new QLabel();
+	if (!getVSyncWidth(&width))
+		vsyncWidthLabel->setText(tr("N/A"));
+	else
+		vsyncWidthLabel->setText(QString::number(width));
 
 	unsigned porch;
 	QLabel *hbackPorchLabel = new QLabel();
@@ -997,18 +1072,35 @@ InputConfigDialog::InputConfigDialog(const Device &device, QWidget *parent)
 		hfrontPorchLabel->setText(tr("N/A"));
 	else
 		hfrontPorchLabel->setText(QString::number(porch));
-
+	QLabel *vbackPorchLabel = new QLabel();
+	if (!getVBackPorch(&porch))
+		vbackPorchLabel->setText(tr("N/A"));
+	else
+		vbackPorchLabel->setText(QString::number(porch));
+	QLabel *vfrontPorchLabel = new QLabel();
+	if (!getVFrontPorch(&porch))
+		vfrontPorchLabel->setText(tr("N/A"));
+	else
+		vfrontPorchLabel->setText(QString::number(porch));
 
 	QGroupBox *inputStatus = new QGroupBox(tr("Video Input"));
-	QFormLayout *inputStatusLayout = new QFormLayout();
-	inputStatusLayout->addRow(tr("Input ID:"), inputIdLabel);
-	inputStatusLayout->addRow(tr("Link Status:"), linkStatusLabel);
-	inputStatusLayout->addRow(tr("VSync Status:"), vsyncStatusLabel);
-	inputStatusLayout->addRow(tr("HSync Status:"), hsyncStatusLabel);
-	inputStatusLayout->addRow(tr("HSync Width:"), hsyncWidthLabel);
-	inputStatusLayout->addRow(tr("HBack Porch:"), hbackPorchLabel);
-	inputStatusLayout->addRow(tr("HFront Porch:"), hfrontPorchLabel);
-	inputStatusLayout->addRow(tr("PCLK Frequency:"), pclkFreqLabel);
+	QHBoxLayout *inputStatusLayout = new QHBoxLayout();
+	QFormLayout *coreInputStatusLayout = new QFormLayout();
+	coreInputStatusLayout->addRow(tr("Input ID:"), inputIdLabel);
+	coreInputStatusLayout->addRow(tr("Link Status:"), linkStatusLabel);
+	coreInputStatusLayout->addRow(tr("VSync Status:"), vsyncStatusLabel);
+	coreInputStatusLayout->addRow(tr("HSync Status:"), hsyncStatusLabel);
+	coreInputStatusLayout->addRow(tr("HSync Width:"), hsyncWidthLabel);
+	coreInputStatusLayout->addRow(tr("VSync Width:"), vsyncWidthLabel);
+	coreInputStatusLayout->addRow(tr("PCLK Frequency:"), pclkFreqLabel);
+	QFormLayout *porchInputStatusLayout = new QFormLayout();
+	porchInputStatusLayout->addRow(tr("HBack Porch:"), hbackPorchLabel);
+	porchInputStatusLayout->addRow(tr("HFront Porch:"), hfrontPorchLabel);
+	porchInputStatusLayout->addRow(tr("VBack Porch:"), vbackPorchLabel);
+	porchInputStatusLayout->addRow(tr("VFront Porch:"), vfrontPorchLabel);
+
+	inputStatusLayout->addLayout(coreInputStatusLayout);
+	inputStatusLayout->addLayout(porchInputStatusLayout);
 	inputStatus->setLayout(inputStatusLayout);
 
 	QVBoxLayout *statusLayout = new QVBoxLayout();
@@ -1293,6 +1385,10 @@ OutputConfigDialog::OutputConfigDialog(const Device &device, QWidget *parent)
 	_hsyncWidth->setMaximum(8192);
 	if (getHSyncWidth(&val))
 		_hsyncWidth->setValue(val);
+	_vsyncWidth = new QSpinBox();
+	_vsyncWidth->setMaximum(8192);
+	if (getVSyncWidth(&val))
+		_hsyncWidth->setValue(val);
 	_hbackPorch = new QSpinBox();
 	_hbackPorch->setMaximum(128);
 	if (getHBackPorch(&val))
@@ -1301,6 +1397,14 @@ OutputConfigDialog::OutputConfigDialog(const Device &device, QWidget *parent)
 	_hfrontPorch->setMaximum(128);
 	if (getHFrontPorch(&val))
 		_hfrontPorch->setValue(val);
+	_vbackPorch = new QSpinBox();
+	_vbackPorch->setMaximum(128);
+	if (getVBackPorch(&val))
+		_vbackPorch->setValue(val);
+	_vfrontPorch = new QSpinBox();
+	_vfrontPorch->setMaximum(128);
+	if (getVFrontPorch(&val))
+		_vfrontPorch->setValue(val);
 
 	QGroupBox *commonConfig = new QGroupBox(tr("Common"));
 	QHBoxLayout *commonConfigLayout = new QHBoxLayout();
@@ -1309,14 +1413,17 @@ OutputConfigDialog::OutputConfigDialog(const Device &device, QWidget *parent)
 	commonConfigLayout1->addRow(tr("Display Height:"), _displayHeight);
 	commonConfigLayout1->addRow(tr("Frame Rate:"), _frameRate);
 	commonConfigLayout1->addRow(tr("Video Source:"), _videoSource);
+	commonConfigLayout1->addRow(tr("PCLK Frequency:"), _pclkFreq);
 	QFormLayout *commonConfigLayout2 = new QFormLayout();
-	commonConfigLayout2->addRow(tr("PCLK Frequency:"), _pclkFreq);
 	commonConfigLayout2->addRow(tr("HSYNC Polarity:"), _hsyncPolarity);
 	commonConfigLayout2->addRow(tr("VSYNC Polarity:"), _vsyncPolarity);
 	commonConfigLayout2->addRow(tr("DE Polarity:"), _dePolarity);
 	commonConfigLayout2->addRow(tr("HSYNC Width:"), _hsyncWidth);
+	commonConfigLayout2->addRow(tr("VSYNC Width:"), _vsyncWidth);
 	commonConfigLayout2->addRow(tr("HBack Porch:"), _hbackPorch);
 	commonConfigLayout2->addRow(tr("HFront Porch:"), _hfrontPorch);
+	commonConfigLayout2->addRow(tr("VBack Porch:"), _vbackPorch);
+	commonConfigLayout2->addRow(tr("VFront Porch:"), _vfrontPorch);
 	commonConfigLayout->addLayout(commonConfigLayout1);
 	commonConfigLayout->addLayout(commonConfigLayout2);
 	commonConfig->setLayout(commonConfigLayout);
@@ -1380,6 +1487,8 @@ void OutputConfigDialog::accept()
 	ret &= setHSyncWidth(_hsyncWidth->value());
 	ret &= setHBackPorch(_hbackPorch->value());
 	ret &= setHFrontPorch(_hfrontPorch->value());
+	ret &= setVBackPorch(_hbackPorch->value());
+	ret &= setVFrontPorch(_hfrontPorch->value());
 
 	if (_fpdl3OutputWidth)
 		ret &= setFPDL3OutputWidth((FPDL3Width)_fpdl3OutputWidth->currentData()
