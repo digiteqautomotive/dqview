@@ -1485,6 +1485,7 @@ void OutputConfigDialog::accept()
 	ret &= setVsyncPolarity((SyncType)_vsyncPolarity->currentData().toUInt());
 	ret &= setDePolarity((SyncType)_dePolarity->currentData().toUInt());
 	ret &= setHSyncWidth(_hsyncWidth->value());
+	ret &= setVSyncWidth(_vsyncWidth->value());
 	ret &= setHBackPorch(_hbackPorch->value());
 	ret &= setHFrontPorch(_hfrontPorch->value());
 	ret &= setVBackPorch(_hbackPorch->value());
