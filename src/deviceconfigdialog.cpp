@@ -933,7 +933,7 @@ bool OutputConfigDialog::getVFrontPorch(unsigned *porch)
 	return (_config && SUCCEEDED(_config->GetVFrontPorch((long*)porch)));
 }
 
-bool OutputConfigDialog::setHFrontPorch(unsigned porch)
+bool OutputConfigDialog::setVFrontPorch(unsigned porch)
 {
 	return (_config && SUCCEEDED(_config->SetVFrontPorch(porch)));
 }
