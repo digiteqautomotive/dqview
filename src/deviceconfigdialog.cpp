@@ -1410,19 +1410,19 @@ OutputConfigDialog::OutputConfigDialog(const Device &device, QWidget *parent)
 	if (getVSyncWidth(&val))
 		_hsyncWidth->setValue(val);
 	_hbackPorch = new QSpinBox();
-	_hbackPorch->setMaximum(128);
+	_hbackPorch->setMaximum(255);
 	if (getHBackPorch(&val))
 		_hbackPorch->setValue(val);
 	_hfrontPorch = new QSpinBox();
-	_hfrontPorch->setMaximum(128);
+	_hfrontPorch->setMaximum(255);
 	if (getHFrontPorch(&val))
 		_hfrontPorch->setValue(val);
 	_vbackPorch = new QSpinBox();
-	_vbackPorch->setMaximum(128);
+	_vbackPorch->setMaximum(255);
 	if (getVBackPorch(&val))
 		_vbackPorch->setValue(val);
 	_vfrontPorch = new QSpinBox();
-	_vfrontPorch->setMaximum(128);
+	_vfrontPorch->setMaximum(255);
 	if (getVFrontPorch(&val))
 		_vfrontPorch->setValue(val);
 
