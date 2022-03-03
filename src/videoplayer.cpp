@@ -203,7 +203,9 @@ void VideoPlayer::stopStreaming()
 	p.fillRect(rect(), Qt::black);
 	update();
 
+#if defined(Q_OS_WIN32) || defined(Q_OS_CYGWIN)
 	_blockEvents = false;
+#endif
 }
 
 #if defined(Q_OS_WIN32) || defined(Q_OS_CYGWIN)
