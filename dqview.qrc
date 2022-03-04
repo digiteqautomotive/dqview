@@ -1,8 +1,12 @@
 <RCC>
 	<qresource prefix="/">
 		<file alias="play.png">icons/baseline_play_arrow_dq_24dp.png</file>
+		<file alias="play@2x.png">icons/baseline_play_arrow_dq_24dp@2x.png</file>
 		<file alias="record.png">icons/baseline_videocam_dq_24dp.png</file>
+		<file alias="record@2x.png">icons/baseline_videocam_dq_24dp@2x.png</file>
 		<file alias="screenshot.png">icons/baseline_camera_alt_dq_24dp.png</file>
+		<file alias="screenshot@2x.png">icons/baseline_camera_alt_dq_24dp@2x.png</file>
 		<file alias="app.png">icons/app.png</file>
+		<file alias="app@2x.png">icons/app@2x.png</file>
 	</qresource>
 </RCC>
