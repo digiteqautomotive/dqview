@@ -1408,7 +1408,7 @@ OutputConfigDialog::OutputConfigDialog(const Device &device, QWidget *parent)
 	_vsyncWidth = new QSpinBox();
 	_vsyncWidth->setMaximum(8192);
 	if (getVSyncWidth(&val))
-		_hsyncWidth->setValue(val);
+		_vsyncWidth->setValue(val);
 	_hbackPorch = new QSpinBox();
 	_hbackPorch->setMaximum(255);
 	if (getHBackPorch(&val))
