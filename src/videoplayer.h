@@ -22,6 +22,9 @@ public:
 	void setCodec(const QString &codec) {_codec = codec;}
 	void setBitrate(unsigned bitrate) {_bitrate = bitrate;}
 	void setAspectRatio(const QString &ratio);
+#if defined(Q_OS_WIN32) || defined(Q_OS_CYGWIN)
+	void adjustAspectRatio();
+#endif
 
 	QSize resolution() const;
 	QString recordFile() const;
@@ -55,6 +58,10 @@ private:
 	unsigned _bitrate;
 
 	Log _log;
+
+#if defined(Q_OS_WIN32) || defined(Q_OS_CYGWIN)
+	static bool _blockEvents;
+#endif
 };
 
 #endif // VIDEOPLAYER_H

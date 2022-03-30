@@ -38,6 +38,25 @@ static const char *vlcArgumentsFlip[] = {
 	//"-vvv"
 };
 
+#if defined(Q_OS_WIN32) || defined(Q_OS_CYGWIN)
+bool VideoPlayer::_blockEvents = false;
+
+static QPoint aspectRatio(const char *ratio)
+{
+	if (ratio) {
+		QByteArray ba(ratio);
+		QList<QByteArray> list(ba.split(':'));
+		if (list.size() == 2) {
+			bool xok, yok;
+			QPoint p(list.at(0).toUInt(&xok), list.at(1).toUInt(&yok));
+			return (xok && yok) ? p : QPoint();
+		}
+	}
+
+	return QPoint();
+}
+#endif
+
 static void logCb(void *data, int level, const libvlc_log_t *ctx,
   const char *fmt, va_list args)
 {
@@ -57,10 +76,20 @@ void VideoPlayer::handleEvent(const libvlc_event_t *event, void *userData)
 
 	switch (event->type) {
 		case libvlc_MediaPlayerPlaying:
-			player->stateChanged(true);
+#if defined(Q_OS_WIN32) || defined(Q_OS_CYGWIN)
+			if (!_blockEvents)
+#endif
+				player->stateChanged(true);
+#if defined(Q_OS_WIN32) || defined(Q_OS_CYGWIN)
+			else
+				_blockEvents = false;
+#endif
 			break;
 		case libvlc_MediaPlayerStopped:
-			player->stateChanged(false);
+#if defined(Q_OS_WIN32) || defined(Q_OS_CYGWIN)
+			if (!_blockEvents)
+#endif
+				player->stateChanged(false);
 			break;
 		case libvlc_MediaPlayerEncounteredError:
 			player->error("Stream error. See the log file for more details.");
@@ -173,7 +202,34 @@ void VideoPlayer::stopStreaming()
 	QPainter p(this);
 	p.fillRect(rect(), Qt::black);
 	update();
+
+#if defined(Q_OS_WIN32) || defined(Q_OS_CYGWIN)
+	_blockEvents = false;
+#endif
 }
+
+#if defined(Q_OS_WIN32) || defined(Q_OS_CYGWIN)
+void VideoPlayer::adjustAspectRatio()
+{
+	unsigned width, height;
+	char *str;
+	QPoint ratio;
+
+	libvlc_video_get_size(_mediaPlayer, 0, &width, &height);
+	str = libvlc_video_get_aspect_ratio(_mediaPlayer);
+	ratio = aspectRatio(str);
+	libvlc_free(str);
+
+	if (ratio.isNull()
+	  || (ratio.x() / (double)ratio.y() != width / (double)height)) {
+		_blockEvents = true;
+		libvlc_media_player_stop(_mediaPlayer);
+		setAspectRatio(QString("%1:%2").arg(QString::number(width),
+		  QString::number(height)));
+		libvlc_media_player_play(_mediaPlayer);
+	}
+}
+#endif
 
 void VideoPlayer::captureImage()
 {
