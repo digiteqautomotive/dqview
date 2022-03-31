@@ -54,6 +54,10 @@ fi
 %{_sysconfdir}/udev/rules.d/99-mgb4.rules
 
 %changelog
+* Thu Mar 31 12:41:23 CEST 2022 - martin.tuma@digiteqautomotive.com 2.5-1
+- Fixed VSync configuration logic.
+- Added aspect ratio detection/automatic setup (Windows only).
+
 * Thu Feb 10 12:42:23 CET 2022 - martin.tuma@digiteqautomotive.com 2.4-1
 - Added VFronPotch, VBackPorch and VSyncWidth configuration parameters.
 
