@@ -1,5 +1,5 @@
 Name:           dqview
-Version:        2.5
+Version:        2.6
 Release:        1
 Summary:        Digiteq Automotive video player
 License:        GPL-3.0-only
@@ -54,6 +54,9 @@ fi
 %{_sysconfdir}/udev/rules.d/99-mgb4.rules
 
 %changelog
+* Thu Apr 21 12:49:29 CEST 2022 - martin.tuma@digiteqautomotive.com 2.6-1
+- Output PCLK frequency can now be set up to 195000kHz.
+
 * Thu Mar 31 12:41:23 CEST 2022 - martin.tuma@digiteqautomotive.com 2.5-1
 - Fixed VSync configuration logic.
 - Added aspect ratio detection/automatic setup (Windows only).
