@@ -56,6 +56,7 @@ fi
 %changelog
 * Thu Apr 21 12:49:29 CEST 2022 - martin.tuma@digiteqautomotive.com 2.6-1
 - Output PCLK frequency can now be set up to 195000kHz.
+- Fixed output VBack/Front porch configuration.
 
 * Thu Mar 31 12:41:23 CEST 2022 - martin.tuma@digiteqautomotive.com 2.5-1
 - Fixed VSync configuration logic.

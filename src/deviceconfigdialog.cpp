@@ -1508,8 +1508,8 @@ void OutputConfigDialog::accept()
 	ret &= setVSyncWidth(_vsyncWidth->value());
 	ret &= setHBackPorch(_hbackPorch->value());
 	ret &= setHFrontPorch(_hfrontPorch->value());
-	ret &= setVBackPorch(_hbackPorch->value());
-	ret &= setVFrontPorch(_hfrontPorch->value());
+	ret &= setVBackPorch(_vbackPorch->value());
+	ret &= setVFrontPorch(_vfrontPorch->value());
 
 	if (_fpdl3OutputWidth)
 		ret &= setFPDL3OutputWidth((FPDL3Width)_fpdl3OutputWidth->currentData()
