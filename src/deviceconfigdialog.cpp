@@ -1382,7 +1382,7 @@ OutputConfigDialog::OutputConfigDialog(const Device &device, QWidget *parent)
 
 	_pclkFreq = new QSpinBox();
 	_pclkFreq->setMinimum(25000);
-	_pclkFreq->setMaximum(95000);
+	_pclkFreq->setMaximum(190000);
 	if (getPclkFreq(&val))
 		_pclkFreq->setValue(val);
 	SyncType polarity;
