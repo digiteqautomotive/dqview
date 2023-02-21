@@ -21,6 +21,8 @@ public:
 	bool operator<(const DeviceInfo &other) const
 	  {return (_device.name() < other._device.name());}
 
+	void setDescription(const QString &desc) {_description = desc;}
+
 	static QList<DeviceInfo> inputDevices();
 	static QList<DeviceInfo> outputDevices();
 

@@ -97,12 +97,24 @@ static char *FromWide(const wchar_t *wide)
 	return out;
 }
 
+static QString SN(long val)
+{
+	char buf[16];
+
+	sprintf(buf, "%03u-%03u-%03u-%03u", (unsigned)val >> 24,
+	  ((unsigned)val >> 16) & 0xFF, ((unsigned)val >> 8) & 0xFF,
+	  (unsigned)val & 0xFF);
+
+	return QString(buf);
+}
+
 QList<DeviceInfo> DeviceInfo::inputDevices()
 {
 	Microsoft::WRL::ComPtr<IMoniker> p_moniker;
 	ULONG i_fetched;
 	HRESULT hr;
 	QList<DeviceInfo> list;
+	QMap<int, long> snMap;
 
 	/* Create the system device enumerator */
 	Microsoft::WRL::ComPtr<ICreateDevEnum> p_dev_enum;
@@ -141,6 +153,7 @@ QList<DeviceInfo> DeviceInfo::inputDevices()
 		if (SUCCEEDED(hr)) {
 			VARIANT var;
 			var.vt = VT_BSTR;
+
 			hr = p_bag->Read(L"FriendlyName", &var, NULL);
 			if (SUCCEEDED(hr)) {
 				char *p_buf = FromWide(var.bstrVal);
@@ -156,8 +169,12 @@ QList<DeviceInfo> DeviceInfo::inputDevices()
 				if (SUCCEEDED(hr)) {
 					hr = piFilter->QueryInterface(__uuidof(piConfig),
 					  reinterpret_cast<void**>(&piConfig));
-					if (SUCCEEDED(hr))
+					if (SUCCEEDED(hr)) {
+						long sn;
+						piConfig->GetCardSerial(&sn);
+						snMap.insert(list.size(), sn);
 						mgb4 = true;
+					}
 					piFilter->Release();
 				}
 
@@ -173,6 +190,14 @@ QList<DeviceInfo> DeviceInfo::inputDevices()
 		}
 	}
 
+	if (snMap.size() > 2) {
+		for (int i = 0; i < list.size(); i++) {
+			QMap<int, long>::const_iterator it = snMap.constFind(i);
+			if (it != snMap.constEnd())
+				list[i].setDescription(SN(*it));
+		}
+	}
+
 	return list;
 }
 
@@ -182,6 +207,7 @@ QList<DeviceInfo> DeviceInfo::outputDevices()
 	ULONG i_fetched;
 	HRESULT hr;
 	QList<DeviceInfo> list;
+	QMap<int, long> snMap;
 
 	/* Create the system device enumerator */
 	Microsoft::WRL::ComPtr<ICreateDevEnum> p_dev_enum;
@@ -238,6 +264,9 @@ QList<DeviceInfo> DeviceInfo::outputDevices()
 					   than mgb4, so skip such devices. */
 					if (!SUCCEEDED(hr))
 						continue;
+					long sn;
+					piConfig->GetCardSerial(&sn);
+					snMap.insert(list.size(), sn);
 					piFilter->Release();
 				}
 
@@ -250,6 +279,14 @@ QList<DeviceInfo> DeviceInfo::outputDevices()
 
 				list.append(ci);
 			}
+		}
+	}
+
+	if (snMap.size() > 2) {
+		for (int i = 0; i < list.size(); i++) {
+			QMap<int, long>::const_iterator it = snMap.constFind(i);
+			if (it != snMap.constEnd())
+				list[i].setDescription(SN(*it));
 		}
 	}
 
