@@ -54,6 +54,10 @@ fi
 %{_sysconfdir}/udev/rules.d/99-mgb4.rules
 
 %changelog
+* Thu Feb 23 12:34:47 CET 2023 - martin.tuma@digiteqautomotive.com 2.7-1
+- Added missing udev rules.
+- Distinguish card instances in device menus (Windows only).
+
 * Thu Apr 21 12:49:29 CEST 2022 - martin.tuma@digiteqautomotive.com 2.6-1
 - Output PCLK frequency can now be set up to 195000kHz.
 - Fixed output VBack/Front porch configuration.
