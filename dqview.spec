@@ -1,5 +1,5 @@
 Name:           dqview
-Version:        2.7
+Version:        3.0
 Release:        1
 Summary:        Digiteq Automotive video player
 License:        GPL-3.0-only
@@ -54,6 +54,9 @@ fi
 %{_sysconfdir}/udev/rules.d/99-mgb4.rules
 
 %changelog
+* Mon Apr 17 15:00:43 CEST 2023 - martin.tuma@digiteqautomotive.com 3.0-1
+- System-wide installer (Windows only).
+
 * Thu Feb 23 12:34:47 CET 2023 - martin.tuma@digiteqautomotive.com 2.7-1
 - Added missing udev rules.
 - Distinguish card instances in device menus (Windows only).

@@ -6,7 +6,7 @@
 ; The name of the installer
 Name "DQ Viewer"
 ; Program version
-!define VERSION "2.7"
+!define VERSION "3.0"
 
 ; The file to write
 OutFile "DQView-${VERSION}.exe"
@@ -14,13 +14,13 @@ OutFile "DQView-${VERSION}.exe"
 SetCompressor /SOLID lzma
 
 ; Required execution level
-RequestExecutionLevel user
+RequestExecutionLevel admin
 
 ; Don't let the OS scale(blur) the installer GUI
 ManifestDPIAware true
 
 ; The default installation directory
-InstallDir "$LOCALAPPDATA\Programs\DQView"
+InstallDir "$PROGRAMFILES64\DQView"
 
 ; Installer executable info
 VIProductVersion "${VERSION}.0.0"
@@ -32,13 +32,13 @@ VIAddVersionKey "FileDescription" "DQ Viewer installer"
 
 ; Registry key to check for directory (so if you install again, it will
 ; overwrite the old one automatically)
-InstallDirRegKey HKCU "Software\DQView" "Install_Dir"
+InstallDirRegKey HKLM "Software\DQView" "Install_Dir"
 
 ; Registry key for uninstaller
 !define REGENTRY "Software\Microsoft\Windows\CurrentVersion\Uninstall\DQView"
 
 ; Start menu page configuration
-!define MUI_STARTMENUPAGE_REGISTRY_ROOT "HKCU"
+!define MUI_STARTMENUPAGE_REGISTRY_ROOT "HKLM"
 !define MUI_STARTMENUPAGE_REGISTRY_KEY "Software\DQView"
 !define MUI_STARTMENUPAGE_REGISTRY_VALUENAME "DQView"
 
@@ -97,18 +97,18 @@ Section "DQ Viewer" SEC_APP
 
   ; Write the installation path into the registry
   DetailPrint "Registering application..."
-  WriteRegStr HKCU SOFTWARE\DQView "Install_Dir" "$INSTDIR"
+  WriteRegStr HKLM SOFTWARE\DQView "Install_Dir" "$INSTDIR"
 
   ; Write the uninstall keys for Windows
-  WriteRegStr HKCU "${REGENTRY}" "DisplayName" "DQ Viewer"
-  WriteRegStr HKCU "${REGENTRY}" "Publisher" "Digiteq Automotive"
-  WriteRegStr HKCU "${REGENTRY}" "DisplayVersion" "${VERSION}"
-  WriteRegStr HKCU "${REGENTRY}" "UninstallString" '"$INSTDIR\uninstall.exe"'
-  WriteRegStr HKCU "${REGENTRY}" "DisplayIcon" '"$INSTDIR\dqview.exe"'
-  WriteRegStr HKCU "${REGENTRY}" "InstallLocation" '"$INSTDIR"'
-  WriteRegStr HKCU "${REGENTRY}" "URLInfoAbout" "https://www.digiteqautomotive.com"
-  WriteRegDWORD HKCU "${REGENTRY}" "NoModify" 1
-  WriteRegDWORD HKCU "${REGENTRY}" "NoRepair" 1
+  WriteRegStr HKLM "${REGENTRY}" "DisplayName" "DQ Viewer"
+  WriteRegStr HKLM "${REGENTRY}" "Publisher" "Digiteq Automotive"
+  WriteRegStr HKLM "${REGENTRY}" "DisplayVersion" "${VERSION}"
+  WriteRegStr HKLM "${REGENTRY}" "UninstallString" '"$INSTDIR\uninstall.exe"'
+  WriteRegStr HKLM "${REGENTRY}" "DisplayIcon" '"$INSTDIR\dqview.exe"'
+  WriteRegStr HKLM "${REGENTRY}" "InstallLocation" '"$INSTDIR"'
+  WriteRegStr HKLM "${REGENTRY}" "URLInfoAbout" "https://www.digiteqautomotive.com"
+  WriteRegDWORD HKLM "${REGENTRY}" "NoModify" 1
+  WriteRegDWORD HKLM "${REGENTRY}" "NoRepair" 1
 
 SectionEnd
 
@@ -119,8 +119,8 @@ SectionEnd
 Section "Uninstall"
 
   ; Remove registry keys
-  DeleteRegKey HKCU "${REGENTRY}"
-  DeleteRegKey HKCU SOFTWARE\DQView
+  DeleteRegKey HKLM "${REGENTRY}"
+  DeleteRegKey HKLM SOFTWARE\DQView
 
   ; Remove directories used
   RMDir /r "$INSTDIR"
