@@ -588,7 +588,7 @@ bool InputConfigDialog::getLinkStatus(LinkStatus *status)
 	return (_config && SUCCEEDED(_config->GetLinkLckStatus((long*)status)));
 }
 
-bool getVideoWidth(unsigned *width)
+bool InputConfigDialog::getVideoWidth(unsigned *width)
 {
 	long resolution;
 
@@ -600,7 +600,7 @@ bool getVideoWidth(unsigned *width)
 	}
 }
 
-bool getVideoHeight(unsigned *height)
+bool InputConfigDialog::getVideoHeight(unsigned *height)
 {
 	long resolution;
 
