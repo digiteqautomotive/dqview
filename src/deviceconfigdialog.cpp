@@ -107,6 +107,16 @@ bool InputConfigDialog::getLinkStatus(LinkStatus *status)
 	return readSysfsInt("link_status", (unsigned*)status);
 }
 
+bool InputConfigDialog::getVideoWidth(unsigned *width)
+{
+	return readSysfsInt("video_width", width);
+}
+
+bool InputConfigDialog::getVideoHeight(unsigned *height)
+{
+	return readSysfsInt("video_height", height);
+}
+
 bool InputConfigDialog::getVSyncStatus(SyncType *status)
 {
 	return readSysfsInt("vsync_status", (unsigned*)status);
@@ -578,6 +588,30 @@ bool InputConfigDialog::getLinkStatus(LinkStatus *status)
 	return (_config && SUCCEEDED(_config->GetLinkLckStatus((long*)status)));
 }
 
+bool getVideoWidth(unsigned *width)
+{
+	long resolution;
+
+	if (!_config || FAILED(_config->GetDetectedResolution(&resolution)))
+		return false;
+	else {
+		*width = resolution >> 16;
+		return true;
+	}
+}
+
+bool getVideoHeight(unsigned *height)
+{
+	long resolution;
+
+	if (!_config || FAILED(_config->GetDetectedResolution(&resolution)))
+		return false;
+	else {
+		*height = resolution & 0xFFFF;
+		return true;
+	}
+}
+
 bool InputConfigDialog::getVSyncStatus(SyncType *status)
 {
 	return (_config && SUCCEEDED(_config->GetVsStatus((long*)status)));
@@ -1044,6 +1078,18 @@ InputConfigDialog::InputConfigDialog(const Device &device, QWidget *parent)
 	else if (linkStatus == Unlocked)
 		linkStatusLabel->setText(tr("Unlocked"));
 
+	unsigned videoWidth, videoHeight;
+	QLabel *videoWidthLabel = new QLabel();
+	QLabel *videoHeightLabel = new QLabel();
+	if (!getVideoWidth(&videoWidth))
+		videoWidthLabel->setText(tr("N/A"));
+	else
+		videoWidthLabel->setText(QString::number(videoWidth));
+	if (!getVideoHeight(&videoHeight))
+		videoHeightLabel->setText(tr("N/A"));
+	else
+		videoHeightLabel->setText(QString::number(videoHeight));
+
 	SyncType vsyncStatus = NotAvailable;
 	QLabel *vsyncStatusLabel = new QLabel();
 	if (!getVSyncStatus(&vsyncStatus)|| vsyncStatus == NotAvailable)
@@ -1108,19 +1154,21 @@ InputConfigDialog::InputConfigDialog(const Device &device, QWidget *parent)
 	QFormLayout *coreInputStatusLayout = new QFormLayout();
 	coreInputStatusLayout->addRow(tr("Input ID:"), inputIdLabel);
 	coreInputStatusLayout->addRow(tr("Link Status:"), linkStatusLabel);
+	coreInputStatusLayout->addRow(tr("Video Width:"), videoWidthLabel);
+	coreInputStatusLayout->addRow(tr("Video Height:"), videoHeightLabel);
 	coreInputStatusLayout->addRow(tr("VSync Status:"), vsyncStatusLabel);
 	coreInputStatusLayout->addRow(tr("HSync Status:"), hsyncStatusLabel);
-	coreInputStatusLayout->addRow(tr("HSync Width:"), hsyncWidthLabel);
-	coreInputStatusLayout->addRow(tr("VSync Width:"), vsyncWidthLabel);
 	coreInputStatusLayout->addRow(tr("PCLK Frequency:"), pclkFreqLabel);
-	QFormLayout *porchInputStatusLayout = new QFormLayout();
-	porchInputStatusLayout->addRow(tr("HBack Porch:"), hbackPorchLabel);
-	porchInputStatusLayout->addRow(tr("HFront Porch:"), hfrontPorchLabel);
-	porchInputStatusLayout->addRow(tr("VBack Porch:"), vbackPorchLabel);
-	porchInputStatusLayout->addRow(tr("VFront Porch:"), vfrontPorchLabel);
+	QFormLayout *advancedInputStatusLayout = new QFormLayout();
+	advancedInputStatusLayout->addRow(tr("HSync Width:"), hsyncWidthLabel);
+	advancedInputStatusLayout->addRow(tr("VSync Width:"), vsyncWidthLabel);
+	advancedInputStatusLayout->addRow(tr("HBack Porch:"), hbackPorchLabel);
+	advancedInputStatusLayout->addRow(tr("HFront Porch:"), hfrontPorchLabel);
+	advancedInputStatusLayout->addRow(tr("VBack Porch:"), vbackPorchLabel);
+	advancedInputStatusLayout->addRow(tr("VFront Porch:"), vfrontPorchLabel);
 
 	inputStatusLayout->addLayout(coreInputStatusLayout);
-	inputStatusLayout->addLayout(porchInputStatusLayout);
+	inputStatusLayout->addLayout(advancedInputStatusLayout);
 	inputStatus->setLayout(inputStatusLayout);
 
 	QVBoxLayout *statusLayout = new QVBoxLayout();

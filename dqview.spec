@@ -56,6 +56,7 @@ fi
 %changelog
 * Mon Apr 17 15:00:43 CEST 2023 - martin.tuma@digiteqautomotive.com 3.0-1
 - System-wide installer (Windows only).
+- Added detected video signal resolution info.
 
 * Thu Feb 23 12:34:47 CET 2023 - martin.tuma@digiteqautomotive.com 2.7-1
 - Added missing udev rules.

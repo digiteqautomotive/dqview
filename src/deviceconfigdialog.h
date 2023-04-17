@@ -62,6 +62,8 @@ private:
 
 	bool getInputId(unsigned *id);
 	bool getLinkStatus(LinkStatus *status);
+	bool getVideoWidth(unsigned *width);
+	bool getVideoHeight(unsigned *height);
 	bool getVSyncStatus(SyncType *status);
 	bool getHSyncStatus(SyncType *status);
 	bool getColorMapping(ColorMapping *mapping);
