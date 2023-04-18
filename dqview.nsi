@@ -89,6 +89,7 @@ Section "DQ Viewer" SEC_APP
   WriteUninstaller "$INSTDIR\uninstall.exe"
 
   ; Create start menu entry and add links
+  SetShellVarContext all
   !insertmacro MUI_STARTMENU_WRITE_BEGIN Application
     CreateDirectory "$SMPROGRAMS\$StartMenuFolder"
     CreateShortCut "$SMPROGRAMS\$StartMenuFolder\Uninstall.lnk" "$INSTDIR\Uninstall.exe"
@@ -126,6 +127,7 @@ Section "Uninstall"
   RMDir /r "$INSTDIR"
 
   ; Remove Start menu entries
+  SetShellVarContext all
   !insertmacro MUI_STARTMENU_GETFOLDER Application $StartMenuFolder
   Delete "$SMPROGRAMS\$StartMenuFolder\*.*"
   RMDir "$SMPROGRAMS\$StartMenuFolder"
