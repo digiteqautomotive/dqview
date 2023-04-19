@@ -1168,6 +1168,7 @@ InputConfigDialog::InputConfigDialog(const Device &device, QWidget *parent)
 	advancedInputStatusLayout->addRow(tr("VFront Porch:"), vfrontPorchLabel);
 
 	inputStatusLayout->addLayout(coreInputStatusLayout);
+	inputStatusLayout->addSpacing(20);
 	inputStatusLayout->addLayout(advancedInputStatusLayout);
 	inputStatus->setLayout(inputStatusLayout);
 
@@ -1492,7 +1493,9 @@ OutputConfigDialog::OutputConfigDialog(const Device &device, QWidget *parent)
 	commonConfigLayout2->addRow(tr("HFront Porch:"), _hfrontPorch);
 	commonConfigLayout2->addRow(tr("VBack Porch:"), _vbackPorch);
 	commonConfigLayout2->addRow(tr("VFront Porch:"), _vfrontPorch);
+
 	commonConfigLayout->addLayout(commonConfigLayout1);
+	commonConfigLayout->addSpacing(20);
 	commonConfigLayout->addLayout(commonConfigLayout2);
 	commonConfig->setLayout(commonConfigLayout);
 
