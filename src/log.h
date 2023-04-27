@@ -4,6 +4,7 @@
 #include <QTime>
 #include <QString>
 #include <QList>
+#include <QMutex>
 
 class LogEntry
 {
@@ -21,6 +22,10 @@ private:
 	QString _message;
 };
 
-typedef QList<LogEntry> Log;
+struct Log
+{
+	QMutex mutex;
+	QList<LogEntry> list;
+};
 
 #endif // LOG_H

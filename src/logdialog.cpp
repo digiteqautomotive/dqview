@@ -71,20 +71,22 @@ static QString logLevel(int level)
 	}
 }
 
-static QString format(const Log &log)
+static QString format(Log &log)
 {
 	QString text;
 
-	for (int i = 0; i < log.size(); i++) {
-		const LogEntry &e = log.at(i);
+	log.mutex.lock();
+	for (int i = 0; i < log.list.size(); i++) {
+		const LogEntry &e = log.list.at(i);
 		text.append(e.time().toString("[h:m:s] ") + logLevel(e.level()) + ": "
 		  + e.message().trimmed() + "\n");
 	}
+	log.mutex.unlock();
 
 	return text;
 }
 
-LogDialog::LogDialog(const Log &log, QWidget *parent)
+LogDialog::LogDialog(Log &log, QWidget *parent)
  : QDialog(parent, Qt::WindowSystemMenuHint | Qt::WindowTitleHint)
 {
 	setModal(true);

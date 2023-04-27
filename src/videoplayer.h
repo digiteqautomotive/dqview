@@ -29,7 +29,7 @@ public:
 	QSize resolution() const;
 	QString recordFile() const;
 
-	const Log &log() const {return _log;}
+	Log &log() {return _log;}
 
 signals:
 	void error(const QString &error);

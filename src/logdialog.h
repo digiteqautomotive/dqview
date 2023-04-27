@@ -7,7 +7,7 @@
 class LogDialog : public QDialog
 {
 public:
-	LogDialog(const Log &log, QWidget *parent);
+	LogDialog(Log &log, QWidget *parent);
 };
 
 #endif // LOGDIALOG_H

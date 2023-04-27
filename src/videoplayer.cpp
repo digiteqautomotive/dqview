@@ -65,9 +65,11 @@ static void logCb(void *data, int level, const libvlc_log_t *ctx,
 	Log *log = static_cast<Log *>(data);
 	QString msg(QString::vasprintf(fmt, args));
 
-	if (log->size() == MAX_LOG_SIZE)
-		log->removeFirst();
-	log->append(LogEntry(QTime::currentTime(), level, msg));
+	log->mutex.lock();
+	if (log->list.size() == MAX_LOG_SIZE)
+		log->list.removeFirst();
+	log->list.append(LogEntry(QTime::currentTime(), level, msg));
+	log->mutex.unlock();
 }
 
 void VideoPlayer::handleEvent(const libvlc_event_t *event, void *userData)
