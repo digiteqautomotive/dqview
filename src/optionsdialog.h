@@ -29,7 +29,7 @@ private:
 	StreamTable *_streamTable;
 	QComboBox *_codec;
 	QSpinBox *_bitrate;
-	QCheckBox *_flip;
+	QComboBox *_transform;
 	QLineEdit *_aspectRatio;
 };
 

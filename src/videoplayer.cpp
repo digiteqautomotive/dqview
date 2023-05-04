@@ -3,40 +3,12 @@
 #include <QDate>
 #include <QTimer>
 #include <QPainter>
+#include <QStringList>
 #include "video.h"
 #include "videoplayer.h"
 
 
 #define MAX_LOG_SIZE 1000
-
-#define ARRAY_SIZE(array) \
-  (sizeof(array) / sizeof(array[0]))
-
-static const char *vlcArguments[] = {
-	"--intf=dummy",
-	"--ignore-config",
-	"--no-media-library",
-	"--no-one-instance",
-	"--no-osd",
-	"--no-snapshot-preview",
-	"--no-stats",
-	"--no-video-title-show",
-	//"-vvv"
-};
-
-static const char *vlcArgumentsFlip[] = {
-	"--intf=dummy",
-	"--ignore-config",
-	"--no-media-library",
-	"--no-one-instance",
-	"--no-osd",
-	"--no-snapshot-preview",
-	"--no-stats",
-	"--no-video-title-show",
-	"--video-filter=transform",
-	"--transform-type=vflip",
-	//"-vvv"
-};
 
 #if defined(Q_OS_WIN32) || defined(Q_OS_CYGWIN)
 bool VideoPlayer::_blockEvents = false;
@@ -99,7 +71,34 @@ void VideoPlayer::handleEvent(const libvlc_event_t *event, void *userData)
 	}
 }
 
-VideoPlayer::VideoPlayer(bool flip, QWidget *parent)
+void VideoPlayer::createArgs(const QString &transform)
+{
+	QStringList list;
+
+	list << "--intf=dummy"
+	  << "--ignore-config"
+	  << "--no-media-library"
+	  << "--no-one-instance"
+	  << "--no-osd"
+	  << "--no-snapshot-preview"
+	  << "--no-stats"
+	  << "--no-video-title-show";
+	if (!transform.isEmpty()) {
+		list << "--video-filter=transform";
+		list << "--transform-type=" + transform;
+	}
+
+	_argc = list.size();
+	_argv = new const char*[_argc];
+
+	for (int i = 0; i < list.size(); i++) {
+		QByteArray ba(list.at(i).toLatin1());
+		_argv[i] = new char[ba.size() + 1];
+		strcpy((char*)_argv[i], ba.data());
+	}
+}
+
+VideoPlayer::VideoPlayer(const QString &transform, QWidget *parent)
   : QWidget(parent), _video(0), _vlc(0), _mediaPlayer(0)
 {
 	setAutoFillBackground(true);
@@ -112,9 +111,8 @@ VideoPlayer::VideoPlayer(bool flip, QWidget *parent)
 	   changing the libvlc instance using another libvlc_new() crashes the
 	   process...
 	*/
-	_vlc = flip
-	  ? libvlc_new(ARRAY_SIZE(vlcArgumentsFlip), vlcArgumentsFlip)
-	  : libvlc_new(ARRAY_SIZE(vlcArguments), vlcArguments);
+	createArgs(transform);
+	_vlc = libvlc_new(_argc, _argv);
 	createPlayer();
 
 	_bitrate = 1800;
@@ -125,6 +123,10 @@ VideoPlayer::~VideoPlayer()
 {
 	libvlc_media_player_release(_mediaPlayer);
 	libvlc_release(_vlc);
+
+	for (int i = 0; i < _argc; i++)
+		delete[] _argv[i];
+	delete[] _argv;
 }
 
 void VideoPlayer::createPlayer()

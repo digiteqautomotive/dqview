@@ -51,7 +51,7 @@ GUI::GUI()
 
 	readSettings();
 
-	_player = new VideoPlayer(_options.flip);
+	_player = new VideoPlayer(_options.transform);
 	_player->setImageDir(_options.imagesDir);
 	_player->setVideoDir(_options.videoDir);
 	_player->setCodec(_options.codec);
@@ -531,7 +531,7 @@ void GUI::readSettings()
 	settings.endGroup();
 
 	settings.beginGroup("Video");
-	_options.flip = settings.value("Flip").toBool();
+	_options.transform = settings.value("Transform").toString();
 	_options.aspectRatio = settings.value("AspectRatio").toString();
 	settings.endGroup();
 
@@ -564,7 +564,7 @@ void GUI::writeSettings()
 	settings.endGroup();
 
 	settings.beginGroup("Video");
-	settings.setValue("Flip", _options.flip);
+	settings.setValue("Transform", _options.transform);
 	settings.setValue("AspectRatio", _options.aspectRatio);
 	settings.endGroup();
 

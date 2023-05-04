@@ -13,6 +13,7 @@
 #include "options.h"
 #include "optionsdialog.h"
 
+
 OptionsDialog::OptionsDialog(Options *options, QWidget *parent)
   : QDialog(parent, Qt::WindowSystemMenuHint | Qt::WindowTitleHint),
   _options(options)
@@ -63,10 +64,16 @@ OptionsDialog::OptionsDialog(Options *options, QWidget *parent)
 	streamsLayout->addWidget(_streamTable);
 
 
-	_flip = new QCheckBox(tr("Flip Image"));
-	_flip->setChecked(options->flip);
+	_transform = new QComboBox();
+	_transform->addItem("None", QVariant(""));
+	_transform->addItem("Flip", QVariant("vflip"));
+	_transform->addItem("Rotate 90", QVariant("90"));
+	_transform->addItem("Rotate 270", QVariant("270"));
+	_transform->setCurrentIndex(_transform->findData(
+	  QVariant(options->transform)));
+
 	QLabel *label = new QLabel(tr("Note: Application restart is required for"
-	  " the image flip to take effect!"));
+	  " the image transformation to take effect!"));
 	QFont font = label->font();
 	font.setItalic(true);
 	label->setFont(font);
@@ -82,7 +89,7 @@ OptionsDialog::OptionsDialog(Options *options, QWidget *parent)
 
 	QFormLayout *arLayout = new QFormLayout();
 	arLayout->addRow("Force Aspect Ratio:", _aspectRatio);
-	arLayout->addWidget(_flip);
+	arLayout->addRow("Transformation:", _transform);
 
 	filtersLayout->addLayout(arLayout);
 	filtersLayout->addStretch();
@@ -106,7 +113,7 @@ void OptionsDialog::accept()
 	_options->codec = _codec->currentData().toString();
 	_options->videoDir = _videoDir->dir();
 	_options->imagesDir = _imageDir->dir();
-	_options->flip = _flip->isChecked();
+	_options->transform = _transform->currentData().toString();
 	_options->aspectRatio = _aspectRatio->text();
 	_options->streams.clear();
 	_streamTable->store(_options->streams);

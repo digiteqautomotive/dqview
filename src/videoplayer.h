@@ -13,7 +13,7 @@ class VideoPlayer : public QWidget
 	Q_OBJECT
 
 public:
-	VideoPlayer(bool flip, QWidget *parent = 0);
+	VideoPlayer(const QString &transform, QWidget *parent = 0);
 	~VideoPlayer();
 
 	void setVideo(Video *video) {_video = video;}
@@ -42,6 +42,7 @@ public slots:
 	void captureImage();
 
 private:
+	void createArgs(const QString &transform);
 	void createPlayer();
 	libvlc_media_t *createMedia();
 	void emitLoadStatus();
@@ -49,6 +50,8 @@ private:
 
 	Video *_video;
 
+	const char **_argv;
+	int _argc;
 	libvlc_instance_t *_vlc;
 	libvlc_media_player_t *_mediaPlayer;
 

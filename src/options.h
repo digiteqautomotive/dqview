@@ -13,7 +13,7 @@ struct Options
 	QString videoDir;
 	QString imagesDir;
 	QList<StreamInfo> streams;
-	bool flip;
+	QString transform;
 	QString aspectRatio;
 
 	bool resize;
