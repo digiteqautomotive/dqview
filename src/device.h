@@ -20,6 +20,10 @@ public:
 	bool operator==(const Device &other) const
 	  {return (_type == other._type && _name == other._name);}
 
+#if defined(Q_OS_WIN32) || defined(Q_OS_CYGWIN)
+	void *config() const;
+#endif
+
 private:
 	Type _type;
 	int _id;

@@ -350,11 +350,6 @@ void GUI::videoLoaded()
 		return;
 	}
 
-#if defined(Q_OS_WIN32) || defined(Q_OS_CYGWIN)
-	if (_options.aspectRatio.isEmpty())
-		_player->adjustAspectRatio();
-#endif
-
 	if (_fullScreenAction->isChecked()) {
 		showFullScreen(true);
 	} else if (_resizeWindowAction->isChecked()) {

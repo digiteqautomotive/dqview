@@ -6,28 +6,12 @@
 #include <QStringList>
 #include "video.h"
 #include "videoplayer.h"
+#if defined(Q_OS_WIN32) || defined(Q_OS_CYGWIN)
+#include "fg4.h"
+#endif
 
 
 #define MAX_LOG_SIZE 1000
-
-#if defined(Q_OS_WIN32) || defined(Q_OS_CYGWIN)
-bool VideoPlayer::_blockEvents = false;
-
-static QPoint aspectRatio(const char *ratio)
-{
-	if (ratio) {
-		QByteArray ba(ratio);
-		QList<QByteArray> list(ba.split(':'));
-		if (list.size() == 2) {
-			bool xok, yok;
-			QPoint p(list.at(0).toUInt(&xok), list.at(1).toUInt(&yok));
-			return (xok && yok) ? p : QPoint();
-		}
-	}
-
-	return QPoint();
-}
-#endif
 
 static void logCb(void *data, int level, const libvlc_log_t *ctx,
   const char *fmt, va_list args)
@@ -44,26 +28,17 @@ static void logCb(void *data, int level, const libvlc_log_t *ctx,
 	log->mutex.unlock();
 }
 
+
 void VideoPlayer::handleEvent(const libvlc_event_t *event, void *userData)
 {
 	VideoPlayer *player = static_cast<VideoPlayer*>(userData);
 
 	switch (event->type) {
 		case libvlc_MediaPlayerPlaying:
-#if defined(Q_OS_WIN32) || defined(Q_OS_CYGWIN)
-			if (!_blockEvents)
-#endif
-				player->stateChanged(true);
-#if defined(Q_OS_WIN32) || defined(Q_OS_CYGWIN)
-			else
-				_blockEvents = false;
-#endif
+			player->stateChanged(true);
 			break;
 		case libvlc_MediaPlayerStopped:
-#if defined(Q_OS_WIN32) || defined(Q_OS_CYGWIN)
-			if (!_blockEvents)
-#endif
-				player->stateChanged(false);
+			player->stateChanged(false);
 			break;
 		case libvlc_MediaPlayerEncounteredError:
 			player->error("Stream error. See the log file for more details.");
@@ -170,6 +145,7 @@ void VideoPlayer::startStreaming()
 {
 	libvlc_media_t *media = createMedia();
 
+	adjustAspectRatio();
 	libvlc_media_player_set_media(_mediaPlayer, media);
 	libvlc_media_release(media);
 	libvlc_media_player_play(_mediaPlayer);
@@ -187,16 +163,10 @@ void VideoPlayer::startStreamingAndRecording()
 	  .arg(_recordFile, _codec, QString::number(_bitrate));
 	libvlc_media_add_option(media, rec.toUtf8().constData());
 
+	adjustAspectRatio();
 	libvlc_media_player_set_media(_mediaPlayer, media);
 	libvlc_media_release(media);
 	libvlc_media_player_play(_mediaPlayer);
-}
-
-void VideoPlayer::setAspectRatio(const QString &ratio)
-{
-	QByteArray ba(ratio.toLatin1());
-	libvlc_video_set_aspect_ratio(_mediaPlayer,
-	  ba.isEmpty() ? "Default" : ba.constData());
 }
 
 void VideoPlayer::stopStreaming()
@@ -206,34 +176,42 @@ void VideoPlayer::stopStreaming()
 	QPainter p(this);
 	p.fillRect(rect(), Qt::black);
 	update();
-
-#if defined(Q_OS_WIN32) || defined(Q_OS_CYGWIN)
-	_blockEvents = false;
-#endif
 }
 
 #if defined(Q_OS_WIN32) || defined(Q_OS_CYGWIN)
+QPoint VideoPlayer::aspectRatio()
+{
+	Device dev(_video->device());
+	long resolution;
+
+	if (!dev.isValid())
+		return QPoint();
+	IFG4InputConfig *config = (IFG4InputConfig*)dev.config();
+	if (!config || FAILED(config->GetDetectedResolution(&resolution)))
+		return QPoint();
+
+	return QPoint(resolution >> 16, resolution & 0xFFFF);
+}
+#endif
+
 void VideoPlayer::adjustAspectRatio()
 {
-	unsigned width, height;
-	char *str;
-	QPoint ratio;
+#if defined(Q_OS_WIN32) || defined(Q_OS_CYGWIN)
+	/* On Windows, always explicitly set the aspect ratio to the real signal
+	   aspect ratio (when no user aspect ratio is defined). The aspect ratio is
+	   _wrong_ on Windows when the camera is not 4:3... */
+	QPoint ratio(aspectRatio());
+	QByteArray ar = (ratio.isNull())
+	  ? "Default"
+	  : QByteArray::number(ratio.x()) + ":" + QByteArray::number(ratio.y());
 
-	libvlc_video_get_size(_mediaPlayer, 0, &width, &height);
-	str = libvlc_video_get_aspect_ratio(_mediaPlayer);
-	ratio = aspectRatio(str);
-	libvlc_free(str);
-
-	if (ratio.isNull()
-	  || (ratio.x() / (double)ratio.y() != width / (double)height)) {
-		_blockEvents = true;
-		libvlc_media_player_stop(_mediaPlayer);
-		setAspectRatio(QString("%1:%2").arg(QString::number(width),
-		  QString::number(height)));
-		libvlc_media_player_play(_mediaPlayer);
-	}
-}
+	libvlc_video_set_aspect_ratio(_mediaPlayer, _aspectRatio.isEmpty()
+	  ? ar.constData() : _aspectRatio.constData());
+#else
+	libvlc_video_set_aspect_ratio(_mediaPlayer,
+	  _aspectRatio.isEmpty() ? "Default" : _aspectRatio.constData());
 #endif
+}
 
 void VideoPlayer::captureImage()
 {

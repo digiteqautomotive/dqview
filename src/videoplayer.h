@@ -21,10 +21,7 @@ public:
 	void setVideoDir(const QString &path) {_videoDir = path;}
 	void setCodec(const QString &codec) {_codec = codec;}
 	void setBitrate(unsigned bitrate) {_bitrate = bitrate;}
-	void setAspectRatio(const QString &ratio);
-#if defined(Q_OS_WIN32) || defined(Q_OS_CYGWIN)
-	void adjustAspectRatio();
-#endif
+	void setAspectRatio(const QString &ratio) {_aspectRatio = ratio.toLatin1();}
 
 	QSize resolution() const;
 	QString recordFile() const;
@@ -47,6 +44,10 @@ private:
 	libvlc_media_t *createMedia();
 	void emitLoadStatus();
 	static void handleEvent(const libvlc_event_t *event, void *userData);
+	void adjustAspectRatio();
+#if defined(Q_OS_WIN32) || defined(Q_OS_CYGWIN)
+	QPoint aspectRatio();
+#endif
 
 	Video *_video;
 
@@ -59,12 +60,9 @@ private:
 	QString _recordFile;
 	QString _codec;
 	unsigned _bitrate;
+	QByteArray _aspectRatio;
 
 	Log _log;
-
-#if defined(Q_OS_WIN32) || defined(Q_OS_CYGWIN)
-	static bool _blockEvents;
-#endif
 };
 
 #endif // VIDEOPLAYER_H

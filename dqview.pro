@@ -7,6 +7,7 @@ DEFINES += APP_VERSION=\\\"$$VERSION\\\" \
   QT_NO_DEPRECATED_WARNINGS
 
 SOURCES += src/main.cpp \
+    src/device.cpp \
     src/application.cpp \
     src/deviceconfigdialog.cpp \
     src/deviceinfo.cpp \
