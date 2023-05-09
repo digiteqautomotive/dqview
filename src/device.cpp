@@ -113,6 +113,9 @@ static IFG4OutputConfig *outputConfig(int id)
 
 void *Device::config() const
 {
+	if (_id < 0)
+		return 0;
+
 	switch (_type) {
 		case Input:
 			return (void*)inputConfig(_id);

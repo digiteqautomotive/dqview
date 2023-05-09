@@ -181,12 +181,9 @@ void VideoPlayer::stopStreaming()
 #if defined(Q_OS_WIN32) || defined(Q_OS_CYGWIN)
 QPoint VideoPlayer::aspectRatio()
 {
-	Device dev(_video->device());
 	long resolution;
 
-	if (!dev.isValid())
-		return QPoint();
-	IFG4InputConfig *config = (IFG4InputConfig*)dev.config();
+	IFG4InputConfig *config = (IFG4InputConfig*)_video->device().config();
 	if (!config || FAILED(config->GetDetectedResolution(&resolution)))
 		return QPoint();
 
