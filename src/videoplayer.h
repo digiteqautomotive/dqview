@@ -44,10 +44,6 @@ private:
 	libvlc_media_t *createMedia();
 	void emitLoadStatus();
 	static void handleEvent(const libvlc_event_t *event, void *userData);
-	void adjustAspectRatio();
-#if defined(Q_OS_WIN32) || defined(Q_OS_CYGWIN)
-	QPoint aspectRatio();
-#endif
 
 	Video *_video;
 

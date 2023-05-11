@@ -2,6 +2,7 @@
 #define CAMERA_H
 
 #include <QUrl>
+#include <QPoint>
 #include "deviceinfo.h"
 #include "video.h"
 
@@ -18,6 +19,9 @@ public:
 	Device device() const {return _cameraInfo.device();}
 
 private:
+#if defined(Q_OS_WIN32) || defined(Q_OS_CYGWIN)
+	QPoint resolution() const;
+#endif
 	DeviceInfo _cameraInfo;
 };
 

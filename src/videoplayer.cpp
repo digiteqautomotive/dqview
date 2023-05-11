@@ -6,9 +6,6 @@
 #include <QStringList>
 #include "video.h"
 #include "videoplayer.h"
-#if defined(Q_OS_WIN32) || defined(Q_OS_CYGWIN)
-#include "fg4.h"
-#endif
 
 
 #define MAX_LOG_SIZE 1000
@@ -145,7 +142,8 @@ void VideoPlayer::startStreaming()
 {
 	libvlc_media_t *media = createMedia();
 
-	adjustAspectRatio();
+	libvlc_video_set_aspect_ratio(_mediaPlayer, _aspectRatio.isEmpty()
+	  ? "Default" : _aspectRatio.constData());
 	libvlc_media_player_set_media(_mediaPlayer, media);
 	libvlc_media_release(media);
 	libvlc_media_player_play(_mediaPlayer);
@@ -163,7 +161,8 @@ void VideoPlayer::startStreamingAndRecording()
 	  .arg(_recordFile, _codec, QString::number(_bitrate));
 	libvlc_media_add_option(media, rec.toUtf8().constData());
 
-	adjustAspectRatio();
+	libvlc_video_set_aspect_ratio(_mediaPlayer, _aspectRatio.isEmpty()
+	  ? "Default" : _aspectRatio.constData());
 	libvlc_media_player_set_media(_mediaPlayer, media);
 	libvlc_media_release(media);
 	libvlc_media_player_play(_mediaPlayer);
@@ -176,38 +175,6 @@ void VideoPlayer::stopStreaming()
 	QPainter p(this);
 	p.fillRect(rect(), Qt::black);
 	update();
-}
-
-#if defined(Q_OS_WIN32) || defined(Q_OS_CYGWIN)
-QPoint VideoPlayer::aspectRatio()
-{
-	long resolution;
-
-	IFG4InputConfig *config = (IFG4InputConfig*)_video->device().config();
-	if (!config || FAILED(config->GetDetectedResolution(&resolution)))
-		return QPoint();
-
-	return QPoint(resolution >> 16, resolution & 0xFFFF);
-}
-#endif
-
-void VideoPlayer::adjustAspectRatio()
-{
-#if defined(Q_OS_WIN32) || defined(Q_OS_CYGWIN)
-	/* On Windows, always explicitly set the aspect ratio to the real signal
-	   aspect ratio (when no user aspect ratio is defined). The aspect ratio is
-	   _wrong_ on Windows when the camera is not 4:3... */
-	QPoint ratio(aspectRatio());
-	QByteArray ar = (ratio.isNull())
-	  ? "Default"
-	  : QByteArray::number(ratio.x()) + ":" + QByteArray::number(ratio.y());
-
-	libvlc_video_set_aspect_ratio(_mediaPlayer, _aspectRatio.isEmpty()
-	  ? ar.constData() : _aspectRatio.constData());
-#else
-	libvlc_video_set_aspect_ratio(_mediaPlayer,
-	  _aspectRatio.isEmpty() ? "Default" : _aspectRatio.constData());
-#endif
 }
 
 void VideoPlayer::captureImage()
