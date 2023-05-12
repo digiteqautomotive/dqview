@@ -54,7 +54,7 @@ fi
 %{_sysconfdir}/udev/rules.d/99-mgb4.rules
 
 %changelog
-* Mon May 12 12:47:43 CEST 2023 - martin.tuma@digiteqautomotive.com 3.0-1
+* Fri May 12 12:47:43 CEST 2023 - martin.tuma@digiteqautomotive.com 3.0-1
 - System-wide installer (Windows only).
 - Use DirectShow cameras specific aspect radio fix (Windows only).
 - Added rotate-90 and rotate-270 video transformation options.
