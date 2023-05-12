@@ -10,10 +10,12 @@ QPoint Camera::resolution() const
 	long resolution;
 
 	IFG4InputConfig *config = (IFG4InputConfig*)device().config();
-	if (!config || FAILED(config->GetDetectedResolution(&resolution)))
+	if (!config)
 		return QPoint();
+	bool err = FAILED(config->GetDetectedResolution(&resolution));
+	config->Release();
 
-	return QPoint(resolution >> 16, resolution & 0xFFFF);
+	return err ? QPoint() : QPoint(resolution >> 16, resolution & 0xFFFF);
 }
 #endif
 
