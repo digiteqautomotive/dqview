@@ -2,6 +2,7 @@
 !include "x64.nsh"
 !include "WinVer.nsh"
 
+Unicode true
 
 ; The name of the installer
 Name "DQ Viewer"
