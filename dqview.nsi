@@ -9,7 +9,6 @@ Name "DQ Viewer"
 !define VERSION "3.0"
 
 ; The file to write
-!include /NONFATAL build.nsh
 !ifndef BUILD
   OutFile "DQView-${VERSION}.exe"
 !else
