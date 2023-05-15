@@ -12,6 +12,7 @@ Name "DQ Viewer"
 ; The file to write
 !ifndef BUILD
   OutFile "DQView-${VERSION}.exe"
+  !define BUILD "0"
 !else
   OutFile "DQView-${VERSION}.${BUILD}.exe"
 !endif
@@ -29,9 +30,9 @@ ManifestDPIAware true
 InstallDir "$PROGRAMFILES64\DQView"
 
 ; Installer executable info
-VIProductVersion "${VERSION}.0.0"
+VIProductVersion "${VERSION}.${BUILD}.0"
 VIAddVersionKey "ProductVersion" ${VERSION}
-VIAddVersionKey "FileVersion" "${VERSION}.0.0"
+VIAddVersionKey "FileVersion" "${VERSION}.${BUILD}.0"
 VIAddVersionKey "ProductName" "DQ Viewer"
 VIAddVersionKey "LegalCopyright" "Digiteq Automotive"
 VIAddVersionKey "FileDescription" "DQ Viewer installer"
