@@ -3,8 +3,14 @@ TEMPLATE = app
 
 QT      += core gui widgets
 VERSION = 3.0
+
+isEmpty(BUILD) {
 DEFINES += APP_VERSION=\\\"$$VERSION\\\" \
   QT_NO_DEPRECATED_WARNINGS
+} else {
+DEFINES += APP_VERSION=\\\"$${VERSION}.$${BUILD}\\\" \
+  QT_NO_DEPRECATED_WARNINGS
+}
 
 SOURCES += src/main.cpp \
     src/device.cpp \
