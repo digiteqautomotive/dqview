@@ -9,7 +9,13 @@ Name "DQ Viewer"
 !define VERSION "3.0"
 
 ; The file to write
-OutFile "DQView-${VERSION}.exe"
+!include /NONFATAL build.nsh
+!ifndef BUILD
+  OutFile "DQView-${VERSION}.exe"
+!else
+  OutFile "DQView-${VERSION}.${BUILD}.exe"
+!endif
+
 ; Compression method
 SetCompressor /SOLID lzma
 
