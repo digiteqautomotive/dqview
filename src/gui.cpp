@@ -493,7 +493,11 @@ void GUI::showFullScreen(bool show)
 
 void GUI::closeEvent(QCloseEvent *event)
 {
+	if (_playAction->isChecked())
+		_player->stopStreaming();
+
 	writeSettings();
+
 	QMainWindow::closeEvent(event);
 }
 
