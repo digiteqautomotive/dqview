@@ -24,7 +24,7 @@ DirSelectWidget::DirSelectWidget(QWidget *parent) : QWidget(parent)
 #endif // Q_OS_WIN32
 
 	QHBoxLayout *layout = new QHBoxLayout();
-	layout->setMargin(0);
+	layout->setContentsMargins(QMargins());
 	layout->addWidget(_edit);
 	layout->addWidget(_button);
 	setLayout(layout);

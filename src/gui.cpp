@@ -1,4 +1,5 @@
 #include <QAction>
+#include <QActionGroup>
 #include <QMenu>
 #include <QMenuBar>
 #include <QSettings>
@@ -86,10 +87,9 @@ QList<QAction*> GUI::deviceActions(Device::Type type)
 	QList<QAction*> list;
 
 	QSignalMapper *signalMapper = new QSignalMapper(this);
-	connect(signalMapper, QOverload<QObject *>::of(&QSignalMapper::mapped),
-	  this, &GUI::openDevice);
+	connect(signalMapper, &QSignalMapper::mappedObject, this, &GUI::openDevice);
 
-	qSort(devices);
+	std::sort(devices.begin(), devices.end());
 
 	for (int i = 0; i < devices.size(); i++) {
 		QAction *a = new QAction(devices.at(i).name(), this);
@@ -121,8 +121,8 @@ QAction *GUI::streamAction(Stream *stream)
 QList<QAction*> GUI::streamActions()
 {
 	_streamSignalMapper = new QSignalMapper(this);
-	connect(_streamSignalMapper, QOverload<QObject *>::of(
-	  &QSignalMapper::mapped), this, QOverload<QObject *>::of(&GUI::openDevice));
+	connect(_streamSignalMapper, &QSignalMapper::mappedObject, this,
+	  QOverload<QObject *>::of(&GUI::openDevice));
 	QList<QAction*> list;
 
 	for (int i = 0; i < _options.streams.count(); i++) {
@@ -518,7 +518,9 @@ void GUI::keyPressEvent(QKeyEvent *event)
 
 void GUI::readSettings()
 {
+#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
 	qRegisterMetaTypeStreamOperators<StreamInfo>("Stream");
+#endif
 
 	QSettings settings(COMPANY_NAME, APP_NAME);
 

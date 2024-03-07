@@ -9,7 +9,7 @@
 #include <unistd.h>
 #include <linux/videodev2.h>
 #include <QDir>
-#include <QRegExp>
+#include <QRegularExpression>
 #include "deviceinfo.h"
 
 DeviceInfo DeviceInfo::deviceInfo(const QString &device, int *id)
@@ -50,14 +50,15 @@ DeviceInfo DeviceInfo::deviceInfo(const QString &device, int *id)
 
 QList<DeviceInfo> DeviceInfo::devices(Device::Type type)
 {
+	static const QRegularExpression re("video[0-9]+");
 	QList<DeviceInfo> list;
-	QRegExp re("video[0-9]+");
 	QDir dir("/dev");
 	int id = 0;
 
 	QFileInfoList files(dir.entryInfoList(QDir::System));
 	for (int i = 0; i < files.size(); i++) {
-		if (re.exactMatch(files.at(i).baseName())) {
+		QRegularExpressionMatch match(re.match(files.at(i).baseName()));
+		if (match.hasMatch()) {
 			DeviceInfo info(deviceInfo(files.at(i).absoluteFilePath(), &id));
 			if (!info.isNull() && info.device().type() == type)
 				list.append(info);
