@@ -518,10 +518,6 @@ void GUI::keyPressEvent(QKeyEvent *event)
 
 void GUI::readSettings()
 {
-#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
-	qRegisterMetaTypeStreamOperators<StreamInfo>("Stream");
-#endif
-
 	QSettings settings(COMPANY_NAME, APP_NAME);
 
 	settings.beginGroup("Window");
