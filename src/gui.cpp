@@ -87,7 +87,12 @@ QList<QAction*> GUI::deviceActions(Device::Type type)
 	QList<QAction*> list;
 
 	QSignalMapper *signalMapper = new QSignalMapper(this);
+#if QT_VERSION < QT_VERSION_CHECK(5, 15, 0)
+	connect(signalMapper, QOverload<QObject *>::of(&QSignalMapper::mapped),
+	  this, &GUI::openDevice);
+#else
 	connect(signalMapper, &QSignalMapper::mappedObject, this, &GUI::openDevice);
+#endif
 
 	std::sort(devices.begin(), devices.end());
 
@@ -121,8 +126,14 @@ QAction *GUI::streamAction(Stream *stream)
 QList<QAction*> GUI::streamActions()
 {
 	_streamSignalMapper = new QSignalMapper(this);
+
+#if QT_VERSION < QT_VERSION_CHECK(5, 15, 0)
+	connect(_streamSignalMapper, QOverload<QObject *>::of(&QSignalMapper::mapped),
+	  this, QOverload<QObject *>::of(&GUI::openDevice));
+#else
 	connect(_streamSignalMapper, &QSignalMapper::mappedObject, this,
 	  QOverload<QObject *>::of(&GUI::openDevice));
+#endif
 	QList<QAction*> list;
 
 	for (int i = 0; i < _options.streams.count(); i++) {
