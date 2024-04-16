@@ -1,5 +1,5 @@
 Name:           dqview
-Version:        3.0
+Version:        4.0
 Release:        1
 Summary:        Digiteq Automotive video player
 License:        GPL-3.0-only
@@ -9,9 +9,9 @@ Source0:        dqview.tar.gz
 
 BuildRequires:  gcc-c++
 BuildRequires:  make
-BuildRequires:  libQt5Core-devel
-BuildRequires:  libQt5Gui-devel
-BuildRequires:  libQt5Widgets-devel
+BuildRequires:  qt6-core-devel
+BuildRequires:  qt6-gui-devel
+BuildRequires:  qt6-widgets-devel
 BuildRequires:  vlc-devel
 
 
@@ -23,7 +23,7 @@ frame grabber devices.
 %setup -q -n dqview
 
 %build
-%{qmake5} dqview.pro
+%{qmake6} dqview.pro
 make %{?_smp_mflags}
 
 %install
@@ -54,6 +54,10 @@ fi
 %{_sysconfdir}/udev/rules.d/99-mgb4.rules
 
 %changelog
+* Thu Mar  7 14:28:46 CET 2024 - martin.tuma@digiteqautomotive.com 4.0-1
+- Added support for video output playback (Linux only)
+- Added support for Qt6
+
 * Fri May 12 12:47:43 CEST 2023 - martin.tuma@digiteqautomotive.com 3.0-1
 - System-wide installer (Windows only).
 - Use DirectShow cameras specific aspect radio fix (Windows only).

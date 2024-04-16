@@ -3,6 +3,7 @@
 
 #include <QWidget>
 #include <vlc/vlc.h>
+#include "display.h"
 #include "log.h"
 
 class QImage;
@@ -22,6 +23,7 @@ public:
 	void setCodec(const QString &codec) {_codec = codec;}
 	void setBitrate(unsigned bitrate) {_bitrate = bitrate;}
 	void setAspectRatio(const QString &ratio) {_aspectRatio = ratio.toLatin1();}
+	void setDisplay(const Device &dev) {_display = dev;}
 
 	QSize resolution() const;
 	QString recordFile() const;
@@ -33,8 +35,8 @@ signals:
 	void stateChanged(bool playing);
 
 public slots:
-	void startStreaming();
-	void startStreamingAndRecording();
+	void startStreaming(bool record);
+	void startStreamingOut();
 	void stopStreaming();
 	void captureImage();
 
@@ -44,6 +46,9 @@ private:
 	libvlc_media_t *createMedia();
 	void emitLoadStatus();
 	static void handleEvent(const libvlc_event_t *event, void *userData);
+	void emitStateChanged(bool playing);
+	void startStreaming();
+	void startStreamingAndRecording();
 
 	Video *_video;
 
@@ -57,6 +62,9 @@ private:
 	QString _codec;
 	unsigned _bitrate;
 	QByteArray _aspectRatio;
+
+	Display _display;
+	bool _outputActive;
 
 	Log _log;
 };

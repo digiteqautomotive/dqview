@@ -1,6 +1,7 @@
 #include <QMainWindow>
 #include "options.h"
 #include "video.h"
+#include "videofile.h"
 
 class QCloseEvent;
 class QKeyEvent;
@@ -32,6 +33,7 @@ private slots:
 	void stateChanged(bool playing);
 	void videoLoaded();
 	void showLog();
+	void selectOutputFile();
 
 private:
 	void readSettings();
@@ -76,18 +78,22 @@ private:
 	QAction *_aboutAction;
 	QAction *_exitAction;
 	QAction *_showLogAction;
+	QAction *_selectOutputFileAction;
+	QAction *_loopAction;
 
 	QToolBar *_videoToolBar;
 	QMenu *_deviceMenu;
 	QSignalMapper *_streamSignalMapper;
 	QList<QByteArray> _windowStates;
 
-	QLabel *_deviceNameLabel;
+	QLabel *_videoSourceLabel;
 	QLabel *_resolutionLabel;
 	QLabel *_recordTimeLabel;
 	QLabel *_recordFileLabel;
 
 	Timer *_recordTimer;
+
+	VideoFile *_outputFile;
 
 	Options _options;
 };

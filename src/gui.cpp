@@ -78,6 +78,8 @@ GUI::GUI()
 	QList<QAction*> devices(_deviceActionGroup->actions());
 	if (!devices.isEmpty())
 		devices.first()->trigger();
+
+	_outputFile = new VideoFile(this);
 }
 
 QList<QAction*> GUI::deviceActions(Device::Type type)
@@ -168,11 +170,20 @@ void GUI::createActions()
 
 	_recordAction = new QAction(QIcon(":/record.png"), tr("Record Video"));
 	_recordAction->setCheckable(true);
+	_recordAction->setEnabled(false);
 	_screenshotAction = new QAction(QIcon(":/screenshot.png"),
 	  tr("Capture Screenshot"));
 	_screenshotAction->setEnabled(false);
 	connect(_screenshotAction, &QAction::triggered, _player,
 	  &VideoPlayer::captureImage);
+
+	_selectOutputFileAction = new QAction(tr("Open video file..."));
+	_selectOutputFileAction->setEnabled(false);
+	connect(_selectOutputFileAction, &QAction::triggered, this,
+	  &GUI::selectOutputFile);
+	_loopAction = new QAction(QIcon(":/loop.png"), tr("Loop video"));
+	_loopAction->setCheckable(true);
+	_loopAction->setEnabled(false);
 
 	_resizeVideoAction = new QAction(tr("Resize Video To Window"));
 	_resizeVideoAction->setCheckable(true);
@@ -223,6 +234,9 @@ void GUI::createMenus()
 	videoMenu->addSeparator();
 	videoMenu->addAction(_recordAction);
 	videoMenu->addAction(_screenshotAction);
+	videoMenu->addSeparator();
+	videoMenu->addAction(_loopAction);
+	videoMenu->addAction(_selectOutputFileAction);
 
 	QMenu *settingsMenu = menuBar()->addMenu(tr("&Settings"));
 	settingsMenu->addAction(_resizeVideoAction);
@@ -244,24 +258,26 @@ void GUI::createToolbars()
 	_videoToolBar->addSeparator();
 	_videoToolBar->addAction(_recordAction);
 	_videoToolBar->addAction(_screenshotAction);
+	_videoToolBar->addSeparator();
+	_videoToolBar->addAction(_loopAction);
 }
 
 void GUI::createStatusBar()
 {
-	_deviceNameLabel = new QLabel();
+	_videoSourceLabel = new QLabel();
 	_resolutionLabel = new QLabel();
 	_recordFileLabel = new QLabel();
 	_recordTimeLabel = new QLabel();
 	_recordTimeLabel->setAlignment(Qt::AlignHCenter);
 
-	statusBar()->addPermanentWidget(_deviceNameLabel);
+	statusBar()->addPermanentWidget(_videoSourceLabel);
 	statusBar()->addPermanentWidget(_resolutionLabel);
 	statusBar()->addPermanentWidget(new QLabel(), 10);
 	statusBar()->addPermanentWidget(_recordFileLabel);
 	statusBar()->addPermanentWidget(_recordTimeLabel);
 	statusBar()->setSizeGripEnabled(false);
 
-	_deviceNameLabel->setText(tr("No Device Open"));
+	_videoSourceLabel->setText(tr("No Device Open"));
 
 	_recordTimer = new Timer(this);
 	connect(_recordTimer, &Timer::time, this, &GUI::updateTimer);
@@ -276,10 +292,10 @@ void GUI::play(bool enable)
 {
 	if (enable) {
 		startStreaming();
-		if (_recordAction->isChecked())
-			_player->startStreamingAndRecording();
+		if (_device.type() == Device::Output)
+			_player->startStreamingOut();
 		else
-			_player->startStreaming();
+			_player->startStreaming(_recordAction->isChecked());
 	} else {
 		stopStreaming();
 		_player->stopStreaming();
@@ -293,6 +309,7 @@ void GUI::startStreaming()
 	_deviceActionGroup->setEnabled(false);
 	_resizeActionGroup->setEnabled(false);
 	_openStreamAction->setEnabled(false);
+	_selectOutputFileAction->setEnabled(false);
 }
 
 void GUI::stopStreaming()
@@ -335,14 +352,21 @@ void GUI::stateChanged(bool playing)
 	if (playing) {
 		if (_recordAction->isChecked())
 			startRecording();
-		if (!_recordAction->isChecked())
+		if (!_recordAction->isChecked() && _device.type() == Device::Input)
 			_screenshotAction->setEnabled(true);
 		 QTimer::singleShot(100, this, SLOT(videoLoaded()));
 	} else {
+		if (_playAction->isChecked() && _loopAction->isChecked()) {
+			play(true);
+			return;
+		}
+
 		if (_recordAction->isChecked())
 			stopRecording();
 		_resolutionLabel->setText(QString());
-		_recordAction->setEnabled(true);
+		_recordAction->setEnabled(_device.type() == Device::Input);
+		_loopAction->setEnabled(_device.type() == Device::Output);
+		_selectOutputFileAction->setEnabled(_device.type() == Device::Output);
 		_deviceActionGroup->setEnabled(true);
 		_resizeActionGroup->setEnabled(true);
 		_openStreamAction->setEnabled(true);
@@ -376,12 +400,27 @@ void GUI::videoLoaded()
 void GUI::openDevice(QObject *device)
 {
 	Video *video = qobject_cast<Video *>(device);
-	_player->setVideo(video);
-	_deviceNameLabel->setText(video->name());
 	_device = video->device();
-	_configureDeviceAction->setEnabled(_device.isValid());
 
-	_playAction->setEnabled(_device.type() == Device::Input);
+	if (_device.type() == Device::Input) {
+		_player->setVideo(video);
+		_videoSourceLabel->setText(video->name());
+		_playAction->setEnabled(true);
+		_recordAction->setEnabled(true);
+		_loopAction->setEnabled(false);
+		_selectOutputFileAction->setEnabled(false);
+	} else if (_device.type() == Device::Output) {
+		_player->setDisplay(_device);
+		_player->setVideo(_outputFile);
+		_videoSourceLabel->setText(_outputFile->file().isEmpty()
+		  ? "No video file selected" : _outputFile->name());
+		_playAction->setEnabled(!_outputFile->file().isEmpty());
+		_recordAction->setEnabled(false);
+		_loopAction->setEnabled(true);
+		_selectOutputFileAction->setEnabled(true);
+	}
+
+	_configureDeviceAction->setEnabled(_device.isValid());
 }
 
 void GUI::openStream()
@@ -396,6 +435,22 @@ void GUI::openStream()
 	_deviceMenu->insertAction(_deviceSeparator, a);
 
 	openDevice(stream);
+}
+
+void GUI::selectOutputFile()
+{
+	QString file(QFileDialog::getOpenFileName(this, tr("Open file"),
+	  QString(), tr("Video files") + " (*.avi *.mkv *.mp4 *.mpeg *.mov *.mpg *.wmv);;"
+	  + tr("All files") + " (*)"));
+
+	if (!file.isEmpty()) {
+		_outputFile->setFile(file);
+		if (_device.type() == Device::Output) {
+			_videoSourceLabel->setText(_outputFile->name());
+			if (_device.isValid())
+				_playAction->setEnabled(true);
+		}
+	}
 }
 
 bool GUI::findStream(const StreamInfo &stream) const
@@ -505,7 +560,7 @@ void GUI::showFullScreen(bool show)
 void GUI::closeEvent(QCloseEvent *event)
 {
 	if (_playAction->isChecked())
-		_player->stopStreaming();
+		_playAction->trigger();
 
 	writeSettings();
 

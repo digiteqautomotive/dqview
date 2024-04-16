@@ -5,6 +5,7 @@
 #include <QPainter>
 #include <QStringList>
 #include "video.h"
+#include "display.h"
 #include "videoplayer.h"
 
 
@@ -25,22 +26,37 @@ static void logCb(void *data, int level, const libvlc_log_t *ctx,
 	log->mutex.unlock();
 }
 
-
 void VideoPlayer::handleEvent(const libvlc_event_t *event, void *userData)
 {
 	VideoPlayer *player = static_cast<VideoPlayer*>(userData);
 
 	switch (event->type) {
 		case libvlc_MediaPlayerPlaying:
-			player->stateChanged(true);
+			player->emitStateChanged(true);
 			break;
 		case libvlc_MediaPlayerStopped:
-			player->stateChanged(false);
+			player->emitStateChanged(false);
 			break;
 		case libvlc_MediaPlayerEncounteredError:
 			player->error("Stream error. See the log file for more details.");
 			break;
 	}
+}
+
+void VideoPlayer::emitStateChanged(bool playing)
+{
+	if (!playing && _outputActive) {
+		_display.stop();
+		_display.close();
+	}
+
+	if (!playing) {
+		QPainter p(this);
+		p.fillRect(rect(), Qt::black);
+		update();
+	}
+
+	emit stateChanged(playing);
 }
 
 void VideoPlayer::createArgs(const QString &transform)
@@ -54,7 +70,8 @@ void VideoPlayer::createArgs(const QString &transform)
 	  << "--no-osd"
 	  << "--no-snapshot-preview"
 	  << "--no-stats"
-	  << "--no-video-title-show";
+	  << "--no-video-title-show"
+	  << "--aout=none";
 	if (!transform.isEmpty()) {
 		list << "--video-filter=transform";
 		list << "--transform-type=" + transform;
@@ -71,7 +88,7 @@ void VideoPlayer::createArgs(const QString &transform)
 }
 
 VideoPlayer::VideoPlayer(const QString &transform, QWidget *parent)
-  : QWidget(parent), _video(0), _vlc(0), _mediaPlayer(0)
+  : QWidget(parent), _video(0), _vlc(0), _mediaPlayer(0), _outputActive(false)
 {
 	setAutoFillBackground(true);
 	QPalette palette = this->palette();
@@ -138,6 +155,53 @@ libvlc_media_t *VideoPlayer::createMedia()
 	return media;
 }
 
+void VideoPlayer::startStreamingOut()
+{
+	if (!_display.open()) {
+		emit error(tr("Error opening output device: ")
+		  + _display.errorString());
+		return;
+	}
+	QSize size(_display.size());
+	if (!size.isValid()) {
+		_display.close();
+		emit error(tr("Error fetching output device resolution: ")
+		  + _display.errorString());
+		return;
+	}
+	_outputActive = _display.start();
+	if (!_outputActive) {
+		_display.close();
+		emit error(tr("Error starting output device: ")
+		  + _display.errorString());
+		return;
+	}
+
+	QString rec = QString("sout=#duplicate{dst=display,dst='"
+	  "transcode{vcodec=RV32,acodec=null,width=%1,height=%2}:smem{"
+	  "video-prerender-callback=%3,video-postrender-callback=%4,video-data=%5}'}")
+	  .arg(QString::number(size.width()), QString::number(size.height()),
+		QString::number((long long int)(intptr_t)(void*)Display::prerender()),
+		QString::number((long long int)(intptr_t)(void*)Display::postrender()),
+		QString::number((long long int)(intptr_t)(void*)&_display));
+
+	libvlc_media_t *media = createMedia();
+	libvlc_media_add_option(media, rec.toUtf8().constData());
+	libvlc_video_set_aspect_ratio(_mediaPlayer, _aspectRatio.isEmpty()
+	  ? "Default" : _aspectRatio.constData());
+	libvlc_media_player_set_media(_mediaPlayer, media);
+	libvlc_media_release(media);
+	libvlc_media_player_play(_mediaPlayer);
+}
+
+void VideoPlayer::startStreaming(bool record)
+{
+	if (record)
+		startStreamingAndRecording();
+	else
+		startStreaming();
+}
+
 void VideoPlayer::startStreaming()
 {
 	libvlc_media_t *media = createMedia();
@@ -171,6 +235,11 @@ void VideoPlayer::startStreamingAndRecording()
 void VideoPlayer::stopStreaming()
 {
 	libvlc_media_player_stop(_mediaPlayer);
+
+	if (_outputActive) {
+		_display.stop();
+		_display.close();
+	}
 
 	QPainter p(this);
 	p.fillRect(rect(), Qt::black);

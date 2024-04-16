@@ -2,7 +2,7 @@ TARGET = dqview
 TEMPLATE = app
 
 QT      += core gui widgets
-VERSION = 3.0
+VERSION = 4.0
 
 isEmpty(BUILD) {
 DEFINES += APP_VERSION=\\\"$$VERSION\\\" \
@@ -18,6 +18,7 @@ SOURCES += src/main.cpp \
     src/application.cpp \
     src/deviceconfigdialog.cpp \
     src/deviceinfo.cpp \
+    src/display.cpp \
     src/gui.cpp \
     src/logdialog.cpp \
     src/optionsdialog.cpp \
@@ -33,6 +34,7 @@ HEADERS += src/application.h \
     src/device.h \
     src/deviceconfigdialog.h \
     src/deviceinfo.h \
+    src/display.h \
     src/gui.h \
     src/log.h \
     src/logdialog.h \
@@ -45,6 +47,7 @@ HEADERS += src/application.h \
     src/camera.h \
     src/video.h \
     src/timer.h \
+    src/videofile.h \
     src/videoplayer.h \
     src/options.h
 
