@@ -14,6 +14,7 @@ public:
 	  : _type(type), _id(id), _name(name), _config(0) {}
 	Device(const Device &other);
 	~Device();
+	Device &operator=(const Device &other);
 #else
 	Device() : _type(Unknown), _id(-1) {}
 	Device(Type type, int id, const QString &name)

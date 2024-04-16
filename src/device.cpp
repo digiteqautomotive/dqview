@@ -128,6 +128,18 @@ Device::~Device()
 	}
 }
 
+Device &Device::operator=(const Device &other)
+{
+	if (this != &other) {
+		_type = other._type;
+		_id = other._id;
+		_name = other._name;
+		_config = 0;
+	}
+
+	return *this;
+}
+
 void *Device::config()
 {
 	if (_id < 0)
