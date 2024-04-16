@@ -204,11 +204,21 @@ Display::~Display()
 
 void Display::_prerenderCb(void *data, uint8_t **buffer, size_t size)
 {
+	Q_UNUSED(data);
+	Q_UNUSED(buffer);
+	Q_UNUSED(size);
 }
 
 void Display::_postrenderCb(void *data, uint8_t *buffer,
   int width, int height, int pixel_pitch, size_t size, int64_t pts)
 {
+	Q_UNUSED(data);
+	Q_UNUSED(buffer);
+	Q_UNUSED(width);
+	Q_UNUSED(height);
+	Q_UNUSED(pixel_pitch);
+	Q_UNUSED(size);
+	Q_UNUSED(pts);
 }
 
 Display::Display()
