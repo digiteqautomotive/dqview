@@ -38,10 +38,10 @@ DeviceInfo DeviceInfo::deviceInfo(const QString &device, int *id)
 
 	if (err)
 		return DeviceInfo();
-	else if (vcap.capabilities & V4L2_CAP_VIDEO_CAPTURE)
+	else if (vcap.device_caps & V4L2_CAP_VIDEO_CAPTURE)
 		return DeviceInfo(Device(Device::Input, mgb4In ? *id++ : -1, device),
 		  (const char *)vcap.card);
-	else if (vcap.capabilities & V4L2_CAP_VIDEO_OUTPUT)
+	else if (vcap.device_caps & V4L2_CAP_VIDEO_OUTPUT)
 		return DeviceInfo(Device(Device::Output, mgb4Out ? *id++ : -1, device),
 		  (const char *)vcap.card);
 	else
