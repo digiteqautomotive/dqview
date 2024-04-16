@@ -1561,8 +1561,8 @@ void OutputConfigDialog::setConfig(Device &dev)
 		ok &= SUCCEEDED(src->GetHFrontPorch((long*)&hfront));
 		ok &= SUCCEEDED(src->GetVBackPorch((long*)&vback));
 		ok &= SUCCEEDED(src->GetVFrontPorch((long*)&vfront));
-		ok &= SUCCEEDED(src->GetHsStatus((long*)&hpol)));
-		ok &= SUCCEEDED(src->GetVsStatus((long*)&vpol)));
+		ok &= SUCCEEDED(src->GetHsStatus((long*)&hpol));
+		ok &= SUCCEEDED(src->GetVsStatus((long*)&vpol));
 
 		width = resolution >> 16;
 		height = resolution & 0xFFFF;
