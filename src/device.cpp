@@ -111,19 +111,39 @@ static IFG4OutputConfig *outputConfig(int id)
 	return 0;
 }
 
-void *Device::config() const
+
+Device::Device(const Device &other)
+  : _type(other._type), _id(other._id), _name(other._name), _config(0)
+{
+
+}
+
+Device::~Device()
+{
+	if (_config) {
+		if (_type == Input)
+			((IFG4InputConfig*)_config)->Release();
+		else if (_type == Output)
+			((IFG4OutputConfig*)_config)->Release();
+	}
+}
+
+void *Device::config()
 {
 	if (_id < 0)
 		return 0;
 
 	switch (_type) {
 		case Input:
-			return (void*)inputConfig(_id);
+			if (!_config)
+				_config = (void*)inputConfig(_id);
+			return _config;
 		case Output:
-			return (void*)outputConfig(_id);
+			if (!_config)
+				_config = (void*)outputConfig(_id);
+			return _config;
 		default:
 			return 0;
 	}
 }
-
 #endif

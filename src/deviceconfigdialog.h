@@ -26,20 +26,15 @@ protected:
 	bool getFwType(ModuleType *type);
 	bool getFwVersion(unsigned *version);
 	bool getSerialNumber(QString *serialNumber);
-
-	bool readSysfsInt(const QString &path, unsigned *val);
-	bool readSysfsString(const QString &path, QString *val);
-	bool writeSysfsInt(const QString &path, unsigned val);
-
-	QString _device;
 #endif
+
+	Device _device;
 };
 
 class InputConfigDialog : public DeviceConfigDialog
 {
 public:
 	InputConfigDialog(const Device &device, QWidget *parent = 0);
-	~InputConfigDialog();
 
 public slots:
 	void accept();
@@ -102,20 +97,20 @@ private:
 	QComboBox *_gmslMode;
 	QComboBox *_gmslStreamId;
 	QComboBox *_gmslFec;
-
-#if defined(Q_OS_WIN32) || defined(Q_OS_CYGWIN)
-	IFG4InputConfig *_config;
-#endif
 };
 
 class OutputConfigDialog : public DeviceConfigDialog
 {
 public:
 	OutputConfigDialog(const Device &device, QWidget *parent = 0);
-	~OutputConfigDialog();
+
+	void setConfig(Device &dev);
 
 public slots:
 	void accept();
+
+private slots:
+	void copyConfig();
 
 private:
 #if defined(Q_OS_WIN32) || defined(Q_OS_CYGWIN)
@@ -174,10 +169,6 @@ private:
 	QSpinBox *_vbackPorch;
 	QSpinBox *_vfrontPorch;
 	QComboBox *_fpdl3OutputWidth;
-
-#if defined(Q_OS_WIN32) || defined(Q_OS_CYGWIN)
-	IFG4OutputConfig *_config;
-#endif
 };
 
 #endif // DEVICECONFIGDIALOG_H

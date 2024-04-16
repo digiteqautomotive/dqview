@@ -13,6 +13,7 @@ DEFINES += APP_VERSION=\\\"$${VERSION}.$${BUILD}\\\" \
 }
 
 SOURCES += src/main.cpp \
+    src/configcopydialog.cpp \
     src/device.cpp \
     src/application.cpp \
     src/deviceconfigdialog.cpp \
@@ -28,6 +29,7 @@ SOURCES += src/main.cpp \
     src/timer.cpp \
     src/videoplayer.cpp
 HEADERS += src/application.h \
+    src/configcopydialog.h \
     src/device.h \
     src/deviceconfigdialog.h \
     src/deviceinfo.h \
