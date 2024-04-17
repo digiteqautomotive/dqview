@@ -9,6 +9,8 @@
 class Display
 {
 public:
+	enum Format {Unknown, RGB, YUV};
+
 	typedef void (*PrerenderCallback) (void *data, uint8_t **buffer, size_t size);
 	typedef void (*PostrenderCallback) (void *data, uint8_t *buffer, int width,
 	  int height, int pixel_pitch, size_t size, int64_t pts);
@@ -22,6 +24,7 @@ public:
 	bool open();
 	void close();
 	QSize size();
+	Format format();
 	bool start();
 	void stop();
 

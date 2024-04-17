@@ -156,6 +156,28 @@ QSize Display::size()
 	return QSize(fmt.fmt.pix.width, fmt.fmt.pix.height);
 }
 
+Display::Format Display::format()
+{
+	struct v4l2_format fmt;
+	fmt.type = V4L2_BUF_TYPE_VIDEO_OUTPUT;
+
+	if (ioctl(_fd, VIDIOC_G_FMT, &fmt) < 0) {
+		_errorString = "VIDIOC_G_FMT: " + QString(strerror(errno));
+		return Unknown;
+	}
+
+	switch (fmt.fmt.pix.pixelformat) {
+		case V4L2_PIX_FMT_ABGR32:
+			return RGB;
+		case V4L2_PIX_FMT_YUYV:
+			return YUV;
+		default:
+			_errorString = QString("%1: Unknown fourcc")
+			  .arg(fmt.fmt.pix.pixelformat);
+			return Unknown;
+	}
+}
+
 bool Display::open()
 {
 	Q_ASSERT(_fd < 0);
@@ -250,6 +272,11 @@ void Display::close()
 QSize Display::size()
 {
 	return QSize();
+}
+
+Display::Format Display::format()
+{
+	return Unknown;
 }
 
 bool Display::start()
