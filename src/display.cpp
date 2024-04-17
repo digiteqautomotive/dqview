@@ -1,4 +1,4 @@
-#include <QtCore>
+#include <QtGlobal>
 #if defined(Q_OS_LINUX)
 #include <time.h>
 #include <fcntl.h>
