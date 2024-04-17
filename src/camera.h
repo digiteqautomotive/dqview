@@ -1,7 +1,6 @@
 #ifndef CAMERA_H
 #define CAMERA_H
 
-#include <QUrl>
 #include <QSize>
 #include "deviceinfo.h"
 #include "video.h"

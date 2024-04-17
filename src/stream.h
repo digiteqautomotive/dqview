@@ -1,7 +1,6 @@
 #ifndef STREAM_H
 #define STREAM_H
 
-#include <QUrl>
 #include <QString>
 #include "video.h"
 #include "streaminfo.h"
