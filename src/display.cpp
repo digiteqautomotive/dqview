@@ -249,19 +249,7 @@ void Display::close()
 
 QSize Display::size()
 {
-	long resolution;
-	IFG4OutputConfig* config = (IFG4OutputConfig*)_dev.config();
-
-	if (!config) {
-		_errorString = "Invalid device configuration handle";
-		return QSize();
-	}
-	if (FAILED(config->GetResolution(&resolution))) {
-		_errorString = "GetResolution() failed";
-		return QSize();
-	}
-
-	return QSize(resolution >> 16, resolution & 0xFFFF);
+	retirn QSize();
 }
 
 bool Display::start()
