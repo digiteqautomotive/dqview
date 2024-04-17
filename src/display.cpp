@@ -249,7 +249,7 @@ void Display::close()
 
 QSize Display::size()
 {
-	retirn QSize();
+	return QSize();
 }
 
 bool Display::start()
