@@ -34,7 +34,7 @@ OptionsDialog::OptionsDialog(Options *options, QWidget *parent)
 	_codec->addItem("MPEG-2", QVariant("mp2v"));
 	_codec->setCurrentIndex(_codec->findData(QVariant(options->codec)));
 	_bitrate = new QSpinBox();
-	_bitrate->setMaximum(3000);
+	_bitrate->setMaximum(8192);
 	_bitrate->setMinimum(128);
 	_bitrate->setSingleStep(100);
 	_bitrate->setValue(options->bitrate);
