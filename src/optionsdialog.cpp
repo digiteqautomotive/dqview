@@ -38,6 +38,7 @@ OptionsDialog::OptionsDialog(Options *options, QWidget *parent)
 	_bitrate->setMinimum(128);
 	_bitrate->setSingleStep(100);
 	_bitrate->setValue(options->bitrate);
+	_bitrate->setSuffix(" kb/s");
 	QGroupBox *videoBox = new QGroupBox(tr("Video"));
 	QFormLayout *videoBoxLayout = new QFormLayout(videoBox);
 	videoBoxLayout->addRow(tr("Codec:"), _codec);
