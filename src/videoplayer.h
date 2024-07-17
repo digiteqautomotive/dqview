@@ -3,7 +3,7 @@
 
 #include <QWidget>
 #include <vlc/vlc.h>
-#include "display.h"
+#include "videooutput.h"
 #include "log.h"
 
 class QImage;
@@ -63,7 +63,7 @@ private:
 	unsigned _bitrate;
 	QByteArray _aspectRatio;
 
-	Display _display;
+	VideoOutput _display;
 	bool _outputActive;
 
 	Log _log;

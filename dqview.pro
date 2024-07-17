@@ -18,7 +18,6 @@ SOURCES += src/main.cpp \
     src/application.cpp \
     src/deviceconfigdialog.cpp \
     src/deviceinfo.cpp \
-    src/display.cpp \
     src/gui.cpp \
     src/logdialog.cpp \
     src/optionsdialog.cpp \
@@ -28,13 +27,13 @@ SOURCES += src/main.cpp \
     src/stream.cpp \
     src/camera.cpp \
     src/timer.cpp \
+    src/videooutput.cpp \
     src/videoplayer.cpp
 HEADERS += src/application.h \
     src/configcopydialog.h \
     src/device.h \
     src/deviceconfigdialog.h \
     src/deviceinfo.h \
-    src/display.h \
     src/gui.h \
     src/log.h \
     src/logdialog.h \
@@ -48,6 +47,7 @@ HEADERS += src/application.h \
     src/video.h \
     src/timer.h \
     src/videofile.h \
+    src/videooutput.h \
     src/videoplayer.h \
     src/options.h
 

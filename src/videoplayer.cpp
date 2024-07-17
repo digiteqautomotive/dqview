@@ -5,7 +5,7 @@
 #include <QPainter>
 #include <QStringList>
 #include "video.h"
-#include "display.h"
+#include "videooutput.h"
 #include "videoplayer.h"
 
 
@@ -169,8 +169,8 @@ void VideoPlayer::startStreamingOut()
 		  + _display.errorString());
 		return;
 	}
-	Display::Format format(_display.format());
-	if (format == Display::Format::Unknown) {
+	VideoOutput::Format format(_display.format());
+	if (format == VideoOutput::Format::Unknown) {
 		_display.close();
 		emit error(tr("Error fetching output pixel format: ")
 		  + _display.errorString());
@@ -184,13 +184,13 @@ void VideoPlayer::startStreamingOut()
 		return;
 	}
 
-	QString codec = (format == Display::RGB) ? "RV32" : "YUYV";
+	QString codec = (format == VideoOutput::RGB) ? "RV32" : "YUYV";
 	QString rec = QString("sout=#duplicate{dst=display,dst='"
 	  "transcode{vcodec=%1,acodec=null,width=%2,height=%3}:smem{"
 	  "video-prerender-callback=%4,video-postrender-callback=%5,video-data=%6}'}")
 	  .arg(codec, QString::number(size.width()), QString::number(size.height()),
-		QString::number((long long int)(intptr_t)(void*)Display::prerender()),
-		QString::number((long long int)(intptr_t)(void*)Display::postrender()),
+		QString::number((long long int)(intptr_t)(void*)VideoOutput::prerender()),
+		QString::number((long long int)(intptr_t)(void*)VideoOutput::postrender()),
 		QString::number((long long int)(intptr_t)(void*)&_display));
 
 	libvlc_media_t *media = createMedia();

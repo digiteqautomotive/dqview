@@ -1,12 +1,12 @@
-#ifndef DISPLAY_H
-#define DISPLAY_H
+#ifndef VIDEOOUTPUT_H
+#define VIDEOOUTPUT_H
 
 #include <QVector>
 #include <QSize>
 #include <vlc/vlc.h>
 #include "device.h"
 
-class Display
+class VideoOutput
 {
 public:
 	enum Format {Unknown, RGB, YUV};
@@ -15,9 +15,9 @@ public:
 	typedef void (*PostrenderCallback) (void *data, uint8_t *buffer, int width,
 	  int height, int pixel_pitch, size_t size, int64_t pts);
 
-	Display();
-	Display(const Device &dev);
-	~Display();
+	VideoOutput();
+	VideoOutput(const Device &dev);
+	~VideoOutput();
 
 	const Device &device() const {return _dev;}
 
@@ -58,4 +58,4 @@ private:
 #endif
 };
 
-#endif // DISPLAY_H
+#endif // VIDEOOUTPUT_H

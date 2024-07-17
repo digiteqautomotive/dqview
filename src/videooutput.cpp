@@ -10,13 +10,13 @@
 #elif defined(Q_OS_WIN32) || defined(Q_OS_CYGWIN)
 #include "fg4.h"
 #endif
-#include "display.h"
+#include "videooutput.h"
 
 #if defined(Q_OS_LINUX)
 
-void Display::_prerenderCb(void *data, uint8_t **buffer, size_t size)
+void VideoOutput::_prerenderCb(void *data, uint8_t **buffer, size_t size)
 {
-	Display *display = (Display *)data;
+	VideoOutput *display = (VideoOutput *)data;
 	struct v4l2_buffer buf;
 
 	memset(&buf, 0, sizeof(buf));
@@ -31,14 +31,14 @@ void Display::_prerenderCb(void *data, uint8_t **buffer, size_t size)
 	}
 }
 
-void Display::_postrenderCb(void *data, uint8_t *buffer,
+void VideoOutput::_postrenderCb(void *data, uint8_t *buffer,
   int width, int height, int pixel_pitch, size_t size, int64_t pts)
 {
 	Q_UNUSED(buffer);
 	Q_UNUSED(width);
 	Q_UNUSED(height);
 	Q_UNUSED(pixel_pitch);
-	Display *display = (Display *)data;
+	VideoOutput *display = (VideoOutput *)data;
 	struct v4l2_buffer buf;
 	struct timespec tp;
 
@@ -59,7 +59,7 @@ void Display::_postrenderCb(void *data, uint8_t *buffer,
 	ioctl(display->_fd, VIDIOC_QBUF, &buf);
 }
 
-bool Display::mapBuffers()
+bool VideoOutput::mapBuffers()
 {
 	struct v4l2_requestbuffers req;
 
@@ -103,7 +103,7 @@ bool Display::mapBuffers()
 	return true;
 }
 
-void Display::unmapBuffers()
+void VideoOutput::unmapBuffers()
 {
 	for (int i = 0; i < _buffers.size(); i++)
 		munmap(_buffers.at(i).start, _buffers.at(i).length);
@@ -111,7 +111,7 @@ void Display::unmapBuffers()
 	_buffers.clear();
 }
 
-bool Display::start()
+bool VideoOutput::start()
 {
 	enum v4l2_buf_type type = V4L2_BUF_TYPE_VIDEO_OUTPUT;
 
@@ -136,14 +136,14 @@ bool Display::start()
 	return true;
 }
 
-void Display::stop()
+void VideoOutput::stop()
 {
 	enum v4l2_buf_type type = V4L2_BUF_TYPE_VIDEO_OUTPUT;
 
 	ioctl(_fd, VIDIOC_STREAMOFF, &type);
 }
 
-QSize Display::size()
+QSize VideoOutput::size()
 {
 	struct v4l2_format fmt;
 	fmt.type = V4L2_BUF_TYPE_VIDEO_OUTPUT;
@@ -156,7 +156,7 @@ QSize Display::size()
 	return QSize(fmt.fmt.pix.width, fmt.fmt.pix.height);
 }
 
-Display::Format Display::format()
+VideoOutput::Format VideoOutput::format()
 {
 	struct v4l2_format fmt;
 	fmt.type = V4L2_BUF_TYPE_VIDEO_OUTPUT;
@@ -178,7 +178,7 @@ Display::Format Display::format()
 	}
 }
 
-bool Display::open()
+bool VideoOutput::open()
 {
 	Q_ASSERT(_fd < 0);
 
@@ -198,7 +198,7 @@ bool Display::open()
 	return true;
 }
 
-void Display::close()
+void VideoOutput::close()
 {
 	if (_fd >= 0) {
 		::close(_fd);
@@ -207,17 +207,17 @@ void Display::close()
 	unmapBuffers();
 }
 
-Display::Display() : _fd(-1), _bufferIndex(-1)
+VideoOutput::VideoOutput() : _fd(-1), _bufferIndex(-1)
 {
 
 }
 
-Display::Display(const Device &dev) : _dev(dev), _fd(-1), _bufferIndex(-1)
+VideoOutput::VideoOutput(const Device &dev) : _dev(dev), _fd(-1), _bufferIndex(-1)
 {
 
 }
 
-Display::~Display()
+VideoOutput::~VideoOutput()
 {
 	close();
 }
