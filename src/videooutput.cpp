@@ -224,14 +224,14 @@ VideoOutput::~VideoOutput()
 
 #elif defined(Q_OS_WIN32) || defined(Q_OS_CYGWIN)
 
-void Display::_prerenderCb(void *data, uint8_t **buffer, size_t size)
+void VideoOutput::_prerenderCb(void *data, uint8_t **buffer, size_t size)
 {
 	Q_UNUSED(data);
 	Q_UNUSED(buffer);
 	Q_UNUSED(size);
 }
 
-void Display::_postrenderCb(void *data, uint8_t *buffer,
+void VideoOutput::_postrenderCb(void *data, uint8_t *buffer,
   int width, int height, int pixel_pitch, size_t size, int64_t pts)
 {
 	Q_UNUSED(data);
@@ -243,48 +243,48 @@ void Display::_postrenderCb(void *data, uint8_t *buffer,
 	Q_UNUSED(pts);
 }
 
-Display::Display()
+VideoOutput::VideoOutput()
 {
 
 }
 
-Display::Display(const Device &output) : _dev(output)
+VideoOutput::VideoOutput(const Device &output) : _dev(output)
 {
 
 }
 
-Display::~Display()
+VideoOutput::~VideoOutput()
 {
 
 }
 
-bool Display::open()
+bool VideoOutput::open()
 {
 	_errorString = "Video output not supported on Windows";
 	return false;
 }
 
-void Display::close()
+void VideoOutput::close()
 {
 
 }
 
-QSize Display::size()
+QSize VideoOutput::size()
 {
 	return QSize();
 }
 
-Display::Format Display::format()
+VideoOutput::Format VideoOutput::format()
 {
 	return Unknown;
 }
 
-bool Display::start()
+bool VideoOutput::start()
 {
 	return false;
 }
 
-void Display::stop()
+void VideoOutput::stop()
 {
 
 }
