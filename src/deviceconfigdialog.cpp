@@ -6,6 +6,7 @@
 #include <QFormLayout>
 #include <QGroupBox>
 #include <QSpinBox>
+#include <QLineEdit>
 #include <QFileInfo>
 #include <QDir>
 #include <QMessageBox>
@@ -677,6 +678,18 @@ bool InputConfigDialog::setGMSLFEC(GMSLFEC fec)
 	return (config && SUCCEEDED(config->SetGmslFEC(fec)));
 }
 
+bool InputConfigDialog::getDefaultColor(unsigned *color)
+{
+	IFG4InputConfig *config = (IFG4InputConfig*)_device.config();
+	return (config && SUCCEEDED(config->GetDefaultColor((long*)color)));
+}
+
+bool InputConfigDialog::setDefaultColor(unsigned color)
+{
+	IFG4InputConfig *config = (IFG4InputConfig*)_device.config();
+	return (config && SUCCEEDED(config->SetDefaultColor(color)));
+}
+
 
 bool OutputConfigDialog::getModuleType(ModuleType *type)
 {
@@ -1172,6 +1185,14 @@ InputConfigDialog::InputConfigDialog(const Device &device, QWidget *parent)
 	if (getFreqRange(&range))
 		_freqRange->setCurrentIndex(_freqRange->findData((int)range));
 
+#if defined(Q_OS_WIN32) || defined(Q_OS_CYGWIN)
+	unsigned color;
+	_defaultColor = new QLineEdit();
+	_defaultColor->setInputMask("\\#hhhhhhhH");
+	if (getDefaultColor(&color))
+		_defaultColor->setText(QString::number(color, 16));
+#endif
+
 	QGroupBox *commonConfig = new QGroupBox(tr("Common"));
 	QFormLayout *commonConfigLayout = new QFormLayout();
 	commonConfigLayout->addRow(tr("Color Mapping:"), _colorMapping);
@@ -1179,6 +1200,9 @@ InputConfigDialog::InputConfigDialog(const Device &device, QWidget *parent)
 	commonConfigLayout->addRow(tr("VSYNC Gap Length:"), _vsyncGapLength);
 	commonConfigLayout->addRow(tr("HSYNC Gap Length:"), _hsyncGapLength);
 	commonConfigLayout->addRow(tr("Frequency Range:"), _freqRange);
+#if defined(Q_OS_WIN32) || defined(Q_OS_CYGWIN)
+	commonConfigLayout->addRow(tr("Default color:"), _defaultColor);
+#endif
 	commonConfig->setLayout(commonConfigLayout);
 
 
@@ -1273,6 +1297,10 @@ void InputConfigDialog::accept()
 		ret &= setGMSLStreamId(_gmslStreamId->currentData().toUInt());
 	if (_gmslFec)
 		ret &= setGMSLFEC((GMSLFEC)_gmslFec->currentData().toUInt());
+#if defined(Q_OS_WIN32) || defined(Q_OS_CYGWIN)
+	uint color = _defaultColor->text().remove(0, 1).toUInt(0, 16);
+	ret &= setDefaultColor(color);
+#endif
 
 	if (!ret)
 		QMessageBox::critical(this, tr("Error"),

@@ -9,6 +9,7 @@
 
 class QComboBox;
 class QSpinBox;
+class QLineEdit;
 
 class DeviceConfigDialog : public QDialog
 {
@@ -53,6 +54,8 @@ private:
 	bool getFwType(ModuleType *type);
 	bool getFwVersion(unsigned *version);
 	bool getSerialNumber(QString *serialNumber);
+	bool getDefaultColor(unsigned *color);
+	bool setDefaultColor(unsigned color);
 #endif
 
 	bool getInputId(unsigned *id);
@@ -97,6 +100,9 @@ private:
 	QComboBox *_gmslMode;
 	QComboBox *_gmslStreamId;
 	QComboBox *_gmslFec;
+#if defined(Q_OS_WIN32) || defined(Q_OS_CYGWIN)
+	QLineEdit *_defaultColor;
+#endif
 };
 
 class OutputConfigDialog : public DeviceConfigDialog
