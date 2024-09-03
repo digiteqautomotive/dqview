@@ -1191,7 +1191,7 @@ InputConfigDialog::InputConfigDialog(const Device &device, QWidget *parent)
 	_defaultColor->setInputMask("\\#hhhhhhhH");
 	_defaultColor->setToolTip(
 	  tr("If the MSB is non-zero, you get a periodically changing color "
-		 "instead of a static RGB color as represented by the lower three bytes."));
+	     "instead of a static RGB color as represented by the lower three bytes."));
 	if (getDefaultColor(&color))
 		_defaultColor->setText(QString::number(color, 16));
 #endif
