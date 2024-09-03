@@ -7,8 +7,6 @@
 #include <sys/ioctl.h>
 #include <sys/mman.h>
 #include <linux/videodev2.h>
-#elif defined(Q_OS_WIN32) || defined(Q_OS_CYGWIN)
-#include "fg4.h"
 #endif
 #include "videooutput.h"
 
