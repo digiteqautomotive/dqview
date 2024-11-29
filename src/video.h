@@ -13,9 +13,9 @@ public:
 	Video(QObject *parent = 0) : QObject(parent) {}
 	virtual ~Video() {}
 
-	virtual QString url() const = 0;
+	virtual QString url() = 0;
 	virtual QString name() const = 0;
-	virtual Device device() const {return Device();}
+	virtual Device *device() {return 0;}
 };
 
 #endif // VIDEO_H

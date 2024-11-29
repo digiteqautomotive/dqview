@@ -37,6 +37,7 @@ HEADERS += src/application.h \
     src/gui.h \
     src/log.h \
     src/logdialog.h \
+    src/pixelformat.h \
     src/stream.h \
     src/optionsdialog.h \
     src/dirselectwidget.h \

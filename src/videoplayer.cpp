@@ -88,7 +88,8 @@ void VideoPlayer::createArgs(const QString &transform)
 }
 
 VideoPlayer::VideoPlayer(const QString &transform, QWidget *parent)
-  : QWidget(parent), _video(0), _vlc(0), _mediaPlayer(0), _outputActive(false)
+  : QWidget(parent), _video(0), _vlc(0), _mediaPlayer(0), _display(0),
+  _outputActive(false)
 {
 	setAutoFillBackground(true);
 	QPalette palette = this->palette();
@@ -169,8 +170,8 @@ void VideoPlayer::startStreamingOut()
 		  + _display.errorString());
 		return;
 	}
-	VideoOutput::Format format(_display.format());
-	if (format == VideoOutput::Format::Unknown) {
+	PixelFormat format(_display.format());
+	if (format == UnknownFormat) {
 		_display.close();
 		emit error(tr("Error fetching output pixel format: ")
 		  + _display.errorString());
@@ -184,7 +185,7 @@ void VideoPlayer::startStreamingOut()
 		return;
 	}
 
-	QString codec = (format == VideoOutput::RGB) ? "RV32" : "YUYV";
+	QString codec = (format == RGB) ? "RV32" : "YUYV";
 	QString rec = QString("sout=#duplicate{dst=display,dst='"
 	  "transcode{vcodec=%1,acodec=null,width=%2,height=%3}:smem{"
 	  "video-prerender-callback=%4,video-postrender-callback=%5,video-data=%6}'}")

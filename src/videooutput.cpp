@@ -154,14 +154,14 @@ QSize VideoOutput::size()
 	return QSize(fmt.fmt.pix.width, fmt.fmt.pix.height);
 }
 
-VideoOutput::Format VideoOutput::format()
+PixelFormat VideoOutput::format()
 {
 	struct v4l2_format fmt;
 	fmt.type = V4L2_BUF_TYPE_VIDEO_OUTPUT;
 
 	if (ioctl(_fd, VIDIOC_G_FMT, &fmt) < 0) {
 		_errorString = "VIDIOC_G_FMT: " + QString(strerror(errno));
-		return Unknown;
+		return UnknownFormat;
 	}
 
 	switch (fmt.fmt.pix.pixelformat) {
@@ -172,7 +172,7 @@ VideoOutput::Format VideoOutput::format()
 		default:
 			_errorString = QString("%1: Unknown fourcc")
 			  .arg(fmt.fmt.pix.pixelformat);
-			return Unknown;
+			return UnknownFormat;
 	}
 }
 
@@ -246,7 +246,7 @@ VideoOutput::VideoOutput()
 
 }
 
-VideoOutput::VideoOutput(const Device &output) : _dev(output)
+VideoOutput::VideoOutput(Device *output) : _dev(output)
 {
 
 }
@@ -272,9 +272,9 @@ QSize VideoOutput::size()
 	return QSize();
 }
 
-VideoOutput::Format VideoOutput::format()
+PixelFormat VideoOutput::format()
 {
-	return Unknown;
+	return UnknownFormat;
 }
 
 bool VideoOutput::start()

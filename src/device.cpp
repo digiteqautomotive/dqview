@@ -111,13 +111,6 @@ static IFG4OutputConfig *outputConfig(int id)
 	return 0;
 }
 
-
-Device::Device(const Device &other)
-  : _type(other._type), _id(other._id), _name(other._name), _config(0)
-{
-
-}
-
 Device::~Device()
 {
 	if (_config) {
@@ -126,18 +119,6 @@ Device::~Device()
 		else if (_type == Output)
 			((IFG4OutputConfig*)_config)->Release();
 	}
-}
-
-Device &Device::operator=(const Device &other)
-{
-	if (this != &other) {
-		_type = other._type;
-		_id = other._id;
-		_name = other._name;
-		_config = 0;
-	}
-
-	return *this;
 }
 
 void *Device::config()

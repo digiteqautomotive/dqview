@@ -13,12 +13,12 @@ class Camera : public Video
 	Q_OBJECT
 
 public:
-	Camera(const DeviceInfo &cameraInfo, QObject *parent = 0);
+	Camera(DeviceInfo *cameraInfo, QObject *parent = 0);
 	~Camera();
 
-	QString url() const;
-	QString name() const {return _cameraInfo.name();}
-	Device device() const {return _cameraInfo.device();}
+	QString url();
+	QString name() const {return _cameraInfo->name();}
+	Device *device() {return _cameraInfo->device();}
 
 private:
 #if defined(Q_OS_WIN32) || defined(Q_OS_CYGWIN)
@@ -26,7 +26,7 @@ private:
 
 	IFG4InputConfig *_config;
 #endif
-	DeviceInfo _cameraInfo;
+	DeviceInfo *_cameraInfo;
 };
 
 #endif // CAMERA_H

@@ -61,7 +61,7 @@ private:
 	QSize sizeHint() const {return QSize(640, 480);}
 
 	VideoPlayer *_player;
-	Device _device;
+	Video *_video;
 
 	QActionGroup *_deviceActionGroup;
 	QActionGroup *_resizeActionGroup;

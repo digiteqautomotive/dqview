@@ -77,346 +77,346 @@ static bool readSysfsString(const QString &dev, const QString &path, QString *va
 
 bool DeviceConfigDialog::getModuleType(ModuleType *type)
 {
-	return readSysfsInt(_device.name(), "device/module_type", (unsigned*)type);
+	return readSysfsInt(_device->name(), "device/module_type", (unsigned*)type);
 }
 
 bool DeviceConfigDialog::getModuleVersion(unsigned *version)
 {
-	return readSysfsInt(_device.name(), "device/module_version", version);
+	return readSysfsInt(_device->name(), "device/module_version", version);
 }
 
 bool DeviceConfigDialog::getFwType(ModuleType *type)
 {
-	return readSysfsInt(_device.name(), "device/fw_type", (unsigned*)type);
+	return readSysfsInt(_device->name(), "device/fw_type", (unsigned*)type);
 }
 
 bool DeviceConfigDialog::getFwVersion(unsigned *version)
 {
-	return readSysfsInt(_device.name(), "device/fw_version", version);
+	return readSysfsInt(_device->name(), "device/fw_version", version);
 }
 
 bool DeviceConfigDialog::getSerialNumber(QString *serialNumber)
 {
-	return readSysfsString(_device.name(), "device/serial_number", serialNumber);
+	return readSysfsString(_device->name(), "device/serial_number", serialNumber);
 }
 
 
 bool InputConfigDialog::getInputId(unsigned *id)
 {
-	return readSysfsInt(_device.name(), "input_id", id);
+	return readSysfsInt(_device->name(), "input_id", id);
 }
 
 bool InputConfigDialog::getLinkStatus(LinkStatus *status)
 {
-	return readSysfsInt(_device.name(), "link_status", (unsigned*)status);
+	return readSysfsInt(_device->name(), "link_status", (unsigned*)status);
 }
 
 bool InputConfigDialog::getVideoWidth(unsigned *width)
 {
-	return readSysfsInt(_device.name(), "video_width", width);
+	return readSysfsInt(_device->name(), "video_width", width);
 }
 
 bool InputConfigDialog::getVideoHeight(unsigned *height)
 {
-	return readSysfsInt(_device.name(), "video_height", height);
+	return readSysfsInt(_device->name(), "video_height", height);
 }
 
 bool InputConfigDialog::getVSyncStatus(SyncType *status)
 {
-	return readSysfsInt(_device.name(), "vsync_status", (unsigned*)status);
+	return readSysfsInt(_device->name(), "vsync_status", (unsigned*)status);
 }
 
 bool InputConfigDialog::getHSyncStatus(SyncType *status)
 {
-	return readSysfsInt(_device.name(), "hsync_status", (unsigned*)status);
+	return readSysfsInt(_device->name(), "hsync_status", (unsigned*)status);
 }
 
 bool InputConfigDialog::getColorMapping(ColorMapping *mapping)
 {
-	return readSysfsInt(_device.name(), "color_mapping", (unsigned*)mapping);
+	return readSysfsInt(_device->name(), "color_mapping", (unsigned*)mapping);
 }
 
 bool InputConfigDialog::setColorMapping(ColorMapping mapping)
 {
-	return writeSysfsInt(_device.name(), "color_mapping", mapping);
+	return writeSysfsInt(_device->name(), "color_mapping", mapping);
 }
 
 bool InputConfigDialog::getLaneWidth(LineWidth *lineWidth)
 {
-	return readSysfsInt(_device.name(), "oldi_lane_width", (unsigned*)lineWidth);
+	return readSysfsInt(_device->name(), "oldi_lane_width", (unsigned*)lineWidth);
 }
 
 bool InputConfigDialog::setLaneWidth(LineWidth lineWidth)
 {
-	return writeSysfsInt(_device.name(), "oldi_lane_width", lineWidth);
+	return writeSysfsInt(_device->name(), "oldi_lane_width", lineWidth);
 }
 
 bool InputConfigDialog::getVSyncGapLength(unsigned *length)
 {
-	return readSysfsInt(_device.name(), "vsync_gap_length", length);
+	return readSysfsInt(_device->name(), "vsync_gap_length", length);
 }
 
 bool InputConfigDialog::setVSyncGapLength(unsigned length)
 {
-	return writeSysfsInt(_device.name(), "vsync_gap_length", length);
+	return writeSysfsInt(_device->name(), "vsync_gap_length", length);
 }
 
 bool InputConfigDialog::getHSyncGapLength(unsigned *length)
 {
-	return readSysfsInt(_device.name(), "hsync_gap_length", length);
+	return readSysfsInt(_device->name(), "hsync_gap_length", length);
 }
 
 bool InputConfigDialog::setHSyncGapLength(unsigned length)
 {
-	return writeSysfsInt(_device.name(), "hsync_gap_length", length);
+	return writeSysfsInt(_device->name(), "hsync_gap_length", length);
 }
 
 bool InputConfigDialog::getPclkFreq(unsigned *freq)
 {
-	return readSysfsInt(_device.name(), "pclk_frequency", freq);
+	return readSysfsInt(_device->name(), "pclk_frequency", freq);
 }
 
 bool InputConfigDialog::getHSyncWidth(unsigned *width)
 {
-	return readSysfsInt(_device.name(), "hsync_width", width);
+	return readSysfsInt(_device->name(), "hsync_width", width);
 }
 
 bool InputConfigDialog::getVSyncWidth(unsigned *width)
 {
-	return readSysfsInt(_device.name(), "vsync_width", width);
+	return readSysfsInt(_device->name(), "vsync_width", width);
 }
 
 bool InputConfigDialog::getHBackPorch(unsigned *porch)
 {
-	return readSysfsInt(_device.name(), "hback_porch", porch);
+	return readSysfsInt(_device->name(), "hback_porch", porch);
 }
 
 bool InputConfigDialog::getHFrontPorch(unsigned *porch)
 {
-	return readSysfsInt(_device.name(), "hfront_porch", porch);
+	return readSysfsInt(_device->name(), "hfront_porch", porch);
 }
 
 bool InputConfigDialog::getVBackPorch(unsigned *porch)
 {
-	return readSysfsInt(_device.name(), "vback_porch", porch);
+	return readSysfsInt(_device->name(), "vback_porch", porch);
 }
 
 bool InputConfigDialog::getVFrontPorch(unsigned *porch)
 {
-	return readSysfsInt(_device.name(), "vfront_porch", porch);
+	return readSysfsInt(_device->name(), "vfront_porch", porch);
 }
 
 bool InputConfigDialog::getFreqRange(FreqRange *range)
 {
-	return readSysfsInt(_device.name(), "frequency_range", (unsigned*)range);
+	return readSysfsInt(_device->name(), "frequency_range", (unsigned*)range);
 }
 
 bool InputConfigDialog::setFreqRange(FreqRange range)
 {
-	return writeSysfsInt(_device.name(), "frequency_range", range);
+	return writeSysfsInt(_device->name(), "frequency_range", range);
 }
 
 bool InputConfigDialog::getFPDL3InputWidth(FPDL3Width *width)
 {
-	return readSysfsInt(_device.name(), "fpdl3_input_width", (unsigned*)width);
+	return readSysfsInt(_device->name(), "fpdl3_input_width", (unsigned*)width);
 }
 
 bool InputConfigDialog::setFPDL3InputWidth(FPDL3Width width)
 {
-	return writeSysfsInt(_device.name(), "fpdl3_input_width", width);
+	return writeSysfsInt(_device->name(), "fpdl3_input_width", width);
 }
 
 bool InputConfigDialog::getGMSLMode(GMSLMode *mode)
 {
-	return readSysfsInt(_device.name(), "gmsl_mode", (unsigned*)mode);
+	return readSysfsInt(_device->name(), "gmsl_mode", (unsigned*)mode);
 }
 
 bool InputConfigDialog::setGMSLMode(GMSLMode mode)
 {
-	return writeSysfsInt(_device.name(), "gmsl_mode", mode);
+	return writeSysfsInt(_device->name(), "gmsl_mode", mode);
 }
 
 bool InputConfigDialog::getGMSLStreamId(unsigned *streamId)
 {
-	return readSysfsInt(_device.name(), "gmsl_stream_id", streamId);
+	return readSysfsInt(_device->name(), "gmsl_stream_id", streamId);
 }
 
 bool InputConfigDialog::setGMSLStreamId(unsigned streamId)
 {
-	return writeSysfsInt(_device.name(), "gmsl_stream_id", streamId);
+	return writeSysfsInt(_device->name(), "gmsl_stream_id", streamId);
 }
 
 bool InputConfigDialog::getGMSLFEC(GMSLFEC *fec)
 {
-	return readSysfsInt(_device.name(), "gmsl_fec", (unsigned*)fec);
+	return readSysfsInt(_device->name(), "gmsl_fec", (unsigned*)fec);
 }
 
 bool InputConfigDialog::setGMSLFEC(GMSLFEC fec)
 {
-	return writeSysfsInt(_device.name(), "gmsl_fec", fec);
+	return writeSysfsInt(_device->name(), "gmsl_fec", fec);
 }
 
 
 bool OutputConfigDialog::getOutputId(unsigned *id)
 {
-	return readSysfsInt(_device.name(), "output_id", id);
+	return readSysfsInt(_device->name(), "output_id", id);
 }
 
 bool OutputConfigDialog::getDisplayWidth(unsigned *width)
 {
-	return readSysfsInt(_device.name(), "display_width", width);
+	return readSysfsInt(_device->name(), "display_width", width);
 }
 
 bool OutputConfigDialog::setDisplayWidth(unsigned int width)
 {
-	return writeSysfsInt(_device.name(), "display_width", width);
+	return writeSysfsInt(_device->name(), "display_width", width);
 }
 
 bool OutputConfigDialog::getDisplayHeight(unsigned *height)
 {
-	return readSysfsInt(_device.name(), "display_height", height);
+	return readSysfsInt(_device->name(), "display_height", height);
 }
 
 bool OutputConfigDialog::setDisplayHeight(unsigned int height)
 {
-	return writeSysfsInt(_device.name(), "display_height", height);
+	return writeSysfsInt(_device->name(), "display_height", height);
 }
 
 bool OutputConfigDialog::getFrameRate(unsigned *frameRate)
 {
-	return readSysfsInt(_device.name(), "frame_rate", frameRate);
+	return readSysfsInt(_device->name(), "frame_rate", frameRate);
 }
 
 bool OutputConfigDialog::setFrameRate(unsigned frameRate)
 {
-	return writeSysfsInt(_device.name(), "frame_rate", frameRate);
+	return writeSysfsInt(_device->name(), "frame_rate", frameRate);
 }
 
 bool OutputConfigDialog::getVideoSource(unsigned *source)
 {
-	return readSysfsInt(_device.name(), "video_source", source);
+	return readSysfsInt(_device->name(), "video_source", source);
 }
 
 bool OutputConfigDialog::setVideoSource(unsigned source)
 {
-	return writeSysfsInt(_device.name(), "video_source", source);
+	return writeSysfsInt(_device->name(), "video_source", source);
 }
 
 bool OutputConfigDialog::getPclkFreq(unsigned *freq)
 {
-	return readSysfsInt(_device.name(), "pclk_frequency", freq);
+	return readSysfsInt(_device->name(), "pclk_frequency", freq);
 }
 
 bool OutputConfigDialog::setPclkFreq(unsigned freq)
 {
-	return writeSysfsInt(_device.name(), "pclk_frequency", freq);
+	return writeSysfsInt(_device->name(), "pclk_frequency", freq);
 }
 
 bool OutputConfigDialog::getHsyncPolarity(SyncType *polarity)
 {
-	return readSysfsInt(_device.name(), "hsync_polarity", (unsigned*)polarity);
+	return readSysfsInt(_device->name(), "hsync_polarity", (unsigned*)polarity);
 }
 
 bool OutputConfigDialog::setHsyncPolarity(SyncType polarity)
 {
-	return writeSysfsInt(_device.name(), "hsync_polarity", polarity);
+	return writeSysfsInt(_device->name(), "hsync_polarity", polarity);
 }
 
 bool OutputConfigDialog::getVsyncPolarity(SyncType *polarity)
 {
-	return readSysfsInt(_device.name(), "vsync_polarity", (unsigned*)polarity);
+	return readSysfsInt(_device->name(), "vsync_polarity", (unsigned*)polarity);
 }
 
 bool OutputConfigDialog::setVsyncPolarity(SyncType polarity)
 {
-	return writeSysfsInt(_device.name(), "vsync_polarity", polarity);
+	return writeSysfsInt(_device->name(), "vsync_polarity", polarity);
 }
 
 bool OutputConfigDialog::getDePolarity(SyncType *polarity)
 {
-	return readSysfsInt(_device.name(), "de_polarity", (unsigned*)polarity);
+	return readSysfsInt(_device->name(), "de_polarity", (unsigned*)polarity);
 }
 
 bool OutputConfigDialog::setDePolarity(SyncType polarity)
 {
-	return writeSysfsInt(_device.name(), "de_polarity", polarity);
+	return writeSysfsInt(_device->name(), "de_polarity", polarity);
 }
 
 bool OutputConfigDialog::getHSyncWidth(unsigned *width)
 {
-	return readSysfsInt(_device.name(), "hsync_width", width);
+	return readSysfsInt(_device->name(), "hsync_width", width);
 }
 
 bool OutputConfigDialog::setHSyncWidth(unsigned width)
 {
-	return writeSysfsInt(_device.name(), "hsync_width", width);
+	return writeSysfsInt(_device->name(), "hsync_width", width);
 }
 
 bool OutputConfigDialog::getVSyncWidth(unsigned *width)
 {
-	return readSysfsInt(_device.name(), "vsync_width", width);
+	return readSysfsInt(_device->name(), "vsync_width", width);
 }
 
 bool OutputConfigDialog::setVSyncWidth(unsigned width)
 {
-	return writeSysfsInt(_device.name(), "vsync_width", width);
+	return writeSysfsInt(_device->name(), "vsync_width", width);
 }
 
 bool OutputConfigDialog::getHBackPorch(unsigned *porch)
 {
-	return readSysfsInt(_device.name(), "hback_porch", porch);
+	return readSysfsInt(_device->name(), "hback_porch", porch);
 }
 
 bool OutputConfigDialog::setHBackPorch(unsigned porch)
 {
-	return writeSysfsInt(_device.name(), "hback_porch", porch);
+	return writeSysfsInt(_device->name(), "hback_porch", porch);
 }
 
 bool OutputConfigDialog::getHFrontPorch(unsigned *porch)
 {
-	return readSysfsInt(_device.name(), "hfront_porch", porch);
+	return readSysfsInt(_device->name(), "hfront_porch", porch);
 }
 
 bool OutputConfigDialog::setHFrontPorch(unsigned porch)
 {
-	return writeSysfsInt(_device.name(), "hfront_porch", porch);
+	return writeSysfsInt(_device->name(), "hfront_porch", porch);
 }
 
 bool OutputConfigDialog::getVBackPorch(unsigned *porch)
 {
-	return readSysfsInt(_device.name(), "vback_porch", porch);
+	return readSysfsInt(_device->name(), "vback_porch", porch);
 }
 
 bool OutputConfigDialog::setVBackPorch(unsigned porch)
 {
-	return writeSysfsInt(_device.name(), "vback_porch", porch);
+	return writeSysfsInt(_device->name(), "vback_porch", porch);
 }
 
 bool OutputConfigDialog::getVFrontPorch(unsigned *porch)
 {
-	return readSysfsInt(_device.name(), "vfront_porch", porch);
+	return readSysfsInt(_device->name(), "vfront_porch", porch);
 }
 
 bool OutputConfigDialog::setVFrontPorch(unsigned porch)
 {
-	return writeSysfsInt(_device.name(), "vfront_porch", porch);
+	return writeSysfsInt(_device->name(), "vfront_porch", porch);
 }
 
 bool OutputConfigDialog::getFPDL3OutputWidth(FPDL3Width *width)
 {
-	return readSysfsInt(_device.name(), "fpdl3_output_width", (unsigned*)width);
+	return readSysfsInt(_device->name(), "fpdl3_output_width", (unsigned*)width);
 }
 
 bool OutputConfigDialog::setFPDL3OutputWidth(FPDL3Width width)
 {
-	return writeSysfsInt(_device.name(), "fpdl3_output_width", width);
+	return writeSysfsInt(_device->name(), "fpdl3_output_width", width);
 }
 
 #elif defined(Q_OS_WIN32) || defined(Q_OS_CYGWIN)
 
 bool InputConfigDialog::getModuleType(ModuleType *type)
 {
-	IFG4InputConfig *config = (IFG4InputConfig*)_device.config();
+	IFG4InputConfig *config = (IFG4InputConfig*)_device->config();
 	long val;
 
 	if (!config || FAILED(config->GetModuleId(&val)))
@@ -428,7 +428,7 @@ bool InputConfigDialog::getModuleType(ModuleType *type)
 
 bool InputConfigDialog::getModuleVersion(unsigned *version)
 {
-	IFG4InputConfig *config = (IFG4InputConfig*)_device.config();
+	IFG4InputConfig *config = (IFG4InputConfig*)_device->config();
 	long val;
 
 	if (!config || FAILED(config->GetModuleId(&val)))
@@ -440,7 +440,7 @@ bool InputConfigDialog::getModuleVersion(unsigned *version)
 
 bool InputConfigDialog::getFwType(ModuleType *type)
 {
-	IFG4InputConfig *config = (IFG4InputConfig*)_device.config();
+	IFG4InputConfig *config = (IFG4InputConfig*)_device->config();
 	long val;
 
 	if (!config || FAILED(config->GetFpgaFwId(&val)))
@@ -452,7 +452,7 @@ bool InputConfigDialog::getFwType(ModuleType *type)
 
 bool InputConfigDialog::getFwVersion(unsigned *version)
 {
-	IFG4InputConfig *config = (IFG4InputConfig*)_device.config();
+	IFG4InputConfig *config = (IFG4InputConfig*)_device->config();
 	long val;
 
 	if (!config || FAILED(config->GetFpgaFwId(&val)))
@@ -464,7 +464,7 @@ bool InputConfigDialog::getFwVersion(unsigned *version)
 
 bool InputConfigDialog::getSerialNumber(QString *serialNumber)
 {
-	IFG4InputConfig *config = (IFG4InputConfig*)_device.config();
+	IFG4InputConfig *config = (IFG4InputConfig*)_device->config();
 	long val;
 	char buf[16];
 
@@ -480,19 +480,19 @@ bool InputConfigDialog::getSerialNumber(QString *serialNumber)
 
 bool InputConfigDialog::getInputId(unsigned *id)
 {
-	IFG4InputConfig *config = (IFG4InputConfig*)_device.config();
+	IFG4InputConfig *config = (IFG4InputConfig*)_device->config();
 	return (config && SUCCEEDED(config->GetChannel((long*)id)));
 }
 
 bool InputConfigDialog::getLinkStatus(LinkStatus *status)
 {
-	IFG4InputConfig *config = (IFG4InputConfig*)_device.config();
+	IFG4InputConfig *config = (IFG4InputConfig*)_device->config();
 	return (config && SUCCEEDED(config->GetLinkLckStatus((long*)status)));
 }
 
 bool InputConfigDialog::getVideoWidth(unsigned *width)
 {
-	IFG4InputConfig *config = (IFG4InputConfig*)_device.config();
+	IFG4InputConfig *config = (IFG4InputConfig*)_device->config();
 	long resolution;
 
 	if (!config || FAILED(config->GetDetectedResolution(&resolution)))
@@ -505,7 +505,7 @@ bool InputConfigDialog::getVideoWidth(unsigned *width)
 
 bool InputConfigDialog::getVideoHeight(unsigned *height)
 {
-	IFG4InputConfig *config = (IFG4InputConfig*)_device.config();
+	IFG4InputConfig *config = (IFG4InputConfig*)_device->config();
 	long resolution;
 
 	if (!config || FAILED(config->GetDetectedResolution(&resolution)))
@@ -518,182 +518,182 @@ bool InputConfigDialog::getVideoHeight(unsigned *height)
 
 bool InputConfigDialog::getVSyncStatus(SyncType *status)
 {
-	IFG4InputConfig *config = (IFG4InputConfig*)_device.config();
+	IFG4InputConfig *config = (IFG4InputConfig*)_device->config();
 	return (config && SUCCEEDED(config->GetVsStatus((long*)status)));
 }
 
 bool InputConfigDialog::getHSyncStatus(SyncType *status)
 {
-	IFG4InputConfig *config = (IFG4InputConfig*)_device.config();
+	IFG4InputConfig *config = (IFG4InputConfig*)_device->config();
 	return (config && SUCCEEDED(config->GetHsStatus((long*)status)));
 }
 
 bool InputConfigDialog::getColorMapping(ColorMapping *mapping)
 {
-	IFG4InputConfig *config = (IFG4InputConfig*)_device.config();
+	IFG4InputConfig *config = (IFG4InputConfig*)_device->config();
 	return (config && SUCCEEDED(config->GetColorMapping((long*)mapping)));
 }
 
 bool InputConfigDialog::setColorMapping(ColorMapping mapping)
 {
-	IFG4InputConfig *config = (IFG4InputConfig*)_device.config();
+	IFG4InputConfig *config = (IFG4InputConfig*)_device->config();
 	return (config && SUCCEEDED(config->SetColorMapping(mapping)));
 }
 
 bool InputConfigDialog::getLaneWidth(LineWidth *lineWidth)
 {
-	IFG4InputConfig *config = (IFG4InputConfig*)_device.config();
+	IFG4InputConfig *config = (IFG4InputConfig*)_device->config();
 	return (config && SUCCEEDED(config->GetOldiLink((long*)lineWidth)));
 }
 
 bool InputConfigDialog::setLaneWidth(LineWidth lineWidth)
 {
-	IFG4InputConfig *config = (IFG4InputConfig*)_device.config();
+	IFG4InputConfig *config = (IFG4InputConfig*)_device->config();
 	return (config && SUCCEEDED(config->SetOldiLink(lineWidth)));
 }
 
 bool InputConfigDialog::getVSyncGapLength(unsigned *length)
 {
-	IFG4InputConfig *config = (IFG4InputConfig*)_device.config();
+	IFG4InputConfig *config = (IFG4InputConfig*)_device->config();
 	return (config && SUCCEEDED(config->GetDeGap2VS((long*)length)));
 }
 
 bool InputConfigDialog::setVSyncGapLength(unsigned length)
 {
-	IFG4InputConfig *config = (IFG4InputConfig*)_device.config();
+	IFG4InputConfig *config = (IFG4InputConfig*)_device->config();
 	return (config && SUCCEEDED(config->SetDeGap2VS(length)));
 }
 
 bool InputConfigDialog::getHSyncGapLength(unsigned *length)
 {
-	IFG4InputConfig *config = (IFG4InputConfig*)_device.config();
+	IFG4InputConfig *config = (IFG4InputConfig*)_device->config();
 	return (config && SUCCEEDED(config->GetDeGap2HS((long*)length)));
 }
 
 bool InputConfigDialog::setHSyncGapLength(unsigned length)
 {
-	IFG4InputConfig *config = (IFG4InputConfig*)_device.config();
+	IFG4InputConfig *config = (IFG4InputConfig*)_device->config();
 	return (config && SUCCEEDED(config->SetDeGap2HS(length)));
 }
 
 bool InputConfigDialog::getPclkFreq(unsigned *freq)
 {
-	IFG4InputConfig *config = (IFG4InputConfig*)_device.config();
+	IFG4InputConfig *config = (IFG4InputConfig*)_device->config();
 	return (config && SUCCEEDED(config->GetPclkFrequency((long*)freq)));
 }
 
 bool InputConfigDialog::getHSyncWidth(unsigned *width)
 {
-	IFG4InputConfig *config = (IFG4InputConfig*)_device.config();
+	IFG4InputConfig *config = (IFG4InputConfig*)_device->config();
 	return (config && SUCCEEDED(config->GetWidthHSYNC((long*)width)));
 }
 
 bool InputConfigDialog::getVSyncWidth(unsigned *width)
 {
-	IFG4InputConfig *config = (IFG4InputConfig*)_device.config();
+	IFG4InputConfig *config = (IFG4InputConfig*)_device->config();
 	return (config && SUCCEEDED(config->GetWidthVSYNC((long*)width)));
 }
 
 bool InputConfigDialog::getHBackPorch(unsigned *porch)
 {
-	IFG4InputConfig *config = (IFG4InputConfig*)_device.config();
+	IFG4InputConfig *config = (IFG4InputConfig*)_device->config();
 	return (config && SUCCEEDED(config->GetHBackPorch((long*)porch)));
 }
 
 bool InputConfigDialog::getHFrontPorch(unsigned *porch)
 {
-	IFG4InputConfig *config = (IFG4InputConfig*)_device.config();
+	IFG4InputConfig *config = (IFG4InputConfig*)_device->config();
 	return (config && SUCCEEDED(config->GetHFrontPorch((long*)porch)));
 }
 
 bool InputConfigDialog::getVBackPorch(unsigned *porch)
 {
-	IFG4InputConfig *config = (IFG4InputConfig*)_device.config();
+	IFG4InputConfig *config = (IFG4InputConfig*)_device->config();
 	return (config && SUCCEEDED(config->GetVBackPorch((long*)porch)));
 }
 
 bool InputConfigDialog::getVFrontPorch(unsigned *porch)
 {
-	IFG4InputConfig *config = (IFG4InputConfig*)_device.config();
+	IFG4InputConfig *config = (IFG4InputConfig*)_device->config();
 	return (config && SUCCEEDED(config->GetVFrontPorch((long*)porch)));
 }
 
 bool InputConfigDialog::getFreqRange(FreqRange *range)
 {
-	IFG4InputConfig *config = (IFG4InputConfig*)_device.config();
+	IFG4InputConfig *config = (IFG4InputConfig*)_device->config();
 	return (config && SUCCEEDED(config->GetInputFrequencyRange((long*)range)));
 }
 
 bool InputConfigDialog::setFreqRange(FreqRange range)
 {
-	IFG4InputConfig *config = (IFG4InputConfig*)_device.config();
+	IFG4InputConfig *config = (IFG4InputConfig*)_device->config();
 	return (config && SUCCEEDED(config->SetInputFrequencyRange(range)));
 }
 
 bool InputConfigDialog::getFPDL3InputWidth(FPDL3Width *width)
 {
-	IFG4InputConfig *config = (IFG4InputConfig*)_device.config();
+	IFG4InputConfig *config = (IFG4InputConfig*)_device->config();
 	return (config && SUCCEEDED(config->GetFpdl3InputWidth((long*)width)));
 }
 
 bool InputConfigDialog::setFPDL3InputWidth(FPDL3Width width)
 {
-	IFG4InputConfig *config = (IFG4InputConfig*)_device.config();
+	IFG4InputConfig *config = (IFG4InputConfig*)_device->config();
 	return (config && SUCCEEDED(config->SetFpdl3InputWidth(width)));
 }
 
 bool InputConfigDialog::getGMSLMode(GMSLMode *mode)
 {
-	IFG4InputConfig *config = (IFG4InputConfig*)_device.config();
+	IFG4InputConfig *config = (IFG4InputConfig*)_device->config();
 	return (config && SUCCEEDED(config->GetGmslRate((long*)mode)));
 }
 
 bool InputConfigDialog::setGMSLMode(GMSLMode mode)
 {
-	IFG4InputConfig *config = (IFG4InputConfig*)_device.config();
+	IFG4InputConfig *config = (IFG4InputConfig*)_device->config();
 	return (config && SUCCEEDED(config->SetGmslRate(mode)));
 }
 
 bool InputConfigDialog::getGMSLStreamId(unsigned *streamId)
 {
-	IFG4InputConfig *config = (IFG4InputConfig*)_device.config();
+	IFG4InputConfig *config = (IFG4InputConfig*)_device->config();
 	return (config && SUCCEEDED(config->GetStreamId((long*)streamId)));
 }
 
 bool InputConfigDialog::setGMSLStreamId(unsigned streamId)
 {
-	IFG4InputConfig *config = (IFG4InputConfig*)_device.config();
+	IFG4InputConfig *config = (IFG4InputConfig*)_device->config();
 	return (config && SUCCEEDED(config->SetStreamId(streamId)));
 }
 
 bool InputConfigDialog::getGMSLFEC(GMSLFEC *fec)
 {
-	IFG4InputConfig *config = (IFG4InputConfig*)_device.config();
+	IFG4InputConfig *config = (IFG4InputConfig*)_device->config();
 	return (config && SUCCEEDED(config->GetGmslFEC((long*)fec)));
 }
 
 bool InputConfigDialog::setGMSLFEC(GMSLFEC fec)
 {
-	IFG4InputConfig *config = (IFG4InputConfig*)_device.config();
+	IFG4InputConfig *config = (IFG4InputConfig*)_device->config();
 	return (config && SUCCEEDED(config->SetGmslFEC(fec)));
 }
 
 bool InputConfigDialog::getDefaultColor(unsigned *color)
 {
-	IFG4InputConfig *config = (IFG4InputConfig*)_device.config();
+	IFG4InputConfig *config = (IFG4InputConfig*)_device->config();
 	return (config && SUCCEEDED(config->GetDefaultColor((long*)color)));
 }
 
 bool InputConfigDialog::setDefaultColor(unsigned color)
 {
-	IFG4InputConfig *config = (IFG4InputConfig*)_device.config();
+	IFG4InputConfig *config = (IFG4InputConfig*)_device->config();
 	return (config && SUCCEEDED(config->SetDefaultColor(color)));
 }
 
 
 bool OutputConfigDialog::getModuleType(ModuleType *type)
 {
-	IFG4OutputConfig *config = (IFG4OutputConfig*)_device.config();
+	IFG4OutputConfig *config = (IFG4OutputConfig*)_device->config();
 	long val;
 
 	if (!config || FAILED(config->GetModuleId(&val)))
@@ -705,7 +705,7 @@ bool OutputConfigDialog::getModuleType(ModuleType *type)
 
 bool OutputConfigDialog::getModuleVersion(unsigned *version)
 {
-	IFG4OutputConfig *config = (IFG4OutputConfig*)_device.config();
+	IFG4OutputConfig *config = (IFG4OutputConfig*)_device->config();
 	long val;
 
 	if (!config || FAILED(config->GetModuleId(&val)))
@@ -717,7 +717,7 @@ bool OutputConfigDialog::getModuleVersion(unsigned *version)
 
 bool OutputConfigDialog::getFwType(ModuleType *type)
 {
-	IFG4OutputConfig *config = (IFG4OutputConfig*)_device.config();
+	IFG4OutputConfig *config = (IFG4OutputConfig*)_device->config();
 	long val;
 
 	if (!config || FAILED(config->GetFpgaFwId(&val)))
@@ -729,7 +729,7 @@ bool OutputConfigDialog::getFwType(ModuleType *type)
 
 bool OutputConfigDialog::getFwVersion(unsigned *version)
 {
-	IFG4OutputConfig *config = (IFG4OutputConfig*)_device.config();
+	IFG4OutputConfig *config = (IFG4OutputConfig*)_device->config();
 	long val;
 
 	if (!config || FAILED(config->GetFpgaFwId(&val)))
@@ -741,7 +741,7 @@ bool OutputConfigDialog::getFwVersion(unsigned *version)
 
 bool OutputConfigDialog::getSerialNumber(QString *serialNumber)
 {
-	IFG4OutputConfig *config = (IFG4OutputConfig*)_device.config();
+	IFG4OutputConfig *config = (IFG4OutputConfig*)_device->config();
 	long val;
 	char buf[16];
 
@@ -757,13 +757,13 @@ bool OutputConfigDialog::getSerialNumber(QString *serialNumber)
 
 bool OutputConfigDialog::getOutputId(unsigned *id)
 {
-	IFG4OutputConfig *config = (IFG4OutputConfig*)_device.config();
+	IFG4OutputConfig *config = (IFG4OutputConfig*)_device->config();
 	return (config && SUCCEEDED(config->GetChannel((long*)id)));
 }
 
 bool OutputConfigDialog::getDisplayWidth(unsigned *width)
 {
-	IFG4OutputConfig *config = (IFG4OutputConfig*)_device.config();
+	IFG4OutputConfig *config = (IFG4OutputConfig*)_device->config();
 	long val;
 
 	if (!config || FAILED(config->GetResolution(&val)))
@@ -775,7 +775,7 @@ bool OutputConfigDialog::getDisplayWidth(unsigned *width)
 
 bool OutputConfigDialog::setDisplayWidth(unsigned int width)
 {
-	IFG4OutputConfig *config = (IFG4OutputConfig*)_device.config();
+	IFG4OutputConfig *config = (IFG4OutputConfig*)_device->config();
 	unsigned height;
 
 	if (!getDisplayHeight(&height))
@@ -786,7 +786,7 @@ bool OutputConfigDialog::setDisplayWidth(unsigned int width)
 
 bool OutputConfigDialog::getDisplayHeight(unsigned *height)
 {
-	IFG4OutputConfig *config = (IFG4OutputConfig*)_device.config();
+	IFG4OutputConfig *config = (IFG4OutputConfig*)_device->config();
 	long val;
 
 	if (!config || FAILED(config->GetResolution(&val)))
@@ -798,7 +798,7 @@ bool OutputConfigDialog::getDisplayHeight(unsigned *height)
 
 bool OutputConfigDialog::setDisplayHeight(unsigned int height)
 {
-	IFG4OutputConfig *config = (IFG4OutputConfig*)_device.config();
+	IFG4OutputConfig *config = (IFG4OutputConfig*)_device->config();
 	unsigned width;
 
 	if (!getDisplayWidth(&width))
@@ -809,157 +809,157 @@ bool OutputConfigDialog::setDisplayHeight(unsigned int height)
 
 bool OutputConfigDialog::getFrameRate(unsigned *frameRate)
 {
-	IFG4OutputConfig *config = (IFG4OutputConfig*)_device.config();
+	IFG4OutputConfig *config = (IFG4OutputConfig*)_device->config();
 	return (config && SUCCEEDED(config->GetFramerate((long*)frameRate)));
 }
 
 bool OutputConfigDialog::setFrameRate(unsigned frameRate)
 {
-	IFG4OutputConfig *config = (IFG4OutputConfig*)_device.config();
+	IFG4OutputConfig *config = (IFG4OutputConfig*)_device->config();
 	return (config && SUCCEEDED(config->SetFramerate(frameRate)));
 }
 
 bool OutputConfigDialog::getVideoSource(unsigned *source)
 {
-	IFG4OutputConfig *config = (IFG4OutputConfig*)_device.config();
+	IFG4OutputConfig *config = (IFG4OutputConfig*)_device->config();
 	return (config && SUCCEEDED(config->GetSignalSource((long*)source)));
 }
 
 bool OutputConfigDialog::setVideoSource(unsigned source)
 {
-	IFG4OutputConfig *config = (IFG4OutputConfig*)_device.config();
+	IFG4OutputConfig *config = (IFG4OutputConfig*)_device->config();
 	return (config && SUCCEEDED(config->SetSignalSource(source)));
 }
 
 bool OutputConfigDialog::getPclkFreq(unsigned *freq)
 {
-	IFG4OutputConfig *config = (IFG4OutputConfig*)_device.config();
+	IFG4OutputConfig *config = (IFG4OutputConfig*)_device->config();
 	return (config && SUCCEEDED(config->GetPclkFreq((long*)freq)));
 }
 
 bool OutputConfigDialog::setPclkFreq(unsigned freq)
 {
-	IFG4OutputConfig *config = (IFG4OutputConfig*)_device.config();
+	IFG4OutputConfig *config = (IFG4OutputConfig*)_device->config();
 	return (config && SUCCEEDED(config->SetPclkFreq(freq)));
 }
 
 bool OutputConfigDialog::getHsyncPolarity(SyncType *polarity)
 {
-	IFG4OutputConfig *config = (IFG4OutputConfig*)_device.config();
+	IFG4OutputConfig *config = (IFG4OutputConfig*)_device->config();
 	return (config && SUCCEEDED(config->GetPolarityHSYNC((long*)polarity)));
 }
 
 bool OutputConfigDialog::setHsyncPolarity(SyncType polarity)
 {
-	IFG4OutputConfig *config = (IFG4OutputConfig*)_device.config();
+	IFG4OutputConfig *config = (IFG4OutputConfig*)_device->config();
 	return (config && SUCCEEDED(config->SetPolarityHSYNC(polarity)));
 }
 
 bool OutputConfigDialog::getVsyncPolarity(SyncType *polarity)
 {
-	IFG4OutputConfig *config = (IFG4OutputConfig*)_device.config();
+	IFG4OutputConfig *config = (IFG4OutputConfig*)_device->config();
 	return (config && SUCCEEDED(config->GetPolarityVSYNC((long*)polarity)));
 }
 
 bool OutputConfigDialog::setVsyncPolarity(SyncType polarity)
 {
-	IFG4OutputConfig *config = (IFG4OutputConfig*)_device.config();
+	IFG4OutputConfig *config = (IFG4OutputConfig*)_device->config();
 	return (config && SUCCEEDED(config->SetPolarityVSYNC(polarity)));
 }
 
 bool OutputConfigDialog::getDePolarity(SyncType *polarity)
 {
-	IFG4OutputConfig *config = (IFG4OutputConfig*)_device.config();
+	IFG4OutputConfig *config = (IFG4OutputConfig*)_device->config();
 	return (config && SUCCEEDED(config->GetPolarityDE((long*)polarity)));
 }
 
 bool OutputConfigDialog::setDePolarity(SyncType polarity)
 {
-	IFG4OutputConfig *config = (IFG4OutputConfig*)_device.config();
+	IFG4OutputConfig *config = (IFG4OutputConfig*)_device->config();
 	return (config && SUCCEEDED(config->SetPolarityDE(polarity)));
 }
 
 bool OutputConfigDialog::getHSyncWidth(unsigned *width)
 {
-	IFG4OutputConfig *config = (IFG4OutputConfig*)_device.config();
+	IFG4OutputConfig *config = (IFG4OutputConfig*)_device->config();
 	return (config && SUCCEEDED(config->GetWidthHSYNC((long*)width)));
 }
 
 bool OutputConfigDialog::setHSyncWidth(unsigned width)
 {
-	IFG4OutputConfig *config = (IFG4OutputConfig*)_device.config();
+	IFG4OutputConfig *config = (IFG4OutputConfig*)_device->config();
 	return (config && SUCCEEDED(config->SetWidthHSYNC(width)));
 }
 
 bool OutputConfigDialog::getVSyncWidth(unsigned *width)
 {
-	IFG4OutputConfig *config = (IFG4OutputConfig*)_device.config();
+	IFG4OutputConfig *config = (IFG4OutputConfig*)_device->config();
 	return (config && SUCCEEDED(config->GetWidthVSYNC((long*)width)));
 }
 
 bool OutputConfigDialog::setVSyncWidth(unsigned width)
 {
-	IFG4OutputConfig *config = (IFG4OutputConfig*)_device.config();
+	IFG4OutputConfig *config = (IFG4OutputConfig*)_device->config();
 	return (config && SUCCEEDED(config->SetWidthVSYNC(width)));
 }
 
 bool OutputConfigDialog::getHBackPorch(unsigned *porch)
 {
-	IFG4OutputConfig *config = (IFG4OutputConfig*)_device.config();
+	IFG4OutputConfig *config = (IFG4OutputConfig*)_device->config();
 	return (config && SUCCEEDED(config->GetHBackPorch((long*)porch)));
 }
 
 bool OutputConfigDialog::setHBackPorch(unsigned porch)
 {
-	IFG4OutputConfig *config = (IFG4OutputConfig*)_device.config();
+	IFG4OutputConfig *config = (IFG4OutputConfig*)_device->config();
 	return (config && SUCCEEDED(config->SetHBackPorch(porch)));
 }
 
 bool OutputConfigDialog::getHFrontPorch(unsigned *porch)
 {
-	IFG4OutputConfig *config = (IFG4OutputConfig*)_device.config();
+	IFG4OutputConfig *config = (IFG4OutputConfig*)_device->config();
 	return (config && SUCCEEDED(config->GetHFrontPorch((long*)porch)));
 }
 
 bool OutputConfigDialog::setHFrontPorch(unsigned porch)
 {
-	IFG4OutputConfig *config = (IFG4OutputConfig*)_device.config();
+	IFG4OutputConfig *config = (IFG4OutputConfig*)_device->config();
 	return (config && SUCCEEDED(config->SetHFrontPorch(porch)));
 }
 
 bool OutputConfigDialog::getVBackPorch(unsigned *porch)
 {
-	IFG4OutputConfig *config = (IFG4OutputConfig*)_device.config();
+	IFG4OutputConfig *config = (IFG4OutputConfig*)_device->config();
 	return (config && SUCCEEDED(config->GetVBackPorch((long*)porch)));
 }
 
 bool OutputConfigDialog::setVBackPorch(unsigned porch)
 {
-	IFG4OutputConfig *config = (IFG4OutputConfig*)_device.config();
+	IFG4OutputConfig *config = (IFG4OutputConfig*)_device->config();
 	return (config && SUCCEEDED(config->SetVBackPorch(porch)));
 }
 
 bool OutputConfigDialog::getVFrontPorch(unsigned *porch)
 {
-	IFG4OutputConfig *config = (IFG4OutputConfig*)_device.config();
+	IFG4OutputConfig *config = (IFG4OutputConfig*)_device->config();
 	return (config && SUCCEEDED(config->GetVFrontPorch((long*)porch)));
 }
 
 bool OutputConfigDialog::setVFrontPorch(unsigned porch)
 {
-	IFG4OutputConfig *config = (IFG4OutputConfig*)_device.config();
+	IFG4OutputConfig *config = (IFG4OutputConfig*)_device->config();
 	return (config && SUCCEEDED(config->SetVFrontPorch(porch)));
 }
 
 bool OutputConfigDialog::getFPDL3OutputWidth(FPDL3Width *width)
 {
-	IFG4OutputConfig *config = (IFG4OutputConfig*)_device.config();
+	IFG4OutputConfig *config = (IFG4OutputConfig*)_device->config();
 	return (config && SUCCEEDED(config->GetFpdl3OutputWidth((long int*)width)));
 }
 
 bool OutputConfigDialog::setFPDL3OutputWidth(FPDL3Width width)
 {
-	IFG4OutputConfig *config = (IFG4OutputConfig*)_device.config();
+	IFG4OutputConfig *config = (IFG4OutputConfig*)_device->config();
 	return (config && SUCCEEDED(config->SetFpdl3OutputWidth(width)));
 }
 
@@ -968,16 +968,16 @@ bool OutputConfigDialog::setFPDL3OutputWidth(FPDL3Width width)
 #endif
 
 
-DeviceConfigDialog::DeviceConfigDialog(const Device &device, QWidget *parent)
+DeviceConfigDialog::DeviceConfigDialog(Device *device, QWidget *parent)
   : QDialog(parent, Qt::WindowSystemMenuHint | Qt::WindowTitleHint),
   _device(device)
 {
 	setModal(true);
-	setWindowTitle(tr("%1 Configuration").arg(device.name()));
+	setWindowTitle(tr("%1 Configuration").arg(device->name()));
 }
 
 
-InputConfigDialog::InputConfigDialog(const Device &device, QWidget *parent)
+InputConfigDialog::InputConfigDialog(Device *device, QWidget *parent)
   : DeviceConfigDialog(device, parent), _fpdl3InputWidth(0), _gmslMode(0),
   _gmslStreamId(0), _gmslFec(0)
 {
@@ -1150,6 +1150,12 @@ InputConfigDialog::InputConfigDialog(const Device &device, QWidget *parent)
 	statusLayout->addWidget(deviceStatus);
 	statusLayout->addWidget(inputStatus);
 
+	_pixelFormat = new QComboBox();
+	_pixelFormat->addItem(tr("Default"), QVariant(UnknownFormat));
+	_pixelFormat->addItem(tr("RGB"), QVariant(RGB));
+	_pixelFormat->addItem(tr("YUV"), QVariant(YUV));
+	_pixelFormat->setCurrentIndex(_pixelFormat->findData((int)_device->format()));
+
 	_colorMapping = new QComboBox();
 	_colorMapping->addItem(tr("OLDI/JEIDA"), QVariant(OLDI));
 	_colorMapping->addItem(tr("SPWG/VESA"), QVariant(SPWG));
@@ -1198,13 +1204,14 @@ InputConfigDialog::InputConfigDialog(const Device &device, QWidget *parent)
 
 	QGroupBox *commonConfig = new QGroupBox(tr("Common"));
 	QFormLayout *commonConfigLayout = new QFormLayout();
+	commonConfigLayout->addRow(tr("Pixel Format:"), _pixelFormat);
 	commonConfigLayout->addRow(tr("Color Mapping:"), _colorMapping);
 	commonConfigLayout->addRow(tr("OLDI Line Width:"), _oldiLineWidth);
 	commonConfigLayout->addRow(tr("VSYNC Gap Length:"), _vsyncGapLength);
 	commonConfigLayout->addRow(tr("HSYNC Gap Length:"), _hsyncGapLength);
 	commonConfigLayout->addRow(tr("Frequency Range:"), _freqRange);
 #if defined(Q_OS_WIN32) || defined(Q_OS_CYGWIN)
-	commonConfigLayout->addRow(tr("Default color:"), _defaultColor);
+	commonConfigLayout->addRow(tr("Default Color:"), _defaultColor);
 #endif
 	commonConfig->setLayout(commonConfigLayout);
 
@@ -1284,6 +1291,8 @@ void InputConfigDialog::accept()
 {
 	bool ret = true;
 
+	_device->setFormat((PixelFormat)_pixelFormat->currentData().toUInt());
+
 	ret &= setColorMapping((ColorMapping)_colorMapping->currentData().toUInt());
 	ret &= setLaneWidth((LineWidth)_oldiLineWidth->currentData().toUInt());
 	if (_vsyncGapLength->isEnabled())
@@ -1313,7 +1322,7 @@ void InputConfigDialog::accept()
 }
 
 
-OutputConfigDialog::OutputConfigDialog(const Device &device, QWidget *parent)
+OutputConfigDialog::OutputConfigDialog(Device *device, QWidget *parent)
   : DeviceConfigDialog(device, parent), _fpdl3OutputWidth(0)
 {
 	QDialogButtonBox *buttonBox = new QDialogButtonBox(QDialogButtonBox::Ok
@@ -1561,7 +1570,7 @@ void OutputConfigDialog::copyConfig()
 	dialog.exec();
 }
 
-void OutputConfigDialog::setConfig(Device &dev)
+void OutputConfigDialog::setConfig(Device *dev)
 {
 	unsigned width, height, pclkFreq, hsync, vsync, hback, hfront, vback,
 	  vfront, hpol, vpol;
@@ -1580,7 +1589,7 @@ void OutputConfigDialog::setConfig(Device &dev)
 	ok &= readSysfsInt(dev.name(), "hsync_status", &hpol);
 	ok &= readSysfsInt(dev.name(), "vsync_status", &vpol);
 #elif defined(Q_OS_WIN32) || defined(Q_OS_CYGWIN)
-	IFG4InputConfig *src = (IFG4InputConfig*)dev.config();
+	IFG4InputConfig *src = (IFG4InputConfig*)dev->config();
 	if (src) {
 		long resolution;
 

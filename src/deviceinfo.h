@@ -7,7 +7,7 @@
 class DeviceInfo
 {
 public:
-	const Device &device() const {return _device;}
+	Device *device() {return &_device;}
 	QString name() const
 	{
 		return _description.isEmpty()
@@ -23,13 +23,14 @@ public:
 
 	void setDescription(const QString &desc) {_description = desc;}
 
-	static QList<DeviceInfo> inputDevices();
-	static QList<DeviceInfo> outputDevices();
+	static QList<DeviceInfo*> inputDevices();
+	static QList<DeviceInfo*> outputDevices();
 
 private:
 	DeviceInfo() {}
-	DeviceInfo(const Device &device, const QString &description = QString())
-	  : _device(device), _description(description) {}
+	DeviceInfo(Device::Type type, int id, const QString &name,
+	  const QString &description = QString())
+	  : _device(type, id, name), _description(description) {}
 
 #if defined(Q_OS_LINUX)
 	static DeviceInfo deviceInfo(const QString &device, int *id);

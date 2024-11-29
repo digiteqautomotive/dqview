@@ -23,7 +23,7 @@ public:
 	void setCodec(const QString &codec) {_codec = codec;}
 	void setBitrate(unsigned bitrate) {_bitrate = bitrate;}
 	void setAspectRatio(const QString &ratio) {_aspectRatio = ratio.toLatin1();}
-	void setDisplay(const Device &dev) {_display = dev;}
+	void setDisplay(Device *dev) {_display = VideoOutput(dev);}
 
 	QSize resolution() const;
 	QString recordFile() const;

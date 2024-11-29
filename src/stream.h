@@ -12,15 +12,16 @@ class Stream : public Video
 public:
 	Stream(const StreamInfo &streamInfo, QObject *parent = 0);
 
-	QString url() const;
+	QString url();
 	QString name() const;
-	Device device() const {return Device(Device::Input, -1, "Network stream");}
+	Device *device() {return &_device;}
 
 	const StreamInfo &info() const {return _streamInfo;}
 
 	static QStringList types();
 
 private:
+	Device _device;
 	StreamInfo _streamInfo;
 	QString _sdp;
 };

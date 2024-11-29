@@ -19,12 +19,12 @@ ConfigCopyDialog::ConfigCopyDialog(OutputConfigDialog *config, QWidget *parent)
 	connect(buttonBox, &QDialogButtonBox::accepted, this, &QDialog::accept);
 	connect(buttonBox, &QDialogButtonBox::rejected, this, &QDialog::reject);
 
-	QList<DeviceInfo> list(DeviceInfo::inputDevices());
+	QList<DeviceInfo*> list(DeviceInfo::inputDevices());
 	_copySrc = new QComboBox();
 	for (int i = 0; i < list.size(); i++) {
-		if (list.at(i).device().isValid())
-			_copySrc->addItem(list.at(i).name(), QVariant::fromValue(
-			  list.at(i).device()));
+		if (list.at(i)->device()->isValid())
+			_copySrc->addItem(list.at(i)->name(), QVariant::fromValue(
+			  list.at(i)->device()));
 	}
 
 	QFormLayout *formLayout = new QFormLayout;
@@ -38,7 +38,7 @@ ConfigCopyDialog::ConfigCopyDialog(OutputConfigDialog *config, QWidget *parent)
 
 void ConfigCopyDialog::accept()
 {
-	Device dev(_copySrc->currentData().value<Device>());
+	Device *dev(_copySrc->currentData().value<Device*>());
 	_config->setConfig(dev);
 
 	QDialog::accept();

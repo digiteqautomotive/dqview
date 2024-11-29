@@ -109,12 +109,17 @@ static QString SN(long val)
 	return QString(buf);
 }
 
-QList<DeviceInfo> DeviceInfo::inputDevices()
+static QString deviceName(const QString &devname, int id)
+{
+	return id ? devname + QString(" #%1").arg(id) : devname;
+}
+
+QList<DeviceInfo *> DeviceInfo::inputDevices()
 {
 	Microsoft::WRL::ComPtr<IMoniker> p_moniker;
 	ULONG i_fetched;
 	HRESULT hr;
-	QList<DeviceInfo> list;
+	QList<DeviceInfo*> list;
 	QMap<int, long> snMap;
 
 	/* Create the system device enumerator */
@@ -179,14 +184,14 @@ QList<DeviceInfo> DeviceInfo::inputDevices()
 					piFilter->Release();
 				}
 
-				DeviceInfo ci(Device(Device::Input, mgb4 ? 0 : -1, devname));
-				int i = 0;
-				while (list.contains(ci)) {
-					QString name(devname + QString(" #%1").arg(++i));
-					ci = DeviceInfo(Device(Device::Input, mgb4 ? i : -1, name));
-				}
+				int id = 0;
+				for (int i = 0; i < list.size(); i++)
+					if (list.at(i)->_device.name().startsWith(devname))
+						id++;
 
-				list.append(ci);
+				list.append(new DeviceInfo(Device::Input, mgb4 ? id : -1,
+				  deviceName(devname, id)));
+
 			}
 		}
 	}
@@ -195,19 +200,19 @@ QList<DeviceInfo> DeviceInfo::inputDevices()
 		for (int i = 0; i < list.size(); i++) {
 			QMap<int, long>::const_iterator it = snMap.constFind(i);
 			if (it != snMap.constEnd())
-				list[i].setDescription(SN(*it));
+				list[i]->setDescription(SN(*it));
 		}
 	}
 
 	return list;
 }
 
-QList<DeviceInfo> DeviceInfo::outputDevices()
+QList<DeviceInfo *> DeviceInfo::outputDevices()
 {
 	Microsoft::WRL::ComPtr<IMoniker> p_moniker;
 	ULONG i_fetched;
 	HRESULT hr;
-	QList<DeviceInfo> list;
+	QList<DeviceInfo*> list;
 	QMap<int, long> snMap;
 
 	/* Create the system device enumerator */
@@ -271,14 +276,13 @@ QList<DeviceInfo> DeviceInfo::outputDevices()
 					piFilter->Release();
 				}
 
-				DeviceInfo ci(Device(Device::Output, 0, devname));
-				int i = 0;
-				while (list.contains(ci)) {
-					QString name(devname + QString(" #%1").arg(++i));
-					ci = DeviceInfo(Device(Device::Output, i, name));
-				}
+				int id = 0;
+				for (int i = 0; i < list.size(); i++)
+					if (list.at(i)->_device.name().startsWith(devname))
+						id++;
 
-				list.append(ci);
+				list.append(new DeviceInfo(Device::Output, id,
+				  deviceName(devname, id)));
 			}
 		}
 	}
@@ -287,7 +291,7 @@ QList<DeviceInfo> DeviceInfo::outputDevices()
 		for (int i = 0; i < list.size(); i++) {
 			QMap<int, long>::const_iterator it = snMap.constFind(i);
 			if (it != snMap.constEnd())
-				list[i].setDescription(SN(*it));
+				list[i]->setDescription(SN(*it));
 		}
 	}
 

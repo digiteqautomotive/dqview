@@ -14,7 +14,7 @@ class QLineEdit;
 class DeviceConfigDialog : public QDialog
 {
 public:
-	DeviceConfigDialog(const Device &device, QWidget *parent = 0);
+	DeviceConfigDialog(Device *device, QWidget *parent = 0);
 
 protected:
 	enum ModuleType {None, FPDL3, GMSL};
@@ -29,13 +29,13 @@ protected:
 	bool getSerialNumber(QString *serialNumber);
 #endif
 
-	Device _device;
+	Device *_device;
 };
 
 class InputConfigDialog : public DeviceConfigDialog
 {
 public:
-	InputConfigDialog(const Device &device, QWidget *parent = 0);
+	InputConfigDialog(Device *device, QWidget *parent = 0);
 
 public slots:
 	void accept();
@@ -91,6 +91,7 @@ private:
 	bool setGMSLStreamId(unsigned streamId);
 	bool setGMSLFEC(GMSLFEC fec);
 
+	QComboBox *_pixelFormat;
 	QComboBox *_colorMapping;
 	QComboBox *_oldiLineWidth;
 	QSpinBox *_vsyncGapLength;
@@ -108,9 +109,9 @@ private:
 class OutputConfigDialog : public DeviceConfigDialog
 {
 public:
-	OutputConfigDialog(const Device &device, QWidget *parent = 0);
+	OutputConfigDialog(Device *device, QWidget *parent = 0);
 
-	void setConfig(Device &dev);
+	void setConfig(Device *dev);
 
 public slots:
 	void accept();

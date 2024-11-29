@@ -5,26 +5,25 @@
 #include <QSize>
 #include <vlc/vlc.h>
 #include "device.h"
+#include "pixelformat.h"
 
 class VideoOutput
 {
 public:
-	enum Format {Unknown, RGB, YUV};
-
 	typedef void (*PrerenderCallback) (void *data, uint8_t **buffer, size_t size);
 	typedef void (*PostrenderCallback) (void *data, uint8_t *buffer, int width,
 	  int height, int pixel_pitch, size_t size, int64_t pts);
 
 	VideoOutput();
-	VideoOutput(const Device &dev);
+	VideoOutput(Device *dev);
 	~VideoOutput();
 
-	const Device &device() const {return _dev;}
+	Device *device() {return _dev;}
 
 	bool open();
 	void close();
 	QSize size();
-	Format format();
+	PixelFormat format();
 	bool start();
 	void stop();
 
@@ -38,7 +37,7 @@ private:
 	static void _postrenderCb(void *data, uint8_t *buffer, int width,
 	  int height, int pixel_pitch, size_t size, int64_t pts);
 
-	Device _dev;
+	Device *_dev;
 	QString _errorString;
 
 #if defined(Q_OS_LINUX)

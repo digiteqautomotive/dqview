@@ -15,7 +15,7 @@ public:
 	void setFile(const QString &path) {_path = path;}
 	const QString &file() const {return _path;}
 
-	QString url() const {return "file://" + _path;}
+	QString url() {return "file://" + _path;}
 	QString name() const {return QFileInfo(_path).fileName();}
 
 private:

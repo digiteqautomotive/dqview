@@ -45,7 +45,12 @@ static QString timeSpan(int time)
 		  .arg(s, 2, 10, QChar('0'));
 }
 
-GUI::GUI()
+static bool cmp(const DeviceInfo *a, const DeviceInfo *b)
+{
+	return *a < *b;
+}
+
+GUI::GUI() : _video(0)
 {
 	setWindowIcon(QIcon(":/app.png"));
 	setWindowTitle(APP_NAME);
@@ -84,7 +89,7 @@ GUI::GUI()
 
 QList<QAction*> GUI::deviceActions(Device::Type type)
 {
-	QList<DeviceInfo> devices = (type == Device::Input)
+	QList<DeviceInfo*> devices = (type == Device::Input)
 	  ? DeviceInfo::inputDevices() : DeviceInfo::outputDevices();
 	QList<QAction*> list;
 
@@ -96,10 +101,10 @@ QList<QAction*> GUI::deviceActions(Device::Type type)
 	connect(signalMapper, &QSignalMapper::mappedObject, this, &GUI::openDevice);
 #endif
 
-	std::sort(devices.begin(), devices.end());
+	std::sort(devices.begin(), devices.end(), cmp);
 
 	for (int i = 0; i < devices.size(); i++) {
-		QAction *a = new QAction(devices.at(i).name(), this);
+		QAction *a = new QAction(devices.at(i)->name(), this);
 		a->setActionGroup(_deviceActionGroup);
 		a->setCheckable(true);
 		Camera *cam = new Camera(devices.at(i), this);
@@ -292,7 +297,7 @@ void GUI::play(bool enable)
 {
 	if (enable) {
 		startStreaming();
-		if (_device.type() == Device::Output)
+		if (_video->device()->type() == Device::Output)
 			_player->startStreamingOut();
 		else
 			_player->startStreaming(_recordAction->isChecked());
@@ -352,7 +357,7 @@ void GUI::stateChanged(bool playing)
 	if (playing) {
 		if (_recordAction->isChecked())
 			startRecording();
-		if (!_recordAction->isChecked() && _device.type() == Device::Input)
+		if (!_recordAction->isChecked() && _video->device()->type() == Device::Input)
 			_screenshotAction->setEnabled(true);
 		 QTimer::singleShot(100, this, SLOT(videoLoaded()));
 	} else {
@@ -364,9 +369,9 @@ void GUI::stateChanged(bool playing)
 		if (_recordAction->isChecked())
 			stopRecording();
 		_resolutionLabel->setText(QString());
-		_recordAction->setEnabled(_device.type() == Device::Input);
-		_loopAction->setEnabled(_device.type() == Device::Output);
-		_selectOutputFileAction->setEnabled(_device.type() == Device::Output);
+		_recordAction->setEnabled(_video->device()->type() == Device::Input);
+		_loopAction->setEnabled(_video->device()->type() == Device::Output);
+		_selectOutputFileAction->setEnabled(_video->device()->type() == Device::Output);
 		_deviceActionGroup->setEnabled(true);
 		_resizeActionGroup->setEnabled(true);
 		_openStreamAction->setEnabled(true);
@@ -400,17 +405,17 @@ void GUI::videoLoaded()
 void GUI::openDevice(QObject *device)
 {
 	Video *video = qobject_cast<Video *>(device);
-	_device = video->device();
+	_video = video;
 
-	if (_device.type() == Device::Input) {
+	if (_video->device()->type() == Device::Input) {
 		_player->setVideo(video);
 		_videoSourceLabel->setText(video->name());
 		_playAction->setEnabled(true);
 		_recordAction->setEnabled(true);
 		_loopAction->setEnabled(false);
 		_selectOutputFileAction->setEnabled(false);
-	} else if (_device.type() == Device::Output) {
-		_player->setDisplay(_device);
+	} else if (_video->device()->type() == Device::Output) {
+		_player->setDisplay(_video->device());
 		_player->setVideo(_outputFile);
 		_videoSourceLabel->setText(_outputFile->file().isEmpty()
 		  ? "No video file selected" : _outputFile->name());
@@ -420,7 +425,7 @@ void GUI::openDevice(QObject *device)
 		_selectOutputFileAction->setEnabled(true);
 	}
 
-	_configureDeviceAction->setEnabled(_device.isValid());
+	_configureDeviceAction->setEnabled(_video->device()->isValid());
 }
 
 void GUI::openStream()
@@ -445,9 +450,9 @@ void GUI::selectOutputFile()
 
 	if (!file.isEmpty()) {
 		_outputFile->setFile(file);
-		if (_device.type() == Device::Output) {
+		if (_video->device()->type() == Device::Output) {
 			_videoSourceLabel->setText(_outputFile->name());
-			if (_device.isValid())
+			if (_video->device()->isValid())
 				_playAction->setEnabled(true);
 		}
 	}
@@ -489,11 +494,11 @@ void GUI::openOptions()
 
 void GUI::configureDevice()
 {
-	if (_device.type() == Device::Output) {
-		OutputConfigDialog dialog(_device, this);
+	if (_video->device()->type() == Device::Output) {
+		OutputConfigDialog dialog(_video->device(), this);
 		dialog.exec();
 	} else {
-		InputConfigDialog dialog(_device, this);
+		InputConfigDialog dialog(_video->device(), this);
 		dialog.exec();
 	}
 }
