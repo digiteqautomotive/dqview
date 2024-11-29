@@ -19,13 +19,13 @@ QString Camera::url()
 	QString chroma;
 
 #if defined(Q_OS_LINUX)
-	if (device().format() == RGB)
+	if (device()->format() == RGB)
 		chroma = " :v4l2-chroma=RV32";
-	else if (device().format() == YUV)
+	else if (device()->format() == YUV)
 		chroma = " :v4l2-chroma=YUYV";
 
 	url = QString("v4l2://%1%2")
-	  .arg(_cameraInfo.device().name(), chroma);
+	  .arg(_cameraInfo->device()->name(), chroma);
 #elif defined(Q_OS_WIN32) || defined(Q_OS_CYGWIN)
 	QSize r(resolution());
 

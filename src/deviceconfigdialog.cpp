@@ -1577,17 +1577,17 @@ void OutputConfigDialog::setConfig(Device *dev)
 	bool ok = true;
 
 #if defined(Q_OS_LINUX)
-	ok &= readSysfsInt(dev.name(), "video_width", &width);
-	ok &= readSysfsInt(dev.name(), "video_height", &height);
-	ok &= readSysfsInt(dev.name(), "pclk_frequency", &pclkFreq);
-	ok &= readSysfsInt(dev.name(), "hsync_width", &hsync);
-	ok &= readSysfsInt(dev.name(), "vsync_width", &vsync);
-	ok &= readSysfsInt(dev.name(), "hback_porch", &hback);
-	ok &= readSysfsInt(dev.name(), "hfront_porch", &hfront);
-	ok &= readSysfsInt(dev.name(), "vback_porch", &vback);
-	ok &= readSysfsInt(dev.name(), "vfront_porch", &vfront);
-	ok &= readSysfsInt(dev.name(), "hsync_status", &hpol);
-	ok &= readSysfsInt(dev.name(), "vsync_status", &vpol);
+	ok &= readSysfsInt(dev->name(), "video_width", &width);
+	ok &= readSysfsInt(dev->name(), "video_height", &height);
+	ok &= readSysfsInt(dev->name(), "pclk_frequency", &pclkFreq);
+	ok &= readSysfsInt(dev->name(), "hsync_width", &hsync);
+	ok &= readSysfsInt(dev->name(), "vsync_width", &vsync);
+	ok &= readSysfsInt(dev->name(), "hback_porch", &hback);
+	ok &= readSysfsInt(dev->name(), "hfront_porch", &hfront);
+	ok &= readSysfsInt(dev->name(), "vback_porch", &vback);
+	ok &= readSysfsInt(dev->name(), "vfront_porch", &vfront);
+	ok &= readSysfsInt(dev->name(), "hsync_status", &hpol);
+	ok &= readSysfsInt(dev->name(), "vsync_status", &vpol);
 #elif defined(Q_OS_WIN32) || defined(Q_OS_CYGWIN)
 	IFG4InputConfig *src = (IFG4InputConfig*)dev->config();
 	if (src) {

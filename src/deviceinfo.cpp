@@ -12,7 +12,8 @@
 #include <QRegularExpression>
 #include "deviceinfo.h"
 
-DeviceInfo DeviceInfo::deviceInfo(const QString &device, int *id)
+DeviceInfo *DeviceInfo::deviceInfo(Device::Type type, const QString &device,
+  int *id)
 {
 	QFileInfo fi(device);
 	QDir sysfsDir("/sys/class/video4linux/");
@@ -29,29 +30,29 @@ DeviceInfo DeviceInfo::deviceInfo(const QString &device, int *id)
 
 	if ((fd = open(ba.constData(), O_RDWR)) < 0)
 		return (mgb4In || mgb4Out)
-		  ? DeviceInfo(Device(mgb4In ? Device::Input : Device::Output,
-			*id++, device), "MGB4 PCIe Card")
-		  : DeviceInfo();
+		  ? new DeviceInfo(mgb4In ? Device::Input : Device::Output,
+			*id++, device, "MGB4 PCIe Card")
+		  : 0;
 
 	int err = ioctl(fd, VIDIOC_QUERYCAP, &vcap);
 	close(fd);
 
 	if (err)
-		return DeviceInfo();
-	else if (vcap.device_caps & V4L2_CAP_VIDEO_CAPTURE)
-		return DeviceInfo(Device(Device::Input, mgb4In ? *id++ : -1, device),
+		return 0;
+	else if (type == Device::Input && vcap.device_caps & V4L2_CAP_VIDEO_CAPTURE)
+		return new DeviceInfo(Device::Input, mgb4In ? *id++ : -1, device,
 		  (const char *)vcap.card);
-	else if (vcap.device_caps & V4L2_CAP_VIDEO_OUTPUT)
-		return DeviceInfo(Device(Device::Output, mgb4Out ? *id++ : -1, device),
+	else if (type == Device::Output && vcap.device_caps & V4L2_CAP_VIDEO_OUTPUT)
+		return new DeviceInfo(Device::Output, mgb4Out ? *id++ : -1, device,
 		  (const char *)vcap.card);
 	else
-		return DeviceInfo();
+		return 0;
 }
 
-QList<DeviceInfo> DeviceInfo::devices(Device::Type type)
+QList<DeviceInfo*> DeviceInfo::devices(Device::Type type)
 {
 	static const QRegularExpression re("video[0-9]+");
-	QList<DeviceInfo> list;
+	QList<DeviceInfo*> list;
 	QDir dir("/dev");
 	int id = 0;
 
@@ -59,8 +60,8 @@ QList<DeviceInfo> DeviceInfo::devices(Device::Type type)
 	for (int i = 0; i < files.size(); i++) {
 		QRegularExpressionMatch match(re.match(files.at(i).baseName()));
 		if (match.hasMatch()) {
-			DeviceInfo info(deviceInfo(files.at(i).absoluteFilePath(), &id));
-			if (!info.isNull() && info.device().type() == type)
+			DeviceInfo *info(deviceInfo(type, files.at(i).absoluteFilePath(), &id));
+			if (info)
 				list.append(info);
 		}
 	}
@@ -68,12 +69,12 @@ QList<DeviceInfo> DeviceInfo::devices(Device::Type type)
 	return list;
 }
 
-QList<DeviceInfo> DeviceInfo::inputDevices()
+QList<DeviceInfo*> DeviceInfo::inputDevices()
 {
 	return devices(Device::Input);
 }
 
-QList<DeviceInfo> DeviceInfo::outputDevices()
+QList<DeviceInfo*> DeviceInfo::outputDevices()
 {
 	return devices(Device::Output);
 }

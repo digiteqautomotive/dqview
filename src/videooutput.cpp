@@ -180,7 +180,7 @@ bool VideoOutput::open()
 {
 	Q_ASSERT(_fd < 0);
 
-	_fd = ::open(_dev.name().toLocal8Bit().constData(), O_RDWR, 0);
+	_fd = ::open(_dev->name().toLocal8Bit().constData(), O_RDWR, 0);
 	if (_fd < 0) {
 		_errorString = "open(): " + QString(strerror(errno));
 		return false;
@@ -210,7 +210,7 @@ VideoOutput::VideoOutput() : _fd(-1), _bufferIndex(-1)
 
 }
 
-VideoOutput::VideoOutput(const Device &dev) : _dev(dev), _fd(-1), _bufferIndex(-1)
+VideoOutput::VideoOutput(Device *dev) : _dev(dev), _fd(-1), _bufferIndex(-1)
 {
 
 }

@@ -33,8 +33,9 @@ private:
 	  : _device(type, id, name), _description(description) {}
 
 #if defined(Q_OS_LINUX)
-	static DeviceInfo deviceInfo(const QString &device, int *id);
-	static QList<DeviceInfo> devices(Device::Type type);
+	static DeviceInfo *deviceInfo(Device::Type type, const QString &device,
+	  int *id);
+	static QList<DeviceInfo *> devices(Device::Type type);
 #endif // Q_OS_LINUX
 
 	Device _device;
