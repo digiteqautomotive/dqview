@@ -20,7 +20,7 @@ QString Camera::url()
 
 #if defined(Q_OS_LINUX)
 	if (device()->format() == RGB)
-		chroma = " :v4l2-chroma=RV32";
+		chroma = " :v4l2-chroma=BGRA";
 	else if (device()->format() == YUV)
 		chroma = " :v4l2-chroma=YUYV";
 
