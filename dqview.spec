@@ -1,5 +1,5 @@
 Name:           dqview
-Version:        4.1
+Version:        4.2
 Release:        1
 Summary:        Digiteq Automotive video player
 License:        GPL-3.0-only
@@ -54,6 +54,9 @@ fi
 %{_sysconfdir}/udev/rules.d/99-mgb4.rules
 
 %changelog
+* Thu Dec 12 15:08:45 CET 2024 - martin.tuma@digiteqautomotive.com 4.2-1
+- Added YUV support
+
 * Tue Aug 20 18:21:44 CEST 2024 - martin.tuma@digiteqautomotive.com 4.1-1
 - Make the app compile with Qt 6.7 (QTBUG-124321 workaround).
 
