@@ -11,8 +11,7 @@ public:
 
 #if defined(Q_OS_WIN32) || defined(Q_OS_CYGWIN)
 	Device() : _format(UnknownFormat), _type(Unknown), _id(-1), _config(0) {}
-	Device(Type type, int id, const QString &name)
-	  : _format(PixelFormat::RGB), _type(type), _id(id), _name(name), _config(0) {}
+	Device(Type type, int id, const QString &name);
 	~Device();
 #else
 	Device() : _format(UnknownFormat), _type(Unknown), _id(-1) {}
