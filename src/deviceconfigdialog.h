@@ -17,14 +17,15 @@ public:
 	DeviceConfigDialog(Device *device, QWidget *parent = 0);
 
 protected:
-	enum ModuleType {None, FPDL3, GMSL};
+	enum class FWType {None, FPDL3, GMSL};
+	enum class ModuleType {None, FPDL3, GMSLv1, GMSLv2, GMSLv3};
 	enum SyncType {ActiveLow, ActiveHigh, NotAvailable};
 	enum FPDL3Width {FPDL3Auto, FPDL3Single, FPDL3Dual};
 
 #if defined(Q_OS_LINUX)
 	bool getModuleType(ModuleType *type);
 	bool getModuleVersion(unsigned *version);
-	bool getFwType(ModuleType *type);
+	bool getFwType(FWType *type);
 	bool getFwVersion(unsigned *version);
 	bool getSerialNumber(QString *serialNumber);
 #endif
