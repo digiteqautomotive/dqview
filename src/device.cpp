@@ -145,4 +145,13 @@ void *Device::config()
 			return 0;
 	}
 }
+
+#else
+
+Device::Device(Type type, int id, const QString &name)
+  : _type(type), _id(id), _name(name)
+{
+	_format = (type == Unknown) ? PixelFormat::UnknownFormat : PixelFormat::RGB;
+}
+
 #endif
