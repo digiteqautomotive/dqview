@@ -52,7 +52,7 @@ private:
 #if defined(Q_OS_WIN32) || defined(Q_OS_CYGWIN)
 	bool getModuleType(ModuleType *type);
 	bool getModuleVersion(unsigned *version);
-	bool getFwType(ModuleType *type);
+	bool getFwType(FWType *type);
 	bool getFwVersion(unsigned *version);
 	bool getSerialNumber(QString *serialNumber);
 	bool getDefaultColor(unsigned *color);
@@ -124,7 +124,7 @@ private:
 #if defined(Q_OS_WIN32) || defined(Q_OS_CYGWIN)
 	bool getModuleType(ModuleType *type);
 	bool getModuleVersion(unsigned *version);
-	bool getFwType(ModuleType *type);
+	bool getFwType(FWType *type);
 	bool getFwVersion(unsigned *version);
 	bool getSerialNumber(QString *serialNumber);
 #endif
