@@ -992,11 +992,11 @@ InputConfigDialog::InputConfigDialog(Device *device, QWidget *parent)
 	if (!getModuleType(&moduleType))
 		moduleTypeLabel->setText(tr("N/A"));
 	else if (moduleType == ModuleType::GMSLv1)
-		moduleTypeLabel->setText("GMSL v1");
+		moduleTypeLabel->setText("GMSL3 v1");
 	else if (moduleType == ModuleType::GMSLv2)
-		moduleTypeLabel->setText("GMSL v2");
+		moduleTypeLabel->setText("GMSL3 v2");
 	else if (moduleType == ModuleType::GMSLv3)
-		moduleTypeLabel->setText("GMSL v3");
+		moduleTypeLabel->setText("GMSL3 v3");
 	else if (moduleType == ModuleType::FPDL3)
 		moduleTypeLabel->setText("FPDL3");
 
@@ -1012,7 +1012,7 @@ InputConfigDialog::InputConfigDialog(Device *device, QWidget *parent)
 	if (!getFwType(&fwType))
 		fwTypeLabel->setText(tr("N/A"));
 	else if (fwType == FWType::GMSL)
-		fwTypeLabel->setText("GMSL");
+		fwTypeLabel->setText("GMSL3");
 	else if (fwType == FWType::FPDL3)
 		fwTypeLabel->setText("FPDL3");
 
@@ -1340,11 +1340,11 @@ OutputConfigDialog::OutputConfigDialog(Device *device, QWidget *parent)
 	if (!getModuleType(&moduleType))
 		moduleTypeLabel->setText(tr("N/A"));
 	else if (moduleType == ModuleType::GMSLv1)
-		moduleTypeLabel->setText("GMSL v1");
+		moduleTypeLabel->setText("GMSL3 v1");
 	else if (moduleType == ModuleType::GMSLv2)
-		moduleTypeLabel->setText("GMSL v2");
+		moduleTypeLabel->setText("GMSL3 v2");
 	else if (moduleType == ModuleType::GMSLv3)
-		moduleTypeLabel->setText("GMSL v3");
+		moduleTypeLabel->setText("GMSL3 v3");
 	else if (moduleType == ModuleType::FPDL3)
 		moduleTypeLabel->setText("FPDL3");
 
@@ -1360,7 +1360,7 @@ OutputConfigDialog::OutputConfigDialog(Device *device, QWidget *parent)
 	if (!getFwType(&fwType))
 		fwTypeLabel->setText(tr("N/A"));
 	else if (fwType == FWType::GMSL)
-		fwTypeLabel->setText("GMSL");
+		fwTypeLabel->setText("GMSL3");
 	else if (fwType == FWType::FPDL3)
 		fwTypeLabel->setText("FPDL3");
 
