@@ -18,7 +18,7 @@ DeviceInfo *DeviceInfo::deviceInfo(Device::Type type, const QString &device,
 	QFileInfo fi(device);
 	QDir sysfsDir("/sys/class/video4linux/");
 	QDir deviceDir(sysfsDir.filePath(fi.fileName()));
-	// Use some mgb4-unique properties for detection
+	// Use some mgb4-unique properties for mgb4 card detection
 	bool mgb4In = deviceDir.exists("color_mapping")
 	  && deviceDir.exists("oldi_lane_width");
 	bool mgb4Out = deviceDir.exists("display_height")
@@ -28,11 +28,17 @@ DeviceInfo *DeviceInfo::deviceInfo(Device::Type type, const QString &device,
 	struct v4l2_capability vcap;
 	int fd;
 
-	if ((fd = open(ba.constData(), O_RDWR)) < 0)
-		return (mgb4In || mgb4Out)
-		  ? new DeviceInfo(mgb4In ? Device::Input : Device::Output,
-			*id++, device, "MGB4 PCIe Card")
-		  : 0;
+	if ((fd = open(ba.constData(), O_RDWR)) < 0) {
+		// If we can not open the device (e.g. because in loopback mode) still
+		// return the mgb4 devices for re-configuration based on the mgb4-unique
+		// sysfs properties.
+		if (type == Device::Input && mgb4In)
+			return new DeviceInfo(Device::Input, *id++, device, "MGB4 PCIe Card");
+		else if (type == Device::Output && mgb4Out)
+			return new DeviceInfo(Device::Output, *id++, device, "MGB4 PCIe Card");
+		else
+			return 0;
+	}
 
 	int err = ioctl(fd, VIDIOC_QUERYCAP, &vcap);
 	close(fd);
