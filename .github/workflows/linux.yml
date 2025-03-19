@@ -20,6 +20,6 @@ jobs:
           sudo apt-get update
           sudo apt-get install qt6-base-dev libvlc-dev
       - name: Configure build
-        run: qmake CONFIG+=${{ matrix.config }} dqview.pro
+        run: qmake6 CONFIG+=${{ matrix.config }} dqview.pro
       - name: Build project
         run: make -j2
