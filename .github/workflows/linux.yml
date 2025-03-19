@@ -1,0 +1,25 @@
+name: Linux
+
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+  build:
+    name: DQ Viewer
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        config: ['release', 'debug']
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Install dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install qt6-base-dev libvlc-dev
+      - name: Configure build
+        run: qmake CONFIG+=${{ matrix.config }} dqview.pro
+      - name: Build project
+        run: make -j2
