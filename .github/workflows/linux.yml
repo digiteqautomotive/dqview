@@ -6,12 +6,24 @@ on:
       - master
 
 jobs:
-  build:
-    name: DQ Viewer
+  qt5:
+    name: DQViewer-Qt5
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        config: ['release', 'debug']
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Install dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install qt5-base-dev qt5-qmake libvlc-dev
+      - name: Configure build
+        run: qmake dqview.pro
+      - name: Build project
+        run: make -j2
+
+  qt6:
+    name: DQViewer-Qt6
+    runs-on: ubuntu-latest
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -20,6 +32,6 @@ jobs:
           sudo apt-get update
           sudo apt-get install qt6-base-dev libvlc-dev
       - name: Configure build
-        run: qmake6 CONFIG+=${{ matrix.config }} dqview.pro
+        run: qmake6 dqview.pro
       - name: Build project
         run: make -j2
