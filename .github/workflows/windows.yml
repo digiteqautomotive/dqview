@@ -171,3 +171,4 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           path: DQView-*.exe
+          name: DQView.exe
