@@ -7,7 +7,7 @@ on:
 
 jobs:
   build:
-    name: DQView
+    name: DQ Viewer
     runs-on: windows-latest
     defaults:
       run:

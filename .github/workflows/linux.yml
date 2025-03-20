@@ -7,7 +7,7 @@ on:
 
 jobs:
   qt5:
-    name: DQViewer-Qt5
+    name: DQ Viewer (Qt5)
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -22,7 +22,7 @@ jobs:
         run: make -j2
 
   qt6:
-    name: DQViewer-Qt6
+    name: DQ Viewer (Qt6)
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
