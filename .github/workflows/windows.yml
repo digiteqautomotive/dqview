@@ -1,4 +1,4 @@
-name: OS X
+name: Windows
 
 on:
   push:
@@ -16,7 +16,7 @@ jobs:
         uses: msys2/setup-msys2@v2
       - name: Install msys2 packages
         - shell: msys2 {0}
-          run: pacman -S mingw-w64-x86_64-gcc mingw-w64-x86_64-qt5-base mingw-w64-x86_64-vlc
+          run: pacman -S mingw-w64-x86_64-gcc make mingw-w64-x86_64-qt5-base mingw-w64-x86_64-vlc
       - name: Build project
         - shell: msys2 {0}
           run: |
