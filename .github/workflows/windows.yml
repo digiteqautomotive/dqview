@@ -146,6 +146,7 @@ jobs:
           cp /mingw64/bin/libxml2-2.dll .
           cp /mingw64/bin/libzvbi-0.dll .
           cp /mingw64/bin/librav1e.dll .
+          cp /mingw64/bin/libbz2-1.dll .
 
           cp -r /mingw64/share/qt5/plugins/platforms platforms
           cp -r /mingw64/share/qt5/plugins/styles styles
