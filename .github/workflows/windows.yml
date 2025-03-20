@@ -142,7 +142,7 @@ jobs:
           cp /mingw64/bin/libthai-0.dll .
           cp /mingw64/bin/libva.dll .
           cp /mingw64/bin/libva_win32.dll .
-          cp /mingw64/bin/libvpl.dll .
+          cp /mingw64/bin/libvpl-2.dll .
           cp /mingw64/bin/libxml2-2.dll .
           cp /mingw64/bin/libzvbi-0.dll .
           cp /mingw64/bin/librav1e.dll .
@@ -164,7 +164,7 @@ jobs:
           cp -r /mingw64/lib/vlc/plugins/stream_out plugins/stream_out
           cp -r /mingw64/lib/vlc/plugins/video_chroma plugins/video_chroma
           cp -r /mingw64/lib/vlc/plugins/video_filter plugins/video_filter
-          cp /mingw64/lib/vlc/plugins/video_output plugins/video_output
+          cp -r /mingw64/lib/vlc/plugins/video_output plugins/video_output
 
           makensis.exe dqview.nsi
       - name: Upload artifacts
