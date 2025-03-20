@@ -25,7 +25,148 @@ jobs:
           qmake dqview.pro
           make
       - name: Create installer
-        run: makensis.exe dqview.nsi
+        run: |
+          cp release/dqview.exe .
+          cp /mingw64/bin/libgcc_s_seh-1.dll .
+          cp /mingw64/bin/libstdc++-6.dll .
+          cp /mingw64/bin/Qt5Core.dll .
+          cp /mingw64/bin/Qt5Gui.dll .
+          cp /mingw64/bin/Qt5Widgets.dll .
+          cp /mingw64/bin/libvlc .
+          cp /mingw64/bin/libvlccore.dll .
+          cp /mingw64/bin/libintl-8.dll .
+          cp /mingw64/bin/libidn-12.dll .
+          cp /mingw64/bin/libiconv-2.dll .
+          cp /mingw64/bin/libwinpthread-1.dll .
+          cp /mingw64/bin/libdouble-conversion.dll .
+          cp /mingw64/bin/libicuin76.dll .
+          cp /mingw64/bin/libicuuc76.dll .
+          cp /mingw64/bin/libicudt76.dll .
+          cp /mingw64/bin/libpcre2-8-0.dll .
+          cp /mingw64/bin/libpcre2-16-0.dll .
+          cp /mingw64/bin/zlib1.dll .
+          cp /mingw64/bin/libzstd.dll .
+          cp /mingw64/bin/libharfbuzz-0.dll .
+          cp /mingw64/bin/libfreetype-6.dll .
+          cp /mingw64/bin/libglib-2.0-0.dll .
+          cp /mingw64/bin/libgraphite2.dll .
+          cp /mingw64/bin/libpng16-16.dll .
+          cp /mingw64/bin/libbrotlidec.dll .
+          cp /mingw64/bin/libbrotlienc.dll .
+          cp /mingw64/bin/libbrotlicommon.dll .
+          cp /mingw64/bin/avcodec-61.dll .
+          cp /mingw64/bin/avdevice-61.dll .
+          cp /mingw64/bin/avfilter-10.dll .
+          cp /mingw64/bin/avformat-61.dll .
+          cp /mingw64/bin/avutil-59.dll .
+          cp /mingw64/bin/postproc-58.dll .
+          cp /mingw64/bin/swresample-5.dll .
+          cp /mingw64/bin/swscale-8.dll .
+          cp /mingw64/bin/libaom.dll .
+          cp /mingw64/bin/libdav1d-7.dll .
+          cp /mingw64/bin/libgsm.dll .
+          cp /mingw64/bin/liblzma-5.dll .
+          cp /mingw64/bin/libmfx-1.dll .
+          cp /mingw64/bin/libmp3lame-0.dll .
+          cp /mingw64/bin/libopencore-amrnb-0.dll .
+          cp /mingw64/bin/libopencore-amrwb-0.dll .
+          cp /mingw64/bin/libopenjp2-7.dll .
+          cp /mingw64/bin/libopus-0.dll .
+          cp /mingw64/bin/libspeex-1.dll .
+          cp /mingw64/bin/libtheoradec-1.dll .
+          cp /mingw64/bin/libtheoraenc-1.dll .
+          cp /mingw64/bin/libvorbis-0.dll .
+          cp /mingw64/bin/libvorbisenc-2.dll .
+          cp /mingw64/bin/libvpx-1.dll .
+          cp /mingw64/bin/libwebp-7.dll .
+          cp /mingw64/bin/libwebpmux-3.dll .
+          cp /mingw64/bin/libx264-164.dll .
+          cp /mingw64/bin/libx265-215.dll .
+          cp /mingw64/bin/xvidcore.dll .
+          cp /mingw64/bin/libogg-0.dll .
+          cp /mingw64/bin/libgnutls-30.dll .
+          cp /mingw64/bin/libgmp-10.dll .
+          cp /mingw64/bin/libp11-kit-0.dll .
+          cp /mingw64/bin/libffi-8.dll .
+          cp /mingw64/bin/libtasn1-6.dll .
+          cp /mingw64/bin/libunistring-5.dll .
+          cp /mingw64/bin/libmodplug-1.dll .
+          cp /mingw64/bin/librtmp-1.dll .
+          cp /mingw64/bin/libsrt.dll .
+          cp /mingw64/bin/libcrypto-3-x64.dll .
+          cp /mingw64/bin/libass-9.dll .
+          cp /mingw64/bin/liba52-0.dll .
+          cp /mingw64/bin/libarchive-13.dll .
+          cp /mingw64/bin/libaribb24-0.dll .
+          cp /mingw64/bin/libcaca-0.dll .
+          cp /mingw64/bin/libchromaprint.dll .
+          cp /mingw64/bin/libdca-0.dll .
+          cp /mingw64/bin/libdsm.DLL .
+          cp /mingw64/bin/libebml-5.dll .
+          cp /mingw64/bin/libfaad-2.dll .
+          cp /mingw64/bin/libflac.dll .
+          cp /mingw64/bin/libfluidsynth-3.dll .
+          cp /mingw64/bin/libgme.dll .
+          cp /mingw64/bin/libjpeg-8.dll .
+          cp /mingw64/bin/libmad-0.dll .
+          cp /mingw64/bin/libmatroska-7.dll .
+          cp /mingw64/bin/libmpeg2-0.dll .
+          cp /mingw64/bin/libmpg123-0.dll .
+          cp /mingw64/bin/libsamplerate-0.dll .
+          cp /mingw64/bin/libmd4c.dll .
+          cp /mingw64/bin/libSvtAv1Enc-3.dll .
+          cp /mingw64/bin/libcairo-2.dll .
+          cp /mingw64/bin/libcairo-gobject-2.dll .
+          cp /mingw64/bin/libdatrie-1.dll .
+          cp /mingw64/bin/libexpat-1.dll .
+          cp /mingw64/bin/libfontconfig-1.dll .
+          cp /mingw64/bin/libfribidi-0.dll .
+          cp /mingw64/bin/libgdk_pixbuf-2.0-0.dll .
+          cp /mingw64/bin/libgio-2.0-0.dll .
+          cp /mingw64/bin/libgmodule-2.0-0.dll .
+          cp /mingw64/bin/libgobject-2.0-0.dll .
+          cp /mingw64/bin/libgomp-1.dll .
+          cp /mingw64/bin/libhwy.dll .
+          cp /mingw64/bin/libjxl.dll .
+          cp /mingw64/bin/libjxl_cms.dll .
+          cp /mingw64/bin/libjxl_threads.dll .
+          cp /mingw64/bin/liblcms2-2.dll .
+          cp /mingw64/bin/libpango-1.0-0.dll .
+          cp /mingw64/bin/libpangocairo-1.0-0.dll .
+          cp /mingw64/bin/libpangoft2-1.0-0.dll .
+          cp /mingw64/bin/libpangowin32-1.0-0.dll .
+          cp /mingw64/bin/libpixman-1-0.dll .
+          cp /mingw64/bin/librsvg-2-2.dll .
+          cp /mingw64/bin/libsharpyuv-0.dll .
+          cp /mingw64/bin/libsoxr.dll .
+          cp /mingw64/bin/libthai-0.dll .
+          cp /mingw64/bin/libva.dll .
+          cp /mingw64/bin/libva_win32.dll .
+          cp /mingw64/bin/libvpl.dll .
+          cp /mingw64/bin/libxml2-2.dll .
+          cp /mingw64/bin/libzvbi-0.dll .
+          cp /mingw64/bin/librav1e.dll .
+
+          cp -r /mingw64/share/qt5/plugins/platforms platforms
+          cp -r /mingw64/share/qt5/plugins/styles styles
+
+          mkdir plugins
+          cp -r /mingw64/lib/vlc/plugins/access plugins/access
+          cp -r /mingw64/lib/vlc/plugins/access_output plugins/access_output
+          cp -r /mingw64/lib/vlc/plugins/audio_output plugins/audio_output
+          cp -r /mingw64/lib/vlc/plugins/codec plugins/codec
+          cp -r /mingw64/lib/vlc/plugins/d3d9 plugins/d3d9
+          cp -r /mingw64/lib/vlc/plugins/d3d11 plugins/d3d11
+          cp -r /mingw64/lib/vlc/plugins/demux plugins/demux
+          cp -r /mingw64/lib/vlc/plugins/mux plugins/mux
+          cp -r /mingw64/lib/vlc/plugins/packetizer plugins/packetizer
+          cp -r /mingw64/lib/vlc/plugins/stream_filter plugins/stream_filter
+          cp -r /mingw64/lib/vlc/plugins/stream_out plugins/stream_out
+          cp -r /mingw64/lib/vlc/plugins/video_chroma plugins/video_chroma
+          cp -r /mingw64/lib/vlc/plugins/video_filter plugins/video_filter
+          cp /mingw64/lib/vlc/plugins/video_output plugins/video_output
+
+          makensis.exe dqview.nsi
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
         with:
