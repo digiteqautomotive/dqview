@@ -32,7 +32,7 @@ jobs:
           cp /mingw64/bin/Qt5Core.dll .
           cp /mingw64/bin/Qt5Gui.dll .
           cp /mingw64/bin/Qt5Widgets.dll .
-          cp /mingw64/bin/libvlc .
+          cp /mingw64/bin/libvlc.dll .
           cp /mingw64/bin/libvlccore.dll .
           cp /mingw64/bin/libintl-8.dll .
           cp /mingw64/bin/libidn-12.dll .
