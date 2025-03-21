@@ -147,6 +147,23 @@ jobs:
           cp /mingw64/bin/libzvbi-0.dll .
           cp /mingw64/bin/librav1e.dll .
           cp /mingw64/bin/libbz2-1.dll .
+          cp /mingw64/bin/libplacebo-349.dll .
+          cp /mingw64/bin/libvidstab.dll .
+          cp /mingw64/bin/libzimg-2.dll .
+          cp /mingw64/bin/libdovi.dll .
+          cp /mingw64/bin/libshaderc_shared.dll .
+          cp /mingw64/bin/libspirv-cross-c-shared.dll .
+          cp /mingw64/bin/vulkan-1.dll .
+          cp /mingw64/bin/libunibreak-6.dll .
+          cp /mingw64/bin/liblc3-1.dll .
+          cp /mingw64/bin/libblueray-2.dll .
+          cp /mingw64/bin/libnettle-8.dll .
+          cp /mingw64/bin/libtiff-6.dll .
+          cp /mingw64/bin/libdeflate.dll .
+          cp /mingw64/bin/libjbig.dll .
+          cp /mingw64/bin/libLerc.dll .
+          cp /mingw64/bin/libhogweed-6.dll .
+          cp /mingw64/bin/libidn2-0.dll .
 
           cp -r /mingw64/share/qt5/plugins/platforms platforms
           cp -r /mingw64/share/qt5/plugins/styles styles
