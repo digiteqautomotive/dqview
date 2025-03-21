@@ -173,3 +173,4 @@ jobs:
         with:
           path: DQView-*.exe
           name: DQView.exe
+          compression-level: 0
