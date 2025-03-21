@@ -114,7 +114,8 @@ static IFG4OutputConfig *outputConfig(int id)
 Device::Device(Type type, int id, const QString &name)
   : _type(type), _id(id), _name(name), _config(0)
 {
-	_format = (type == Unknown) ? PixelFormat::UnknownFormat : PixelFormat::RGB;
+	_format = (type == Unknown || _id < 0)
+	  ? PixelFormat::UnknownFormat : PixelFormat::RGB;
 }
 
 Device::~Device()
@@ -151,7 +152,8 @@ void *Device::config()
 Device::Device(Type type, int id, const QString &name)
   : _type(type), _id(id), _name(name)
 {
-	_format = (type == Unknown) ? PixelFormat::UnknownFormat : PixelFormat::RGB;
+	_format = (type == Unknown || _id < 0)
+	  ? PixelFormat::UnknownFormat : PixelFormat::RGB;
 }
 
 #endif
