@@ -3,7 +3,11 @@
 ![DQ Viewer screenshot](dqview.png)
 
 DQ Viewer is a simple video player especially designated for playing video
-streams from Digiteq Automotive FG4 grabber cards and MGB devices.
+streams from Digiteq Automotive
+[FG4](https://www.digiteqautomotive.com/en/products/grabbers-and-image-tools/framegrabber-4)
+grabber cards and
+[MGB](https://www.digiteqautomotive.com/en/products/grabbers-and-image-tools/modular-framegrabber-mgb)
+devices.
 
 ## Features
 * Play local cameras streams (DirectShow / video4linux).
