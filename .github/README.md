@@ -1,4 +1,7 @@
 # DQ Viewer
+
+![DQ Viewer screenshot](dqview.png)
+
 DQ Viewer is a simple video player especially designated for playing video
 streams from Digiteq Automotive FG4 grabber cards and MGB devices.
 
