@@ -156,7 +156,7 @@ jobs:
           cp /mingw64/bin/vulkan-1.dll .
           cp /mingw64/bin/libunibreak-6.dll .
           cp /mingw64/bin/liblc3-1.dll .
-          cp /mingw64/bin/libblueray-2.dll .
+          cp /mingw64/bin/libbluray-2.dll .
           cp /mingw64/bin/libnettle-8.dll .
           cp /mingw64/bin/libtiff-6.dll .
           cp /mingw64/bin/libdeflate.dll .
