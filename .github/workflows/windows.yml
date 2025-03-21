@@ -23,7 +23,7 @@ jobs:
       - name: Build project
         run: |
           qmake dqview.pro
-          make
+          make -j4
       - name: Create installer
         run: |
           cp release/dqview.exe .
