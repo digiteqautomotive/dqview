@@ -27,11 +27,7 @@ jobs:
       - name: Create installer
         run: |
           cp release/dqview.exe .
-          cp -r /mingw64/share/qt5/plugins/platforms platforms
-          cp -r /mingw64/share/qt5/plugins/styles styles
-
           scripts/libs.sh
-
           makensis.exe dqview.nsi
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
