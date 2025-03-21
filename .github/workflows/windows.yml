@@ -164,6 +164,7 @@ jobs:
           cp /mingw64/bin/libLerc.dll .
           cp /mingw64/bin/libhogweed-6.dll .
           cp /mingw64/bin/libidn2-0.dll .
+          cp /mingw64/bin/libssh.dll .
 
           cp -r /mingw64/share/qt5/plugins/platforms platforms
           cp -r /mingw64/share/qt5/plugins/styles styles
