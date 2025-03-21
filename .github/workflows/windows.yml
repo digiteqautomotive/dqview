@@ -160,7 +160,7 @@ jobs:
           cp /mingw64/bin/libnettle-8.dll .
           cp /mingw64/bin/libtiff-6.dll .
           cp /mingw64/bin/libdeflate.dll .
-          cp /mingw64/bin/libjbig.dll .
+          cp /mingw64/bin/libjbig-0.dll .
           cp /mingw64/bin/libLerc.dll .
           cp /mingw64/bin/libhogweed-6.dll .
           cp /mingw64/bin/libidn2-0.dll .
