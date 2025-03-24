@@ -1,5 +1,7 @@
 #!/bin/sh
 
+set -x
+
 EXE="dqview.exe"
 LIB_DIR="/mingw64/bin"
 VLC_PLUGINS_DIR="/mingw64/lib/vlc/plugins"
