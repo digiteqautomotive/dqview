@@ -18,6 +18,21 @@ devices.
 * Configure FG4 devices.
 * Available for Windows & Linux.
 
+## Build
+Build requirements:
+* Qt5 >= 5.15 or Qt6
+* libVLC
+
+Build steps:
+```shell
+qmake gpxsee.pro
+make
+```
+
+For a complete Windows installer build you may use the provided `dqview.nsi` NSIS
+script like in the _Windows_ GitHub Action. For a Linux RPM package build you may
+use the `scripts/make-rpm.sh` shell script.
+
 ## Known Issues
 * Due to libVLC missing Wayland integration support, DQ Viewer must be run with
   explicitly setting the xcb Qt platform on Wayland: "`dqview --platform xcb`"
