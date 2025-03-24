@@ -12,18 +12,18 @@ vlc_plugins_dlls() {
 	for i in $VLC_PLUGINS; do
 		cd "$VLC_PLUGINS_DIR/$i"
 		for j in *.dll; do
-			ldd "$j" | grep $LIB_DIR
+			ldd "$j" 2>&1 | grep $LIB_DIR
 		done
 	done | cut -d '(' -f1 | sort -u | cut -d= -f1 | tr -d '\t' | tr -d ' '
 }
 
 qt_plugins_dlls() {
 	for i in $QT_PLUGINS; do
-		ldd "$QT_PLUGINS_DIR/$i" | grep $LIB_DIR
+		ldd "$QT_PLUGINS_DIR/$i" 2>&1 | grep $LIB_DIR
 	done | cut -d '(' -f1 | sort -u | cut -d= -f1 | tr -d '\t' | tr -d ' '
 }
 
-EXE_DLLS+=$(ldd $EXE | grep $LIB_DIR | cut -d= -f1 | tr -d '\t' | tr -d ' ')
+EXE_DLLS=$(ldd $EXE 2>&1 | grep $LIB_DIR | cut -d= -f1 | tr -d '\t' | tr -d ' ')
 VLC_DLLS=$(vlc_plugins_dlls)
 QT_DLLS=$(qt_plugins_dlls)
 
