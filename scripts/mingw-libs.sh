@@ -1,5 +1,7 @@
 #!/bin/sh
 
+# This script collects all mingw64 DLLs required by the dqview executable
+
 EXE="dqview.exe"
 LIB_DIR="/mingw64/bin"
 VLC_PLUGINS_DIR="/mingw64/lib/vlc/plugins"
