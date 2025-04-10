@@ -9,11 +9,14 @@ Source0:        dqview.tar.gz
 
 BuildRequires:  gcc-c++
 BuildRequires:  make
+%if 0%{?suse_version}
 BuildRequires:  qt6-core-devel
 BuildRequires:  qt6-gui-devel
 BuildRequires:  qt6-widgets-devel
+%else
+BuildRequires:  qt5-devel
+%endif
 BuildRequires:  vlc-devel
-
 
 %description
 DQ Viewer is a video player designed to play streams from all Digiteq Automotive
@@ -23,7 +26,11 @@ frame grabber devices.
 %setup -q -n dqview
 
 %build
+%if 0%{?suse_version}
 %{qmake6} dqview.pro
+%else
+%{qmake5} dqview.pro
+%endif
 make %{?_smp_mflags}
 
 %install
