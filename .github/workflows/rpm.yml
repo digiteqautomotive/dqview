@@ -12,6 +12,7 @@ jobs:
       uses: naveenrajm7/rpmbuild@master
       with:
         spec_file: "dqview.spec"
+        additional_repos: "['almalinux-latest-crb', 'https://dl.fedoraproject.org/pub/epel/epel-release-latest-9.noarch.rpm']"
 
     - name: Upload artifact
       uses: actions/upload-artifact@v4
