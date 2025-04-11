@@ -29,7 +29,7 @@ frame grabber devices.
 %if 0%{?suse_version}
 %{qmake6} dqview.pro
 %else
-qmake dqview.pro
+qmake-qt5 dqview.pro
 %endif
 make %{?_smp_mflags}
 
