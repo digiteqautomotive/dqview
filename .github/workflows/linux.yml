@@ -1,37 +1,24 @@
 name: Linux
-
-on:
-  push:
-    branches:
-      - master
+on: push
 
 jobs:
-  qt5:
-    name: DQ Viewer (Qt5)
+  build:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-      - name: Install dependencies
-        run: |
-          sudo apt-get update
-          sudo apt-get install qtbase5-dev qt5-qmake libvlc-dev
-      - name: Configure build
-        run: qmake dqview.pro
-      - name: Build project
-        run: make -j4
+    - uses: actions/checkout@v4
 
-  qt6:
-    name: DQ Viewer (Qt6)
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-      - name: Install dependencies
-        run: |
-          sudo apt-get update
-          sudo apt-get install qt6-base-dev libvlc-dev
-      - name: Configure build
-        run: qmake6 dqview.pro
-      - name: Build project
-        run: make -j4
+    - name: Modify specfile package version
+      run: sed -Ei 's/(^Version:[[:space:]]*).*/\1${{github.ref_name}}/' dqview.spec
+
+    - name: build RPM package
+      id: rpm
+      uses: tumicdq/rpmbuild@master
+      with:
+        spec_file: "dqview.spec"
+        additional_repos: '["https://dl.fedoraproject.org/pub/epel/epel-release-latest-9.noarch.rpm"]'
+
+    - name: Upload artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: DQView.rpm
+        path: ${{ steps.rpm.outputs.rpm_dir_path }}
