@@ -7,6 +7,9 @@ jobs:
     steps:
     - uses: actions/checkout@v4
 
+    - name: Replace version in RPM spec so correct source is downloaded when building RPM
+      run: sed -Ei 's/(^Version:[[:space:]]*).*/\1${{github.ref_name}}/' dqview.spec
+
     - name: build RPM package
       id: rpm
       uses: tumicdq/rpmbuild@master
