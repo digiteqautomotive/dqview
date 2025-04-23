@@ -15,7 +15,6 @@ jobs:
       uses: tumicdq/rpmbuild@master
       with:
         spec_file: "dqview.spec"
-        additional_repos: '["https://dl.fedoraproject.org/pub/epel/epel-release-latest-9.noarch.rpm"]'
 
     - name: Upload artifact
       uses: actions/upload-artifact@v4
