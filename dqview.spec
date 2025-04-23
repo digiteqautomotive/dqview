@@ -14,7 +14,9 @@ BuildRequires:  qt6-core-devel
 BuildRequires:  qt6-gui-devel
 BuildRequires:  qt6-widgets-devel
 %else
-BuildRequires:  qt5-devel
+BuildRequires:  qt6-qtbase
+BuildRequires:  qt6-qtbase-gui
+BuildRequires:  qt6-qtbase-devel
 %endif
 BuildRequires:  vlc-devel
 
@@ -29,7 +31,7 @@ frame grabber devices.
 %if 0%{?suse_version}
 %{qmake6} dqview.pro
 %else
-%{qmake_qt5} dqview.pro
+%{qmake_qt6} dqview.pro
 %endif
 make %{?_smp_mflags}
 
