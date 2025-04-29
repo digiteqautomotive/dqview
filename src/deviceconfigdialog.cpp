@@ -100,6 +100,38 @@ bool DeviceConfigDialog::getSerialNumber(QString *serialNumber)
 	return readSysfsString(_device->name(), "device/serial_number", serialNumber);
 }
 
+QString DeviceConfigDialog::moduleTypeStr(ModuleType type)
+{
+	switch (type) {
+		case ModuleType::GMSL3v1:
+			return "GMSL3 v1";
+		case ModuleType::GMSL3v2:
+			return "GMSL3 v2";
+		case ModuleType::GMSL3v3:
+			return "GMSL3 v3";
+		case ModuleType::FPDL3:
+			return "FPDL3";
+		case ModuleType::GMSL1:
+			return "GMSL1";
+		default:
+			return tr("N/A");
+	}
+}
+
+QString DeviceConfigDialog::FWTypeStr(FWType type)
+{
+	switch (type) {
+		case FWType::GMSL3:
+			return "GMSL3";
+		case FWType::FPDL3:
+			return "FPDL3";
+		case FWType::GMSL1:
+			return "GMSL1";
+		default:
+			return tr("N/A");
+	}
+}
+
 
 bool InputConfigDialog::getInputId(unsigned *id)
 {
@@ -987,18 +1019,11 @@ InputConfigDialog::InputConfigDialog(Device *device, QWidget *parent)
 	connect(buttonBox, &QDialogButtonBox::accepted, this, &QDialog::accept);
 	connect(buttonBox, &QDialogButtonBox::rejected, this, &QDialog::reject);
 
-	ModuleType moduleType = ModuleType::None;
+	ModuleType moduleType;
 	QLabel *moduleTypeLabel = new QLabel();
 	if (!getModuleType(&moduleType))
-		moduleTypeLabel->setText(tr("N/A"));
-	else if (moduleType == ModuleType::GMSLv1)
-		moduleTypeLabel->setText("GMSL3 v1");
-	else if (moduleType == ModuleType::GMSLv2)
-		moduleTypeLabel->setText("GMSL3 v2");
-	else if (moduleType == ModuleType::GMSLv3)
-		moduleTypeLabel->setText("GMSL3 v3");
-	else if (moduleType == ModuleType::FPDL3)
-		moduleTypeLabel->setText("FPDL3");
+		moduleType = ModuleType::None;
+	moduleTypeLabel->setText(moduleTypeStr(moduleType));
 
 	unsigned moduleVersion;
 	QLabel *moduleVersionLabel = new QLabel();
@@ -1007,14 +1032,11 @@ InputConfigDialog::InputConfigDialog(Device *device, QWidget *parent)
 	else
 		moduleVersionLabel->setText(tr("N/A"));
 
-	FWType fwType = FWType::None;
+	FWType fwType;
 	QLabel *fwTypeLabel = new QLabel();
 	if (!getFwType(&fwType))
-		fwTypeLabel->setText(tr("N/A"));
-	else if (fwType == FWType::GMSL)
-		fwTypeLabel->setText("GMSL3");
-	else if (fwType == FWType::FPDL3)
-		fwTypeLabel->setText("FPDL3");
+		fwType = FWType::None;
+	fwTypeLabel->setText(FWTypeStr(fwType));
 
 	unsigned fwVersion;
 	QLabel *fwVersionLabel = new QLabel();
@@ -1173,6 +1195,8 @@ InputConfigDialog::InputConfigDialog(Device *device, QWidget *parent)
 	LineWidth lineWidth;
 	if (getLaneWidth(&lineWidth))
 		_oldiLineWidth->setCurrentIndex(_oldiLineWidth->findData((int)lineWidth));
+	if (fwType == FWType::GMSL1)
+		_oldiLineWidth->setEnabled(false);
 
 	unsigned len;
 	_vsyncGapLength = new QSpinBox();
@@ -1239,7 +1263,7 @@ InputConfigDialog::InputConfigDialog(Device *device, QWidget *parent)
 		fpdl3Config->setLayout(fpdl3ConfigLayout);
 
 		configLayout->addWidget(fpdl3Config);
-	} else if (fwType == FWType::GMSL) {
+	} else if (fwType == FWType::GMSL3) {
 		_gmslMode = new QComboBox();
 		_gmslMode->addItem(tr("12Gb/s"), QVariant(GMSL12Gb));
 		_gmslMode->addItem(tr("6Gb/s"), QVariant(GMSL6Gb));
@@ -1335,18 +1359,11 @@ OutputConfigDialog::OutputConfigDialog(Device *device, QWidget *parent)
 	connect(buttonBox, &QDialogButtonBox::accepted, this, &QDialog::accept);
 	connect(buttonBox, &QDialogButtonBox::rejected, this, &QDialog::reject);
 
-	ModuleType moduleType = ModuleType::None;
+	ModuleType moduleType;
 	QLabel *moduleTypeLabel = new QLabel();
 	if (!getModuleType(&moduleType))
-		moduleTypeLabel->setText(tr("N/A"));
-	else if (moduleType == ModuleType::GMSLv1)
-		moduleTypeLabel->setText("GMSL3 v1");
-	else if (moduleType == ModuleType::GMSLv2)
-		moduleTypeLabel->setText("GMSL3 v2");
-	else if (moduleType == ModuleType::GMSLv3)
-		moduleTypeLabel->setText("GMSL3 v3");
-	else if (moduleType == ModuleType::FPDL3)
-		moduleTypeLabel->setText("FPDL3");
+		moduleType = ModuleType::None;
+	moduleTypeLabel->setText(moduleTypeStr(moduleType));
 
 	unsigned moduleVersion;
 	QLabel *moduleVersionLabel = new QLabel();
@@ -1358,11 +1375,8 @@ OutputConfigDialog::OutputConfigDialog(Device *device, QWidget *parent)
 	FWType fwType = FWType::None;
 	QLabel *fwTypeLabel = new QLabel();
 	if (!getFwType(&fwType))
-		fwTypeLabel->setText(tr("N/A"));
-	else if (fwType == FWType::GMSL)
-		fwTypeLabel->setText("GMSL3");
-	else if (fwType == FWType::FPDL3)
-		fwTypeLabel->setText("FPDL3");
+		fwType = FWType::None;
+	fwTypeLabel->setText(FWTypeStr(fwType));
 
 	unsigned fwVersion;
 	QLabel *fwVersionLabel = new QLabel();

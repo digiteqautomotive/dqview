@@ -17,8 +17,8 @@ public:
 	DeviceConfigDialog(Device *device, QWidget *parent = 0);
 
 protected:
-	enum class FWType {None, FPDL3, GMSL};
-	enum class ModuleType {None, FPDL3, GMSLv1, GMSLv2, GMSLv3};
+	enum class FWType {None, FPDL3, GMSL3, GMSL1};
+	enum class ModuleType {None, FPDL3, GMSL3v1, GMSL3v2, GMSL3v3, GMSL1 = 6};
 	enum SyncType {ActiveLow, ActiveHigh, NotAvailable};
 	enum FPDL3Width {FPDL3Auto, FPDL3Single, FPDL3Dual};
 
@@ -29,6 +29,9 @@ protected:
 	bool getFwVersion(unsigned *version);
 	bool getSerialNumber(QString *serialNumber);
 #endif
+
+	static QString moduleTypeStr(ModuleType type);
+	static QString FWTypeStr(FWType type);
 
 	Device *_device;
 };
