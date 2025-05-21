@@ -100,39 +100,6 @@ bool DeviceConfigDialog::getSerialNumber(QString *serialNumber)
 	return readSysfsString(_device->name(), "device/serial_number", serialNumber);
 }
 
-QString DeviceConfigDialog::moduleTypeStr(ModuleType type)
-{
-	switch (type) {
-		case ModuleType::GMSL3v1:
-			return "GMSL3 v1";
-		case ModuleType::GMSL3v2:
-			return "GMSL3 v2";
-		case ModuleType::GMSL3v3:
-			return "GMSL3 v3";
-		case ModuleType::FPDL3:
-			return "FPDL3";
-		case ModuleType::GMSL1:
-			return "GMSL1";
-		default:
-			return tr("N/A");
-	}
-}
-
-QString DeviceConfigDialog::FWTypeStr(FWType type)
-{
-	switch (type) {
-		case FWType::GMSL3:
-			return "GMSL3";
-		case FWType::FPDL3:
-			return "FPDL3";
-		case FWType::GMSL1:
-			return "GMSL1";
-		default:
-			return tr("N/A");
-	}
-}
-
-
 bool InputConfigDialog::getInputId(unsigned *id)
 {
 	return readSysfsInt(_device->name(), "input_id", id);
@@ -999,6 +966,37 @@ bool OutputConfigDialog::setFPDL3OutputWidth(FPDL3Width width)
 #error "unsupported platform"
 #endif
 
+QString DeviceConfigDialog::moduleTypeStr(ModuleType type)
+{
+	switch (type) {
+		case ModuleType::GMSL3v1:
+			return "GMSL3 v1";
+		case ModuleType::GMSL3v2:
+			return "GMSL3 v2";
+		case ModuleType::GMSL3v3:
+			return "GMSL3 v3";
+		case ModuleType::FPDL3:
+			return "FPDL3";
+		case ModuleType::GMSL1:
+			return "GMSL1";
+		default:
+			return tr("N/A");
+	}
+}
+
+QString DeviceConfigDialog::FWTypeStr(FWType type)
+{
+	switch (type) {
+		case FWType::GMSL3:
+			return "GMSL3";
+		case FWType::FPDL3:
+			return "FPDL3";
+		case FWType::GMSL1:
+			return "GMSL1";
+		default:
+			return tr("N/A");
+	}
+}
 
 DeviceConfigDialog::DeviceConfigDialog(Device *device, QWidget *parent)
   : QDialog(parent, Qt::WindowSystemMenuHint | Qt::WindowTitleHint),
