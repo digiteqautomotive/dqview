@@ -24,7 +24,7 @@ public:
 	void close();
 	QSize size();
 	PixelFormat format();
-	bool start();
+	bool start(unsigned num = 0, unsigned den = 0);
 	void stop();
 
 	static PrerenderCallback prerender() {return _prerenderCb;}

@@ -177,13 +177,6 @@ void VideoPlayer::startStreamingOut()
 		  + _display.errorString());
 		return;
 	}
-	_outputActive = _display.start();
-	if (!_outputActive) {
-		_display.close();
-		emit error(tr("Error starting output device: ")
-		  + _display.errorString());
-		return;
-	}
 
 	QString codec = (format == RGB) ? "RV32" : "YUYV";
 	QString rec = _video->show() ? QString("sout=#duplicate{dst=display,dst='"
@@ -205,7 +198,27 @@ void VideoPlayer::startStreamingOut()
 	libvlc_video_set_aspect_ratio(_mediaPlayer, _aspectRatio.isEmpty()
 	  ? "Default" : _aspectRatio.constData());
 	libvlc_media_player_set_media(_mediaPlayer, media);
+
+	unsigned den = 0, num = 0;
+	libvlc_media_track_t **tracks;
+	libvlc_media_parse(media);
+	unsigned tn = libvlc_media_tracks_get(media, &tracks);
+	if (tn) {
+		// VLC is wrong!
+		num = tracks[0]->video->i_frame_rate_den;
+		den = tracks[0]->video->i_frame_rate_num;
+	}
+	libvlc_media_tracks_release(tracks, tn);
 	libvlc_media_release(media);
+
+	_outputActive = _display.start(num, den);
+	if (!_outputActive) {
+		_display.close();
+		emit error(tr("Error starting output device: ")
+		  + _display.errorString());
+		return;
+	}
+
 	libvlc_media_player_play(_mediaPlayer);
 }
 

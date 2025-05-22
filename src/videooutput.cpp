@@ -1,6 +1,5 @@
 #include <QtGlobal>
 #if defined(Q_OS_LINUX)
-#include <time.h>
 #include <fcntl.h>
 #include <unistd.h>
 #include <string.h>
@@ -38,7 +37,6 @@ void VideoOutput::_postrenderCb(void *data, uint8_t *buffer,
 	Q_UNUSED(pixel_pitch);
 	VideoOutput *display = (VideoOutput *)data;
 	struct v4l2_buffer buf;
-	struct timespec tp;
 
 	memset(&buf, 0, sizeof(buf));
 	buf.type = V4L2_BUF_TYPE_VIDEO_OUTPUT;
@@ -49,10 +47,6 @@ void VideoOutput::_postrenderCb(void *data, uint8_t *buffer,
 	buf.bytesused = size;
 	buf.flags = V4L2_BUF_FLAG_TIMESTAMP_MONOTONIC;
 	buf.field = V4L2_FIELD_NONE;
-
-	tp.tv_sec = pts / 1000000;
-	tp.tv_nsec = (pts % 1000000) * 1000;
-	clock_nanosleep(CLOCK_MONOTONIC, TIMER_ABSTIME, &tp, NULL);
 
 	ioctl(display->_fd, VIDIOC_QBUF, &buf);
 }
@@ -109,10 +103,8 @@ void VideoOutput::unmapBuffers()
 	_buffers.clear();
 }
 
-bool VideoOutput::start()
+bool VideoOutput::start(unsigned num, unsigned den)
 {
-	enum v4l2_buf_type type = V4L2_BUF_TYPE_VIDEO_OUTPUT;
-
 	for (int i = 0; i < _buffers.size(); i++) {
 		struct v4l2_buffer buf;
 
@@ -125,6 +117,21 @@ bool VideoOutput::start()
 			return false;
 		}
 	}
+
+	struct v4l2_streamparm parm;
+
+	memset(&parm, 0, sizeof(parm));
+	parm.type = V4L2_BUF_TYPE_VIDEO_OUTPUT;
+	parm.parm.output.capability = V4L2_CAP_TIMEPERFRAME;
+	parm.parm.output.timeperframe.numerator = num;
+	parm.parm.output.timeperframe.denominator = den;
+
+	if (ioctl(_fd, VIDIOC_S_PARM, &parm) < 0) {
+		_errorString = "VIDIOC_S_PARM: " + QString(strerror(errno));
+		return false;
+	}
+
+	enum v4l2_buf_type type = V4L2_BUF_TYPE_VIDEO_OUTPUT;
 
 	if (ioctl(_fd, VIDIOC_STREAMON, &type) < 0) {
 		_errorString = "VIDIOC_STREAMON: " + QString(strerror(errno));
@@ -277,7 +284,7 @@ PixelFormat VideoOutput::format()
 	return UnknownFormat;
 }
 
-bool VideoOutput::start()
+bool VideoOutput::start(unsigned num, unsigned den)
 {
 	return false;
 }
