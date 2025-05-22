@@ -22,6 +22,7 @@ SOURCES += src/main.cpp \
     src/logdialog.cpp \
     src/optionsdialog.cpp \
     src/dirselectwidget.cpp \
+    src/screencapturedialog.cpp \
     src/streamtable.cpp \
     src/streamdialog.cpp \
     src/stream.cpp \
@@ -38,6 +39,8 @@ HEADERS += src/application.h \
     src/log.h \
     src/logdialog.h \
     src/pixelformat.h \
+    src/screencapture.h \
+    src/screencapturedialog.h \
     src/stream.h \
     src/optionsdialog.h \
     src/dirselectwidget.h \

@@ -20,6 +20,7 @@
 #include "stream.h"
 #include "streamdialog.h"
 #include "optionsdialog.h"
+#include "screencapturedialog.h"
 #include "logdialog.h"
 #include "deviceconfigdialog.h"
 #include "gui.h"
@@ -85,6 +86,8 @@ GUI::GUI() : _video(0)
 		devices.first()->trigger();
 
 	_outputFile = new VideoFile(this);
+	_screenCapture = new ScreenCapture(this);
+	_output = _outputFile;
 }
 
 QList<QAction*> GUI::deviceActions(Device::Type type)
@@ -182,10 +185,14 @@ void GUI::createActions()
 	connect(_screenshotAction, &QAction::triggered, _player,
 	  &VideoPlayer::captureImage);
 
-	_selectOutputFileAction = new QAction(tr("Open video file..."));
+	_selectOutputFileAction = new QAction(tr("Open Video File..."));
 	_selectOutputFileAction->setEnabled(false);
 	connect(_selectOutputFileAction, &QAction::triggered, this,
 	  &GUI::selectOutputFile);
+	_selectOutputDesktopAction = new QAction(tr("Capture Desktop..."));
+	_selectOutputDesktopAction->setEnabled(false);
+	connect(_selectOutputDesktopAction, &QAction::triggered, this,
+	  &GUI::selectOutputDesktop);
 	_loopAction = new QAction(QIcon(":/loop.png"), tr("Loop video"));
 	_loopAction->setCheckable(true);
 	_loopAction->setEnabled(false);
@@ -242,6 +249,7 @@ void GUI::createMenus()
 	videoMenu->addSeparator();
 	videoMenu->addAction(_loopAction);
 	videoMenu->addAction(_selectOutputFileAction);
+	videoMenu->addAction(_selectOutputDesktopAction);
 
 	QMenu *settingsMenu = menuBar()->addMenu(tr("&Settings"));
 	settingsMenu->addAction(_resizeVideoAction);
@@ -315,6 +323,7 @@ void GUI::startStreaming()
 	_resizeActionGroup->setEnabled(false);
 	_openStreamAction->setEnabled(false);
 	_selectOutputFileAction->setEnabled(false);
+	_selectOutputDesktopAction->setEnabled(false);
 }
 
 void GUI::stopStreaming()
@@ -372,6 +381,7 @@ void GUI::stateChanged(bool playing)
 		_recordAction->setEnabled(_video->device()->type() == Device::Input);
 		_loopAction->setEnabled(_video->device()->type() == Device::Output);
 		_selectOutputFileAction->setEnabled(_video->device()->type() == Device::Output);
+		_selectOutputDesktopAction->setEnabled(_video->device()->type() == Device::Output);
 		_deviceActionGroup->setEnabled(true);
 		_resizeActionGroup->setEnabled(true);
 		_openStreamAction->setEnabled(true);
@@ -390,11 +400,13 @@ void GUI::videoLoaded()
 		return;
 	}
 
-	if (_fullScreenAction->isChecked()) {
-		showFullScreen(true);
-	} else if (_resizeWindowAction->isChecked()) {
-		QSize diff(window()->size() - _player->size());
-		window()->resize(_player->resolution() + diff);
+	if (_player->video()->show()) {
+		if (_fullScreenAction->isChecked()) {
+			showFullScreen(true);
+		} else if (_resizeWindowAction->isChecked()) {
+			QSize diff(window()->size() - _player->size());
+			window()->resize(_player->resolution() + diff);
+		}
 	}
 
 	_resolutionLabel->setText(QString("%1x%2").arg(
@@ -414,15 +426,17 @@ void GUI::openDevice(QObject *device)
 		_recordAction->setEnabled(true);
 		_loopAction->setEnabled(false);
 		_selectOutputFileAction->setEnabled(false);
+		_selectOutputDesktopAction->setEnabled(false);
 	} else if (_video->device()->type() == Device::Output) {
 		_player->setDisplay(_video->device());
-		_player->setVideo(_outputFile);
-		_videoSourceLabel->setText(_outputFile->file().isEmpty()
-		  ? "No video file selected" : _outputFile->name());
-		_playAction->setEnabled(!_outputFile->file().isEmpty());
+		_player->setVideo(_output);
+		_videoSourceLabel->setText(_output->isValid()
+		  ? _output->name() : "No video file selected");
+		_playAction->setEnabled(_output->isValid());
 		_recordAction->setEnabled(false);
 		_loopAction->setEnabled(true);
 		_selectOutputFileAction->setEnabled(true);
+		_selectOutputDesktopAction->setEnabled(true);
 	}
 
 	_configureDeviceAction->setEnabled(_video->device()->isValid());
@@ -449,12 +463,37 @@ void GUI::selectOutputFile()
 	  + tr("All files") + " (*)"));
 
 	if (!file.isEmpty()) {
+		_output = _outputFile;
+		_player->setVideo(_output);
+
 		_outputFile->setFile(file);
 		if (_video->device()->type() == Device::Output) {
-			_videoSourceLabel->setText(_outputFile->name());
+			_videoSourceLabel->setText(_output->name());
 			if (_video->device()->isValid())
 				_playAction->setEnabled(true);
 		}
+	}
+}
+
+void GUI::selectOutputDesktop()
+{
+	ScreenCaptureDialog dialog(&_options, this);
+	dialog.exec();
+
+	_output = _screenCapture;
+	_player->setVideo(_output);
+
+	if (_options.screenFull)
+		_screenCapture->captureFullscreen();
+	else
+		_screenCapture->captureRegion(QSize(_options.screenWidth,
+		  _options.screenHeight), QPoint(_options.screenLeft,
+		  _options.screenTop));
+
+	if (_video->device()->type() == Device::Output) {
+		_videoSourceLabel->setText(_output->name());
+		if (_video->device()->isValid())
+			_playAction->setEnabled(true);
 	}
 }
 
@@ -618,6 +657,14 @@ void GUI::readSettings()
 	}
 	settings.endArray();
 	settings.endGroup();
+
+	settings.beginGroup("ScreenCapture");
+	_options.screenWidth = settings.value("Width", -1).toInt();
+	_options.screenHeight = settings.value("Height", -1).toInt();
+	_options.screenTop = settings.value("Top", -1).toInt();
+	_options.screenLeft = settings.value("Left", -1).toInt();
+	_options.screenFull = settings.value("Full", true).toBool();
+	settings.endGroup();
 }
 
 void GUI::writeSettings()
@@ -650,5 +697,13 @@ void GUI::writeSettings()
 		settings.setValue("Stream", QVariant::fromValue(_options.streams.at(i)));
 	}
 	settings.endArray();
+	settings.endGroup();
+
+	settings.beginGroup("ScreenCapture");
+	settings.setValue("Width", _options.screenWidth);
+	settings.setValue("Height", _options.screenHeight);
+	settings.setValue("Top", _options.screenTop);
+	settings.setValue("Left", _options.screenLeft);
+	settings.setValue("Full", _options.screenFull);
 	settings.endGroup();
 }

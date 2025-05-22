@@ -25,6 +25,7 @@ public:
 	void setAspectRatio(const QString &ratio) {_aspectRatio = ratio.toLatin1();}
 	void setDisplay(Device *dev) {_display = VideoOutput(dev);}
 
+	const Video *video() const {return _video;}
 	QSize resolution() const;
 	QString recordFile() const;
 

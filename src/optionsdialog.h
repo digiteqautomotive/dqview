@@ -12,7 +12,6 @@ class DirSelectWidget;
 class StreamTable;
 struct Options;
 
-
 class OptionsDialog : public QDialog
 {
 public:

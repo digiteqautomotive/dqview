@@ -16,6 +16,9 @@ public:
 	virtual QString url() = 0;
 	virtual QString name() const = 0;
 	virtual Device *device() {return 0;}
+
+	virtual bool isValid() const {return true;}
+	virtual bool show() const {return true;}
 };
 
 #endif // VIDEO_H

@@ -186,13 +186,19 @@ void VideoPlayer::startStreamingOut()
 	}
 
 	QString codec = (format == RGB) ? "RV32" : "YUYV";
-	QString rec = QString("sout=#duplicate{dst=display,dst='"
+	QString rec = _video->show() ? QString("sout=#duplicate{dst=display,dst='"
 	  "transcode{vcodec=%1,acodec=null,width=%2,height=%3}:smem{"
 	  "video-prerender-callback=%4,video-postrender-callback=%5,video-data=%6}'}")
 	  .arg(codec, QString::number(size.width()), QString::number(size.height()),
 		QString::number((long long int)(intptr_t)(void*)VideoOutput::prerender()),
 		QString::number((long long int)(intptr_t)(void*)VideoOutput::postrender()),
-		QString::number((long long int)(intptr_t)(void*)&_display));
+		QString::number((long long int)(intptr_t)(void*)&_display))
+	  : QString("sout=#transcode{vcodec=%1,acodec=null,width=%2,height=%3}:smem{"
+		"video-prerender-callback=%4,video-postrender-callback=%5,video-data=%6}'}")
+		.arg(codec, QString::number(size.width()), QString::number(size.height()),
+		  QString::number((long long int)(intptr_t)(void*)VideoOutput::prerender()),
+		  QString::number((long long int)(intptr_t)(void*)VideoOutput::postrender()),
+		  QString::number((long long int)(intptr_t)(void*)&_display));
 
 	libvlc_media_t *media = createMedia();
 	libvlc_media_add_option(media, rec.toUtf8().constData());

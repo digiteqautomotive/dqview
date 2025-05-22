@@ -2,6 +2,7 @@
 #include "options.h"
 #include "video.h"
 #include "videofile.h"
+#include "screencapture.h"
 
 class QCloseEvent;
 class QKeyEvent;
@@ -34,6 +35,7 @@ private slots:
 	void videoLoaded();
 	void showLog();
 	void selectOutputFile();
+	void selectOutputDesktop();
 
 private:
 	void readSettings();
@@ -79,6 +81,7 @@ private:
 	QAction *_exitAction;
 	QAction *_showLogAction;
 	QAction *_selectOutputFileAction;
+	QAction *_selectOutputDesktopAction;
 	QAction *_loopAction;
 
 	QToolBar *_videoToolBar;
@@ -94,6 +97,8 @@ private:
 	Timer *_recordTimer;
 
 	VideoFile *_outputFile;
+	ScreenCapture *_screenCapture;
+	Video *_output;
 
 	Options _options;
 };

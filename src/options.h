@@ -20,6 +20,12 @@ struct Options
 	bool fullScreen;
 	QByteArray windowGeometry;
 	QByteArray windowState;
+
+	int screenWidth;
+	int screenHeight;
+	int screenTop;
+	int screenLeft;
+	bool screenFull;
 };
 
 #endif // OPTIONS_H
