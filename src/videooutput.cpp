@@ -286,6 +286,9 @@ PixelFormat VideoOutput::format()
 
 bool VideoOutput::start(unsigned num, unsigned den)
 {
+	Q_UNUSED(num);
+	Q_UNUSED(den);
+
 	return false;
 }
 
