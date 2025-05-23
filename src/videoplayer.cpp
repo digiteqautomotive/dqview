@@ -204,7 +204,7 @@ void VideoPlayer::startStreamingOut()
 	libvlc_media_parse(media);
 	unsigned tn = libvlc_media_tracks_get(media, &tracks);
 	if (tn) {
-		// VLC is wrong!
+		// VLC uses framerate unlike v4l2 that uses period!
 		num = tracks[0]->video->i_frame_rate_den;
 		den = tracks[0]->video->i_frame_rate_num;
 	}
