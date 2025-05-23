@@ -13,14 +13,13 @@ ScreenCaptureDialog::ScreenCaptureDialog(Options *options, QWidget *parent)
 {
 	setModal(true);
 	setWindowTitle(tr("Screen Capture"));
+	setMinimumWidth(300);
 
 	QDialogButtonBox *buttonBox = new QDialogButtonBox(QDialogButtonBox::Ok
 	  | QDialogButtonBox::Cancel);
 
 	connect(buttonBox, &QDialogButtonBox::accepted, this, &QDialog::accept);
 	connect(buttonBox, &QDialogButtonBox::rejected, this, &QDialog::reject);
-
-
 
 	_width = new QSpinBox();
 	_width->setMaximum(4096);
@@ -40,7 +39,12 @@ ScreenCaptureDialog::ScreenCaptureDialog(Options *options, QWidget *parent)
 	connect(_fullScreen, &QCheckBox::toggled, this,
 	  &ScreenCaptureDialog::disableRegion);
 
-	_dimensionsBox = new QGroupBox(tr("Region"));
+	_fps = new QSpinBox();
+	_fps->setMinimum(25);
+	_fps->setMaximum(60);
+	_fps->setValue(_options->screenFPS);
+
+	_dimensionsBox = new QGroupBox(tr("Screen Region"));
 	_dimensionsBox->setEnabled(!_options->screenFull);
 	QFormLayout *dimensionsLayout = new QFormLayout(_dimensionsBox);
 	dimensionsLayout->addRow(tr("Width:"), _width);
@@ -48,7 +52,12 @@ ScreenCaptureDialog::ScreenCaptureDialog(Options *options, QWidget *parent)
 	dimensionsLayout->addRow(tr("Top:"), _top);
 	dimensionsLayout->addRow(tr("Left:"), _left);
 
+	QGroupBox *optionsBox = new QGroupBox(tr("Options"));
+	QFormLayout *optionsLayout = new QFormLayout(optionsBox);
+	optionsLayout->addRow(tr("Frame Rate:"), _fps);
+
 	QVBoxLayout *layout = new QVBoxLayout(this);
+	layout->addWidget(optionsBox);
 	layout->addWidget(_dimensionsBox);
 	layout->addWidget(_fullScreen);
 	layout->addWidget(buttonBox);
@@ -67,6 +76,7 @@ void ScreenCaptureDialog::accept()
 	_options->screenTop = _top->value();
 	_options->screenLeft = _left->value();
 	_options->screenFull = _fullScreen->isChecked();
+	_options->screenFPS = _fps->value();
 
 	QDialog::accept();
 }

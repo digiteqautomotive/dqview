@@ -25,6 +25,7 @@ struct Options
 	int screenHeight;
 	int screenTop;
 	int screenLeft;
+	int screenFPS;
 	bool screenFull;
 };
 

@@ -26,6 +26,7 @@ private:
 	QSpinBox *_height;
 	QSpinBox *_top;
 	QSpinBox *_left;
+	QSpinBox *_fps;
 	QCheckBox *_fullScreen;
 	QGroupBox *_dimensionsBox;
 };

@@ -247,9 +247,9 @@ void GUI::createMenus()
 	videoMenu->addAction(_recordAction);
 	videoMenu->addAction(_screenshotAction);
 	videoMenu->addSeparator();
-	videoMenu->addAction(_loopAction);
-	videoMenu->addAction(_selectOutputFileAction);
 	videoMenu->addAction(_selectOutputDesktopAction);
+	videoMenu->addAction(_selectOutputFileAction);
+	videoMenu->addAction(_loopAction);
 
 	QMenu *settingsMenu = menuBar()->addMenu(tr("&Settings"));
 	settingsMenu->addAction(_resizeVideoAction);
@@ -484,11 +484,11 @@ void GUI::selectOutputDesktop()
 	_player->setVideo(_output);
 
 	if (_options.screenFull)
-		_screenCapture->captureFullscreen();
+		_screenCapture->captureFullscreen(_options.screenFPS);
 	else
-		_screenCapture->captureRegion(QSize(_options.screenWidth,
-		  _options.screenHeight), QPoint(_options.screenLeft,
-		  _options.screenTop));
+		_screenCapture->captureRegion(_options.screenFPS,
+		  QSize(_options.screenWidth, _options.screenHeight),
+		  QPoint(_options.screenLeft, _options.screenTop));
 
 	if (_video->device()->type() == Device::Output) {
 		_videoSourceLabel->setText(_output->name());
@@ -664,6 +664,7 @@ void GUI::readSettings()
 	_options.screenTop = settings.value("Top", -1).toInt();
 	_options.screenLeft = settings.value("Left", -1).toInt();
 	_options.screenFull = settings.value("Full", true).toBool();
+	_options.screenFPS = settings.value("FPS", 30).toInt();
 	settings.endGroup();
 }
 
@@ -705,5 +706,6 @@ void GUI::writeSettings()
 	settings.setValue("Top", _options.screenTop);
 	settings.setValue("Left", _options.screenLeft);
 	settings.setValue("Full", _options.screenFull);
+	settings.setValue("FPS", _options.screenFPS);
 	settings.endGroup();
 }
