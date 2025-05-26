@@ -203,10 +203,14 @@ void VideoPlayer::startStreamingOut()
 	libvlc_media_track_t **tracks;
 	libvlc_media_parse(media);
 	unsigned tn = libvlc_media_tracks_get(media, &tracks);
-	if (tn) {
-		// VLC uses framerate unlike v4l2 that uses period!
-		num = tracks[0]->video->i_frame_rate_den;
-		den = tracks[0]->video->i_frame_rate_num;
+	for (unsigned i = 0; i < tn; i++) {
+		const libvlc_media_track_t *t = tracks[i];
+		if (t->i_type == libvlc_track_video) {
+			// VLC uses framerate unlike v4l2 that uses period!
+			num = t->video->i_frame_rate_den;
+			den = t->video->i_frame_rate_num;
+			break;
+		}
 	}
 	libvlc_media_tracks_release(tracks, tn);
 	libvlc_media_release(media);
