@@ -40,10 +40,10 @@ install -d 755 %{buildroot}/%{_bindir}
 install -d 755 %{buildroot}/%{_datadir}/applications
 install -d 755 %{buildroot}/%{_datadir}/icons/hicolor/64x64/apps
 install -d 755 %{buildroot}/%{_sysconfdir}/udev/rules.d
-install -m 755 dqview %{buildroot}/%{_bindir}/%{name}
-install -m 644 icons/app.png %{buildroot}/%{_datadir}/icons/hicolor/64x64/apps/%{name}.png
-install -m 644 dqview.desktop %{buildroot}/%{_datadir}/applications/%{name}.desktop
-install -m 644 udev/99-mgb4.rules %{buildroot}/%{_sysconfdir}/udev/rules.d/99-mgb4.rules
+install -m 755 dqview/dqview %{buildroot}/%{_bindir}/%{name}
+install -m 644 dqview/icons/app.png %{buildroot}/%{_datadir}/icons/hicolor/64x64/apps/%{name}.png
+install -m 644 dqview/dqview.desktop %{buildroot}/%{_datadir}/applications/%{name}.desktop
+install -m 644 dqview/udev/99-mgb4.rules %{buildroot}/%{_sysconfdir}/udev/rules.d/99-mgb4.rules
 
 %post
 if [ -x /usr/bin/update-desktop-database ]; then
