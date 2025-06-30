@@ -6,6 +6,9 @@
 #include <vlc/vlc.h>
 #include "device.h"
 #include "pixelformat.h"
+#if defined(Q_OS_WIN32) || defined(Q_OS_CYGWIN)
+#include "framebuffer.h"
+#endif
 
 class VideoOutput
 {
@@ -54,6 +57,14 @@ private:
 
 	int _fd, _bufferIndex;
 	QVector<Buffer> _buffers;
+
+#elif defined(Q_OS_WIN32) || defined(Q_OS_CYGWIN)
+	FrameBuffer *_frameBuffer;
+	IMediaControl *_graph;
+	IGraphBuilder *_graphbuilder;
+	ICaptureGraphBuilder2 *_capbuilder;
+	QByteArray _buffer;
+	HANDLE _hMutex;
 #endif
 };
 

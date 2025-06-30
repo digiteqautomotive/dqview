@@ -6,6 +6,9 @@
 #include <sys/ioctl.h>
 #include <sys/mman.h>
 #include <linux/videodev2.h>
+#elif defined(Q_OS_WIN32) || defined(Q_OS_CYGWIN)
+#include <control.h>
+#include "fg4.h"
 #endif
 #include "videooutput.h"
 
@@ -231,31 +234,39 @@ VideoOutput::~VideoOutput()
 
 void VideoOutput::_prerenderCb(void *data, uint8_t **buffer, size_t size)
 {
-	Q_UNUSED(data);
-	Q_UNUSED(buffer);
-	Q_UNUSED(size);
+	VideoOutput *display = (VideoOutput *)data;
+
+	Q_ASSERT(display->_buffer.size() >= size);
+	WaitForSingleObject(display->_hMutex, INFINITE);
+	*buffer = (uint8_t*)display->_buffer.data();
 }
 
 void VideoOutput::_postrenderCb(void *data, uint8_t *buffer,
   int width, int height, int pixel_pitch, size_t size, int64_t pts)
 {
-	Q_UNUSED(data);
 	Q_UNUSED(buffer);
+	Q_UNUSED(size);
 	Q_UNUSED(width);
 	Q_UNUSED(height);
 	Q_UNUSED(pixel_pitch);
-	Q_UNUSED(size);
-	Q_UNUSED(pts);
+	VideoOutput *display = (VideoOutput *)data;
+
+	ReleaseMutex(display->_hMutex);
+
+	int64_t clock = libvlc_clock();
+	if (pts > clock)
+		Sleep((pts - clock) / 1000);
 }
 
 VideoOutput::VideoOutput()
+  : _dev(0), _frameBuffer(0), _graph(0), _graphbuilder(0), _capbuilder(0)
 {
 
 }
 
-VideoOutput::VideoOutput(Device *output) : _dev(output)
+VideoOutput::VideoOutput(Device *output)
+  : _dev(output), _frameBuffer(0), _graph(0), _graphbuilder(0), _capbuilder(0)
 {
-
 }
 
 VideoOutput::~VideoOutput()
@@ -265,23 +276,141 @@ VideoOutput::~VideoOutput()
 
 bool VideoOutput::open()
 {
-	_errorString = "Video output not supported on Windows";
-	return false;
+	HRESULT hr;
+	IPin *CamPIN;
+	IPin *RenderPIN;
+	IEnumPins *pEnum;
+
+	QSize s(size());
+	_buffer.resize(s.width() * s.height() * 4);
+	_hMutex = CreateMutex(NULL, FALSE, NULL);
+
+	hr = CoCreateInstance(CLSID_FilterGraph, NULL, CLSCTX_INPROC,
+	  IID_IMediaControl, reinterpret_cast<void**>(&_graph));
+	if (FAILED(hr) || !_graph) {
+		_errorString = "Failed to create filter graph";
+		return false;
+	}
+
+	hr = _graph->QueryInterface(IID_IGraphBuilder,
+	  reinterpret_cast<void**>(&_graphbuilder));
+	if (FAILED(hr) || !_graphbuilder) {
+		_errorString = "Failed to get graph builder interface";
+		_graph->Release();
+		return false;
+	}
+
+	hr = CoCreateInstance(CLSID_CaptureGraphBuilder2, NULL, CLSCTX_INPROC,
+	  IID_ICaptureGraphBuilder2, reinterpret_cast<void**>(&_capbuilder));
+	if (FAILED(hr) || !_capbuilder) {
+		_errorString = "Failed to create capture graph builder";
+		_graphbuilder->Release();
+		_graph->Release();
+		return false;
+	}
+
+	hr = _capbuilder->SetFiltergraph(_graphbuilder);
+	if (FAILED(hr)) {
+		_errorString = "Failed to attach filter graph to the capture graph builder";
+		_capbuilder->Release();
+		_graphbuilder->Release();
+		_graph->Release();
+		return false;
+	}
+
+	_frameBuffer = new FrameBuffer(s.width(), s.height(), _buffer.constData(),
+	  _hMutex, &hr);
+	_frameBuffer->AddRef();
+	if (FAILED(hr)) {
+		_errorString = "Error creating renderer filter";
+		_frameBuffer->Release();
+		_capbuilder->Release();
+		_graphbuilder->Release();
+		_graph->Release();
+		return false;
+	}
+
+	hr = _graphbuilder->AddFilter(_frameBuffer, L"Camera");
+	if (FAILED(hr)) {
+		_errorString = "Failed to add camera filter to filter graph";
+		_frameBuffer->Release();
+		_capbuilder->Release();
+		_graphbuilder->Release();
+		_graph->Release();
+		return false;
+	}
+
+	hr = _graphbuilder->AddFilter(_dev->filter(), L"Renderer");
+	if (FAILED(hr)) {
+		_errorString = "Failed to add renderer filter to filter graph";
+		_frameBuffer->Release();
+		_capbuilder->Release();
+		_graphbuilder->Release();
+		_graph->Release();
+		return false;
+	}
+
+	_frameBuffer->EnumPins(&pEnum);
+	hr = pEnum->Next(1, &CamPIN, NULL);
+	pEnum->Release();
+	if (FAILED(hr)) {
+		_errorString = "Cannot obtain output pin from camera";
+		_frameBuffer->Release();
+		_capbuilder->Release();
+		_graphbuilder->Release();
+		_graph->Release();
+		return false;
+	}
+
+	_dev->filter()->EnumPins(&pEnum);
+	hr = pEnum->Next(1, &RenderPIN, NULL);
+	pEnum->Release();
+	if (FAILED(hr)) {
+		_errorString = "Cannot obtain output pin from renderer";
+		_frameBuffer->Release();
+		_capbuilder->Release();
+		_graphbuilder->Release();
+		_graph->Release();
+		return false;
+	}
+
+	hr = _graphbuilder->Connect(CamPIN, RenderPIN);
+	if (FAILED(hr)) {
+		_errorString = "Cannot connect renderer with grabber";
+		_frameBuffer->Release();
+		_capbuilder->Release();
+		_graphbuilder->Release();
+		_graph->Release();
+		return false;
+	}
+
+	return true;
 }
 
 void VideoOutput::close()
 {
+	_frameBuffer->Release();
+	_capbuilder->Release();
+	_graphbuilder->Release();
+	_graph->Release();
 
+	CloseHandle(_hMutex);
 }
 
 QSize VideoOutput::size()
 {
-	return QSize();
+	long resolution;
+	IFG4OutputConfig *config = (IFG4OutputConfig*)_dev->config();
+	if (!config)
+		return QSize();
+
+	config->GetResolution(&resolution);
+	return QSize(resolution >> 16, resolution & 0xFFFF);
 }
 
 PixelFormat VideoOutput::format()
 {
-	return UnknownFormat;
+	return RGB;
 }
 
 bool VideoOutput::start(unsigned num, unsigned den)
@@ -289,11 +418,15 @@ bool VideoOutput::start(unsigned num, unsigned den)
 	Q_UNUSED(num);
 	Q_UNUSED(den);
 
-	return false;
+	_frameBuffer->Run(0);
+	_dev->filter()->Run(0);
+
+	return true;
 }
 
 void VideoOutput::stop()
 {
-
+	_dev->filter()->Stop();
+	_frameBuffer->Stop();
 }
 #endif

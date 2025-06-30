@@ -268,11 +268,6 @@ void VideoPlayer::stopStreaming()
 {
 	libvlc_media_player_stop(_mediaPlayer);
 
-	if (_outputActive) {
-		_display.stop();
-		_display.close();
-	}
-
 	QPainter p(this);
 	p.fillRect(rect(), Qt::black);
 	update();
