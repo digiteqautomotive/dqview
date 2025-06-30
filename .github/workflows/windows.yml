@@ -25,12 +25,13 @@ jobs:
           make -j4
       - name: Create installer
         run: |
+          cd dqview
           cp release/dqview.exe .
           scripts/mingw-libs.sh
           makensis.exe dqview.nsi
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
         with:
-          path: DQView-*.exe
+          path: dqview/DQView-*.exe
           name: DQView.exe
           compression-level: 0
