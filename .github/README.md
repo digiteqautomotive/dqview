@@ -13,7 +13,7 @@ devices.
 * Play local cameras streams (DirectShow / video4linux).
 * Play network streams with predefined setup for MGB devices.
 * Record the streams to h264 or MPEG2.
-* Stream videos to video outputs (Linux only).
+* Stream videos to video outputs.
 * Capture video frames snapshots to PNG.
 * Configure FG4 devices.
 * Available for Windows & Linux.
@@ -46,3 +46,5 @@ use the `scripts/make-rpm.sh` shell script.
 
 ## License
 DQ Viewer is licensed under GPL-3.0 (only).
+On Windows DQ Viewer uses the DirectShow Baseclasses licensed under the MIT
+license.
