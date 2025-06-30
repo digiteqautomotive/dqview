@@ -63,10 +63,11 @@ fi
 %{_sysconfdir}/udev/rules.d/99-mgb4.rules
 
 %changelog
-* Fri May 23 13:28:53 CEST 2025 - martin.tuma@digiteqautomotive.com 4.3-1
+* Mon, 30 Jun 2025 19:45:15 +0200 - martin.tuma@digiteqautomotive.com 4.3-1
 - Added screen capture -> output functionality.
 - Use V4L2_CAP_TIMEPERFRAME for playback speed throttling.
 - Added support for GMSL1 modules.
+- Added support for video outputs on Windows.
 
 * Thu Dec 12 15:08:45 CET 2024 - martin.tuma@digiteqautomotive.com 4.2-1
 - Added YUV support
