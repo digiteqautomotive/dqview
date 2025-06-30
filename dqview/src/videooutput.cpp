@@ -236,7 +236,7 @@ void VideoOutput::_prerenderCb(void *data, uint8_t **buffer, size_t size)
 {
 	VideoOutput *display = (VideoOutput *)data;
 
-	Q_ASSERT(display->_buffer.size() >= size);
+	Q_ASSERT((size_t)display->_buffer.size() >= size);
 	WaitForSingleObject(display->_hMutex, INFINITE);
 	*buffer = (uint8_t*)display->_buffer.data();
 }
