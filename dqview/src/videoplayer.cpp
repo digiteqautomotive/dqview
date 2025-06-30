@@ -48,6 +48,7 @@ void VideoPlayer::emitStateChanged(bool playing)
 	if (!playing && _outputActive) {
 		_display.stop();
 		_display.close();
+		_outputActive = false;
 	}
 
 	if (!playing) {
