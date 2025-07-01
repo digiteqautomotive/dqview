@@ -1,7 +1,7 @@
 TEMPLATE = lib
 CONFIG -= qt
 CONFIG += staticlib
-TARGET = baseclasses
+TARGET = strmbase
 
 QMAKE_CXXFLAGS += -Wno-parentheses -Wno-overloaded-virtual
 

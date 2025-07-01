@@ -63,8 +63,8 @@ win32 {
     SOURCES += src/framebuffer.cpp
 
     INCLUDEPATH += ../baseclasses
-    Release:LIBS += ../baseclasses/release/libbaseclasses.a
-    Debug:LIBS += ../baseclasses/debug/libbaseclasses.a
+    Release:LIBS += ../baseclasses/release/libstrmbase.a
+    Debug:LIBS += ../baseclasses/debug/libstrmbase.a
     LIBS += -lstrmiids -lole32 -loleaut32 -luuid -lwinmm
 
     RC_ICONS = icons/app.ico
