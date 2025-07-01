@@ -46,5 +46,6 @@ use the `scripts/make-rpm.sh` shell script.
 
 ## License
 DQ Viewer is licensed under GPL-3.0 (only).
-On Windows DQ Viewer uses the DirectShow Baseclasses licensed under the MIT
-license.
+On Windows DQ Viewer uses the DirectShow
+[base classes](https://learn.microsoft.com/en-us/windows/win32/directshow/directshow-base-classes)
+licensed under the MIT license.
