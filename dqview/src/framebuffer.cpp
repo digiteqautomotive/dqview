@@ -284,12 +284,8 @@ FrameBuffer::FrameBuffer(int iWidth, int iHeight, const char *pBuffer,
 	  phr);
 	m_pStream->AddRef();
 
-	if (FAILED(*phr)) {
-		m_pStream->Release();
-		return;
-	}
-
-	*phr = AddPin(m_pStream);
+    if (SUCCEEDED(*phr))
+        *phr = AddPin(m_pStream);
 }
 
 FrameBuffer::~FrameBuffer()
