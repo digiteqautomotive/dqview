@@ -57,6 +57,8 @@ HEADERS += src/application.h \
 RESOURCES += dqview.qrc
 LIBS += -lvlc
 win32 {
+    QMAKE_CXXFLAGS += -Wno-overloaded-virtual
+
     HEADERS += src/framebuffer.h
     SOURCES += src/framebuffer.cpp
 
