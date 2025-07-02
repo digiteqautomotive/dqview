@@ -1,3 +1,8 @@
+DirectShow base classes from the Windows SDK samples
+(https://github.com/microsoft/Windows-classic-samples)
+
+-----
+
 The MIT License (MIT)
 
 Copyright (c) Microsoft Corporation
