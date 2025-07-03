@@ -63,8 +63,6 @@ private:
 	IMediaControl *_graph;
 	IGraphBuilder *_graphbuilder;
 	ICaptureGraphBuilder2 *_capbuilder;
-	QByteArray _buffer;
-	HANDLE _hMutex;
 #endif
 };
 

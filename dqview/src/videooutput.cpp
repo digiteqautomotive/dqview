@@ -235,10 +235,20 @@ VideoOutput::~VideoOutput()
 void VideoOutput::_prerenderCb(void *data, uint8_t **buffer, size_t size)
 {
 	VideoOutput *display = (VideoOutput *)data;
+    FrameBuffer::Queue *queue = display->_frameBuffer->FrameQueue();
 
-	Q_ASSERT((size_t)display->_buffer.size() >= size);
-	WaitForSingleObject(display->_hMutex, INFINITE);
-	*buffer = (uint8_t*)display->_buffer.data();
+    Q_ASSERT((size_t)(queue->Width() *  queue->Height() * 4) >= size);
+
+    while (true) {
+        queue->Lock();
+        if (queue->IsFull()) {
+            queue->Unlock();
+            Sleep(10);
+        } else
+            break;
+    };
+
+    *buffer = (uint8_t*)queue->Write()->Buffer();
 }
 
 void VideoOutput::_postrenderCb(void *data, uint8_t *buffer,
@@ -250,12 +260,11 @@ void VideoOutput::_postrenderCb(void *data, uint8_t *buffer,
 	Q_UNUSED(height);
 	Q_UNUSED(pixel_pitch);
 	VideoOutput *display = (VideoOutput *)data;
+    FrameBuffer::Queue *queue = display->_frameBuffer->FrameQueue();
 
-	ReleaseMutex(display->_hMutex);
-
-	int64_t clock = libvlc_clock();
-	if (pts > clock)
-		Sleep((pts - clock) / 1000);
+    queue->Write()->SetTimeStamp(pts);
+    queue->Push();
+    queue->Unlock();
 }
 
 VideoOutput::VideoOutput()
@@ -282,8 +291,6 @@ bool VideoOutput::open()
 	IEnumPins *pEnum;
 
 	QSize s(size());
-	_buffer.resize(s.width() * s.height() * 4);
-	_hMutex = CreateMutex(NULL, FALSE, NULL);
 
 	hr = CoCreateInstance(CLSID_FilterGraph, NULL, CLSCTX_INPROC,
 	  IID_IMediaControl, reinterpret_cast<void**>(&_graph));
@@ -318,8 +325,7 @@ bool VideoOutput::open()
 		return false;
 	}
 
-	_frameBuffer = new FrameBuffer(s.width(), s.height(), _buffer.constData(),
-	  _hMutex, &hr);
+    _frameBuffer = new FrameBuffer(s.width(), s.height(), &hr);
 	_frameBuffer->AddRef();
 	if (FAILED(hr)) {
 		_errorString = "Error creating renderer filter";
@@ -393,8 +399,6 @@ void VideoOutput::close()
 	_capbuilder->Release();
 	_graphbuilder->Release();
 	_graph->Release();
-
-	CloseHandle(_hMutex);
 }
 
 QSize VideoOutput::size()

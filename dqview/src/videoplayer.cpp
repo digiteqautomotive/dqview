@@ -71,8 +71,7 @@ void VideoPlayer::createArgs(const QString &transform)
 	  << "--no-osd"
 	  << "--no-snapshot-preview"
 	  << "--no-stats"
-	  << "--no-video-title-show"
-	  << "--aout=none";
+	  << "--no-video-title-show";
 	if (!transform.isEmpty()) {
 		list << "--video-filter=transform";
 		list << "--transform-type=" + transform;

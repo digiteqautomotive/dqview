@@ -1,5 +1,6 @@
 #include <olectl.h>
 #include <initguid.h>
+#include <vlc/vlc.h>
 #include "framebuffer.h"
 
 const REGPINTYPES MediaTypes[1] = {
@@ -11,8 +12,8 @@ class FrameBufferStream : public CSourceStream, public IAMStreamConfig
 public:
 	DECLARE_IUNKNOWN;
 
-	FrameBufferStream(int iWidth, int iHeight, const char *pBuffer,
-	  HANDLE hMutex, FrameBuffer *pParent, HRESULT *phr);
+	FrameBufferStream(FrameBuffer::Queue *pQueue, FrameBuffer *pParent,
+	  HRESULT *phr);
 
 	// CSourceStream
 	HRESULT FillBuffer(IMediaSample *pMediaSample);
@@ -29,42 +30,45 @@ public:
 	STDMETHODIMP GetStreamCaps(int iIndex, AM_MEDIA_TYPE **ppmt, BYTE *pSCC);
 
 private:
-	int m_iImageWidth;
-	int m_iImageHeight;
-	const char *m_pBuffer;
-	HANDLE m_hMutex;
+	FrameBuffer::Queue *m_pQueue;
 };
 
-FrameBufferStream::FrameBufferStream(int iWidth, int iHeight, const char *pBuffer,
-  HANDLE hMutex, FrameBuffer *pParent, HRESULT *phr)
-  : CSourceStream(NAME("Stream"), phr, pParent, NAME("Pin")),
-  m_iImageWidth(iWidth), m_iImageHeight(iHeight), m_pBuffer(pBuffer),
-  m_hMutex(hMutex)
+FrameBufferStream::FrameBufferStream(FrameBuffer::Queue *pQueue,
+  FrameBuffer *pParent, HRESULT *phr)
+  : CSourceStream(NAME("Stream"), phr, pParent, NAME("Pin")), m_pQueue(pQueue)
 {
 }
 
 HRESULT FrameBufferStream::FillBuffer(IMediaSample *pMediaSample)
 {
 	BYTE *pData;
+	long lDataLen = pMediaSample->GetSize();
+	if (m_pQueue->Width() * m_pQueue->Height() * 4 != lDataLen)
+		return E_INVALIDARG;
 	HRESULT hr = pMediaSample->GetPointer(&pData);
 	if (FAILED(hr))
 		return hr;
 
-	long lDataLen = pMediaSample->GetSize();
-	if (m_iImageWidth * m_iImageHeight * 4 != lDataLen)
-		return E_INVALIDARG;
+	while (true) {
+		m_pQueue->Lock();
+		if (m_pQueue->IsEmpty()) {
+			m_pQueue->Unlock();
+			Sleep(10);
+		} else
+			break;
+	};
 
-	DWORD dwWaitResult = WaitForSingleObject(m_hMutex, INFINITE);
-	if (dwWaitResult != WAIT_OBJECT_0)
-		return E_UNEXPECTED;
-
+	FrameBuffer::Queue::Frame *pFrame = m_pQueue->Read();
 	// verticaly flip the image
-	for (int i = 0; i < m_iImageHeight; i++)
-		memcpy(pData + (i * m_iImageWidth * 4), m_pBuffer
-		  + ((m_iImageHeight - 1 - i) * m_iImageWidth * 4), m_iImageWidth * 4);
+	for (int i = 0; i < m_pQueue->Height(); i++)
+		memcpy(pData + (i * m_pQueue->Width() * 4), pFrame->Buffer()
+		  + ((m_pQueue->Height() - 1 - i) * m_pQueue->Width() * 4),
+		  m_pQueue->Width() * 4);
 
-	if (!ReleaseMutex(m_hMutex))
-		return E_UNEXPECTED;
+	if (pFrame->TimeStamp() <= libvlc_clock())
+		m_pQueue->Pop();
+
+	m_pQueue->Unlock();
 
 	return S_OK;
 }
@@ -88,8 +92,8 @@ HRESULT FrameBufferStream::GetMediaType(int iPosition, CMediaType *pmt)
 	pvi->bmiHeader.biCompression = BI_RGB;
 	pvi->bmiHeader.biBitCount = 32;
 	pvi->bmiHeader.biSize = sizeof(BITMAPINFOHEADER);
-	pvi->bmiHeader.biWidth = m_iImageWidth;
-	pvi->bmiHeader.biHeight = m_iImageHeight;
+    pvi->bmiHeader.biWidth = m_pQueue->Width();
+    pvi->bmiHeader.biHeight = m_pQueue->Height();
 	pvi->bmiHeader.biPlanes = 1;
 	pvi->bmiHeader.biSizeImage = GetBitmapSize(&pvi->bmiHeader);
 	pvi->bmiHeader.biClrImportant = 0;
@@ -125,8 +129,8 @@ HRESULT FrameBufferStream::CheckMediaType(const CMediaType *pMediaType)
 	if (pFormat == NULL)
 		return E_INVALIDARG;
 
-	if (pFormat->bmiHeader.biWidth != m_iImageWidth
-	  || abs(pFormat->bmiHeader.biHeight) != m_iImageHeight)
+    if (pFormat->bmiHeader.biWidth != m_pQueue->Width()
+      || abs(pFormat->bmiHeader.biHeight) != m_pQueue->Height())
 		return E_INVALIDARG;
 
 	return S_OK;
@@ -244,20 +248,20 @@ HRESULT FrameBufferStream::GetStreamCaps(int iIndex, AM_MEDIA_TYPE **ppmt,
 
 		pScc->guid = mt.formattype;
 		pScc->VideoStandard = 0;
-		pScc->InputSize.cx = m_iImageWidth;
-		pScc->MaxCroppingSize.cx = m_iImageWidth;
-		pScc->MinCroppingSize.cx = m_iImageWidth;
-		pScc->InputSize.cy = m_iImageHeight;
-		pScc->MaxCroppingSize.cy = m_iImageHeight;
-		pScc->MinCroppingSize.cy = m_iImageHeight;
+		pScc->InputSize.cx = m_pQueue->Width();
+		pScc->MaxCroppingSize.cx = m_pQueue->Width();
+		pScc->MinCroppingSize.cx = m_pQueue->Width();
+		pScc->InputSize.cy = m_pQueue->Height();
+		pScc->MaxCroppingSize.cy = m_pQueue->Height();
+		pScc->MinCroppingSize.cy = m_pQueue->Height();
 		pScc->CropGranularityX = 1;
 		pScc->CropGranularityY = 1;
 		pScc->CropAlignX = 1;
 		pScc->CropAlignY = 1;
-		pScc->MaxOutputSize.cx = m_iImageWidth;
-		pScc->MinOutputSize.cx = m_iImageWidth;
-		pScc->MaxOutputSize.cy = m_iImageHeight;
-		pScc->MinOutputSize.cy = m_iImageHeight;
+		pScc->MaxOutputSize.cx = m_pQueue->Width();
+		pScc->MinOutputSize.cx = m_pQueue->Width();
+		pScc->MaxOutputSize.cy = m_pQueue->Height();
+		pScc->MinOutputSize.cy = m_pQueue->Height();
 		pScc->OutputGranularityX = 1;
 		pScc->OutputGranularityY = 1;
 		pScc->StretchTapsX = 0;
@@ -266,7 +270,7 @@ HRESULT FrameBufferStream::GetStreamCaps(int iIndex, AM_MEDIA_TYPE **ppmt,
 		pScc->ShrinkTapsY = 0;
 		pScc->MaxFrameInterval = 10000000;		// 1Hz
 		pScc->MinFrameInterval = 10000000 / 60;	// 60Hz
-		pScc->MinBitsPerSecond = m_iImageWidth * m_iImageHeight * 4 * 8;
+		pScc->MinBitsPerSecond = m_pQueue->Width() * m_pQueue->Height() * 4 * 8;
 		pScc->MaxBitsPerSecond = pScc->MinBitsPerSecond * 60;
 	}
 
@@ -274,23 +278,23 @@ HRESULT FrameBufferStream::GetStreamCaps(int iIndex, AM_MEDIA_TYPE **ppmt,
 }
 
 
-FrameBuffer::FrameBuffer(int iWidth, int iHeight, const char *pBuffer,
-  HANDLE hMutex, HRESULT *phr) : CSource(NAME("Frame Buffer"), NULL,
-  CLSID_FrameBuffer)
+FrameBuffer::FrameBuffer(int iWidth, int iHeight, HRESULT *phr)
+  : CSource(NAME("Frame Buffer"), NULL, CLSID_FrameBuffer)
 {
 	CAutoLock cAutoLock(&m_cStateLock);
 
-	m_pStream = new FrameBufferStream(iWidth, iHeight, pBuffer, hMutex, this,
-	  phr);
+	m_pQueue = new Queue(iWidth, iHeight);
+	m_pStream = new FrameBufferStream(m_pQueue, this, phr);
 	m_pStream->AddRef();
 
-    if (SUCCEEDED(*phr))
-        *phr = AddPin(m_pStream);
+	if (SUCCEEDED(*phr))
+		*phr = AddPin(m_pStream);
 }
 
 FrameBuffer::~FrameBuffer()
 {
 	m_pStream->Release();
+	delete m_pQueue;
 }
 
 HRESULT FrameBuffer::Run(REFERENCE_TIME tStart)
