@@ -4,8 +4,6 @@
 #include <cstdint>
 #include "streams.h"
 
-#define ARRAY_SIZE(arr) (sizeof(arr) / sizeof((arr)[0]))
-
 DEFINE_GUID(CLSID_FrameBuffer, 0xfd501041, 0x8ebe, 0x11ce, 0x81, 0x83, 0x00,
   0xaa, 0x00, 0x57, 0x7d, 0xa1);
 
@@ -37,44 +35,46 @@ public:
 			char *m_pBuffer;
 		};
 
-		Queue(int iWidth, int iHeight)
+		Queue(int iWidth, int iHeight, int iCapacity)
 		  : m_iWidth(iWidth), m_iHeight(iHeight), m_iPush(0), m_iPop(0),
-		  m_iSize(0)
+		  m_iSize(0), m_iCapacity(iCapacity)
 		{
-			for (size_t i = 0; i < ARRAY_SIZE(m_pData); i++)
+			m_pData = new Frame*[m_iCapacity];
+			for (int i = 0; i < m_iCapacity; i++)
 				m_pData[i] = new Frame(iWidth, iHeight);
+
 			m_hMutex = CreateMutex(NULL, FALSE, NULL);
 		}
 		~Queue()
 		{
-			for (size_t i = 0; i < ARRAY_SIZE(m_pData); i++)
+			for (int i = 0; i < m_iCapacity; i++)
 				delete m_pData[i];
+			delete[] m_pData;
+
 			CloseHandle(m_hMutex);
 		}
 
 		int Width() const {return m_iWidth;}
 		int Height() const {return m_iHeight;}
 		Frame *Read() {return m_pData[m_iPop];}
-		void Pop()
-		  {m_iPop = (m_iPop + 1) & (ARRAY_SIZE(m_pData) - 1); m_iSize--;}
+		void Pop() {m_iPop = (m_iPop + 1) % m_iCapacity; m_iSize--;}
 		Frame *Write() {return m_pData[m_iPush];}
-		void Push()
-		  {m_iPush = (m_iPush + 1) & (ARRAY_SIZE(m_pData) - 1); m_iSize++;}
+		void Push() {m_iPush = (m_iPush + 1) % m_iCapacity; m_iSize++;}
 		void Lock() {WaitForSingleObject(m_hMutex, INFINITE);}
 		void Unlock() {ReleaseMutex(m_hMutex);}
 		bool IsEmpty() const {return m_iSize == 0;}
-		bool IsFull() const {return m_iSize == ARRAY_SIZE(m_pData);}
+		bool IsFull() const {return m_iSize == m_iCapacity;}
 		int Size() const {return m_iSize;}
 
 	private:
 		int m_iWidth, m_iHeight;
-		Frame *m_pData[32];
+		Frame **m_pData;
 		int m_iPush, m_iPop;
-		int m_iSize;
+		int m_iSize, m_iCapacity;
 		HANDLE m_hMutex;
 	};
 
-	FrameBuffer(int iWidth, int iHeight, HRESULT *phr);
+	FrameBuffer(int iWidth, int iHeight, int iCapacity, HRESULT *phr);
 	~FrameBuffer();
 
 	Queue *FrameQueue() {return m_pQueue;}

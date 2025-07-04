@@ -14,9 +14,8 @@
 
 /* The amount of frames (VLC callbacks) we must accept without blocking to not
    jerk the playback (VLC decodes the frames in bursts and the sound gets
-   distorted if not enaugh callbacks are processed). Must be power of two for
-   the circular queue used on Windows to work. */
-#define FRAME_BUFFERS 32
+   distorted if not enaugh callbacks are processed). */
+#define FRAME_BUFFERS 25
 
 #if defined(Q_OS_LINUX)
 
@@ -330,7 +329,7 @@ bool VideoOutput::open()
 		return false;
 	}
 
-	_frameBuffer = new FrameBuffer(s.width(), s.height(), &hr);
+	_frameBuffer = new FrameBuffer(s.width(), s.height(), FRAME_BUFFERS, &hr);
 	_frameBuffer->AddRef();
 	if (FAILED(hr)) {
 		_errorString = "Error creating renderer filter";

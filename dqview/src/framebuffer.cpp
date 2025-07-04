@@ -278,12 +278,12 @@ HRESULT FrameBufferStream::GetStreamCaps(int iIndex, AM_MEDIA_TYPE **ppmt,
 }
 
 
-FrameBuffer::FrameBuffer(int iWidth, int iHeight, HRESULT *phr)
+FrameBuffer::FrameBuffer(int iWidth, int iHeight, int iCapacity, HRESULT *phr)
   : CSource(NAME("Frame Buffer"), NULL, CLSID_FrameBuffer)
 {
 	CAutoLock cAutoLock(&m_cStateLock);
 
-	m_pQueue = new Queue(iWidth, iHeight);
+	m_pQueue = new Queue(iWidth, iHeight, iCapacity);
 	m_pStream = new FrameBufferStream(m_pQueue, this, phr);
 	m_pStream->AddRef();
 
