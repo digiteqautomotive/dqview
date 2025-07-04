@@ -12,6 +12,12 @@
 #endif
 #include "videooutput.h"
 
+/* The amount of frames (VLC callbacks) we must accept without blocking to not
+   jerk the playback (VLC decodes the frames in bursts and the sound gets
+   distorted if not enaugh callbacks are processed). Must be power of two for
+   the circular queue used on Windows to work. */
+#define FRAME_BUFFERS 32
+
 #if defined(Q_OS_LINUX)
 
 void VideoOutput::_prerenderCb(void *data, uint8_t **buffer, size_t size)
@@ -23,7 +29,14 @@ void VideoOutput::_prerenderCb(void *data, uint8_t **buffer, size_t size)
 	buf.type = V4L2_BUF_TYPE_VIDEO_OUTPUT;
 	buf.memory = V4L2_MEMORY_MMAP;
 
-	if (!ioctl(display->_fd, VIDIOC_DQBUF, &buf)) {
+	if (display->_usedBuffers < display->_availableBuffers) {
+		const Buffer &b = display->_buffers.at(display->_usedBuffers);
+		Q_ASSERT(b.length >= size);
+		display->_bufferIndex = display->_usedBuffers;
+		*buffer = (uint8_t*)b.start;
+		display->_usedBuffers++;
+	} else {
+		ioctl(display->_fd, VIDIOC_DQBUF, &buf);
 		const Buffer &b = display->_buffers.at(buf.index);
 		Q_ASSERT(b.length >= size);
 		display->_bufferIndex = buf.index;
@@ -59,7 +72,7 @@ bool VideoOutput::mapBuffers()
 	struct v4l2_requestbuffers req;
 
 	memset(&req, 0, sizeof(req));
-	req.count = 2;
+	req.count = FRAME_BUFFERS;
 	req.type = V4L2_BUF_TYPE_VIDEO_OUTPUT;
 	req.memory = V4L2_MEMORY_MMAP;
 
@@ -70,7 +83,8 @@ bool VideoOutput::mapBuffers()
 	if (req.count < 2) {
 		_errorString = "VIDIOC_REQBUFS: invalid buffer count";
 		return false;
-	}
+	} else
+		_availableBuffers = req.count;
 
 	for (int i = 0; i < (int)req.count; i++) {
 		struct v4l2_buffer buf;
@@ -108,19 +122,6 @@ void VideoOutput::unmapBuffers()
 
 bool VideoOutput::start(unsigned num, unsigned den)
 {
-	for (int i = 0; i < _buffers.size(); i++) {
-		struct v4l2_buffer buf;
-
-		memset(&buf, 0, sizeof(buf));
-		buf.type = V4L2_BUF_TYPE_VIDEO_OUTPUT;
-		buf.memory = V4L2_MEMORY_MMAP;
-		buf.index = i;
-		if (ioctl(_fd, VIDIOC_QBUF, &buf) < 0) {
-			_errorString = "VIDIOC_QBUF: " + QString(strerror(errno));
-			return false;
-		}
-	}
-
 	struct v4l2_streamparm parm;
 
 	memset(&parm, 0, sizeof(parm));
@@ -140,6 +141,8 @@ bool VideoOutput::start(unsigned num, unsigned den)
 		_errorString = "VIDIOC_STREAMON: " + QString(strerror(errno));
 		return false;
 	}
+
+	_usedBuffers = 0;
 
 	return true;
 }
@@ -215,12 +218,14 @@ void VideoOutput::close()
 	unmapBuffers();
 }
 
-VideoOutput::VideoOutput() : _fd(-1), _bufferIndex(-1)
+VideoOutput::VideoOutput()
+  : _dev(0), _fd(-1), _bufferIndex(-1), _usedBuffers(-1), _availableBuffers(-1)
 {
 
 }
 
-VideoOutput::VideoOutput(Device *dev) : _dev(dev), _fd(-1), _bufferIndex(-1)
+VideoOutput::VideoOutput(Device *dev)
+  : _dev(dev), _fd(-1), _bufferIndex(-1), _usedBuffers(-1), _availableBuffers(-1)
 {
 
 }
