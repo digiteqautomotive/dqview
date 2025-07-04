@@ -44,6 +44,7 @@ private:
 	QString _errorString;
 
 #if defined(Q_OS_LINUX)
+
 	struct Buffer {
 		Buffer() : start(NULL), length(0) {}
 		Buffer(void *start, size_t length) : start(start), length(length) {}
@@ -59,10 +60,12 @@ private:
 	QVector<Buffer> _buffers;
 
 #elif defined(Q_OS_WIN32) || defined(Q_OS_CYGWIN)
+
 	FrameBuffer *_frameBuffer;
 	IMediaControl *_graph;
 	IGraphBuilder *_graphbuilder;
 	ICaptureGraphBuilder2 *_capbuilder;
+
 #endif
 };
 

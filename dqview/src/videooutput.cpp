@@ -235,20 +235,20 @@ VideoOutput::~VideoOutput()
 void VideoOutput::_prerenderCb(void *data, uint8_t **buffer, size_t size)
 {
 	VideoOutput *display = (VideoOutput *)data;
-    FrameBuffer::Queue *queue = display->_frameBuffer->FrameQueue();
+	FrameBuffer::Queue *queue = display->_frameBuffer->FrameQueue();
 
-    Q_ASSERT((size_t)(queue->Width() *  queue->Height() * 4) >= size);
+	Q_ASSERT((size_t)(queue->Width() *  queue->Height() * 4) >= size);
 
-    while (true) {
-        queue->Lock();
-        if (queue->IsFull()) {
-            queue->Unlock();
-            Sleep(10);
-        } else
-            break;
-    };
+	while (true) {
+		queue->Lock();
+		if (queue->IsFull()) {
+			queue->Unlock();
+			Sleep(10);
+		} else
+			break;
+	};
 
-    *buffer = (uint8_t*)queue->Write()->Buffer();
+	*buffer = (uint8_t*)queue->Write()->Buffer();
 }
 
 void VideoOutput::_postrenderCb(void *data, uint8_t *buffer,
@@ -260,11 +260,11 @@ void VideoOutput::_postrenderCb(void *data, uint8_t *buffer,
 	Q_UNUSED(height);
 	Q_UNUSED(pixel_pitch);
 	VideoOutput *display = (VideoOutput *)data;
-    FrameBuffer::Queue *queue = display->_frameBuffer->FrameQueue();
+	FrameBuffer::Queue *queue = display->_frameBuffer->FrameQueue();
 
-    queue->Write()->SetTimeStamp(pts);
-    queue->Push();
-    queue->Unlock();
+	queue->Write()->SetTimeStamp(pts);
+	queue->Push();
+	queue->Unlock();
 }
 
 VideoOutput::VideoOutput()
@@ -325,7 +325,7 @@ bool VideoOutput::open()
 		return false;
 	}
 
-    _frameBuffer = new FrameBuffer(s.width(), s.height(), &hr);
+	_frameBuffer = new FrameBuffer(s.width(), s.height(), &hr);
 	_frameBuffer->AddRef();
 	if (FAILED(hr)) {
 		_errorString = "Error creating renderer filter";

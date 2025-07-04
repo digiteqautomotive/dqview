@@ -92,8 +92,8 @@ HRESULT FrameBufferStream::GetMediaType(int iPosition, CMediaType *pmt)
 	pvi->bmiHeader.biCompression = BI_RGB;
 	pvi->bmiHeader.biBitCount = 32;
 	pvi->bmiHeader.biSize = sizeof(BITMAPINFOHEADER);
-    pvi->bmiHeader.biWidth = m_pQueue->Width();
-    pvi->bmiHeader.biHeight = m_pQueue->Height();
+	pvi->bmiHeader.biWidth = m_pQueue->Width();
+	pvi->bmiHeader.biHeight = m_pQueue->Height();
 	pvi->bmiHeader.biPlanes = 1;
 	pvi->bmiHeader.biSizeImage = GetBitmapSize(&pvi->bmiHeader);
 	pvi->bmiHeader.biClrImportant = 0;
@@ -129,8 +129,8 @@ HRESULT FrameBufferStream::CheckMediaType(const CMediaType *pMediaType)
 	if (pFormat == NULL)
 		return E_INVALIDARG;
 
-    if (pFormat->bmiHeader.biWidth != m_pQueue->Width()
-      || abs(pFormat->bmiHeader.biHeight) != m_pQueue->Height())
+	if (pFormat->bmiHeader.biWidth != m_pQueue->Width()
+	  || abs(pFormat->bmiHeader.biHeight) != m_pQueue->Height())
 		return E_INVALIDARG;
 
 	return S_OK;
