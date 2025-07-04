@@ -48,7 +48,7 @@ public:
 		~Queue()
 		{
 			for (size_t i = 0; i < ARRAY_SIZE(m_pData); i++)
-				delete[] m_pData[i];
+				delete m_pData[i];
 			CloseHandle(m_hMutex);
 		}
 
