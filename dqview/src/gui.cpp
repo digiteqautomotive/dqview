@@ -185,7 +185,7 @@ void GUI::createActions()
 	connect(_screenshotAction, &QAction::triggered, _player,
 	  &VideoPlayer::captureImage);
 
-	_selectOutputFileAction = new QAction(tr("Open Video File..."));
+	_selectOutputFileAction = new QAction(tr("Open Media File..."));
 	_selectOutputFileAction->setEnabled(false);
 	connect(_selectOutputFileAction, &QAction::triggered, this,
 	  &GUI::selectOutputFile);
@@ -458,8 +458,9 @@ void GUI::openStream()
 
 void GUI::selectOutputFile()
 {
-	QString file(QFileDialog::getOpenFileName(this, tr("Open file"),
-	  QString(), tr("Video files") + " (*.avi *.mkv *.mp4 *.mpeg *.mov *.mpg *.wmv);;"
+	QString file(QFileDialog::getOpenFileName(this, tr("Open file"), QString(),
+	  tr("Video files") + " (*.avi *.mkv *.mp4 *.mpeg *.mov *.mpg *.wmv);;"
+	  + tr("Image files") + " (*.jpg *.jpeg *.png);;"
 	  + tr("All files") + " (*)"));
 
 	if (!file.isEmpty()) {
