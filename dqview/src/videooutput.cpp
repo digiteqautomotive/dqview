@@ -235,6 +235,38 @@ VideoOutput::~VideoOutput()
 
 #elif defined(Q_OS_WIN32) || defined(Q_OS_CYGWIN)
 
+static HRESULT GetPin(IBaseFilter *pFilter, PIN_DIRECTION PinDir, IPin **ppPin)
+{
+	IEnumPins *pEnum = 0;
+	IPin *pPin = 0;
+	HRESULT hr;
+
+	hr = pFilter->EnumPins(&pEnum);
+	if (FAILED(hr))
+		return hr;
+
+	while (pEnum->Next(1, &pPin, 0) == S_OK) {
+		PIN_DIRECTION PinDirThis;
+
+		hr = pPin->QueryDirection(&PinDirThis);
+		if (FAILED(hr)) {
+			pPin->Release();
+			pEnum->Release();
+			return hr;
+		}
+		if (PinDir == PinDirThis) {
+			*ppPin = pPin;
+			pEnum->Release();
+			return S_OK;
+		}
+		pPin->Release();
+	}
+
+	pEnum->Release();
+
+	return E_FAIL;
+}
+
 void VideoOutput::_prerenderCb(void *data, uint8_t **buffer, size_t size)
 {
 	VideoOutput *display = (VideoOutput *)data;
@@ -289,10 +321,8 @@ VideoOutput::~VideoOutput()
 bool VideoOutput::open()
 {
 	HRESULT hr;
-	IPin *CamPIN;
-	IPin *RenderPIN;
-	IEnumPins *pEnum;
-
+	IPin *pCamPin;
+	IPin *pRenderPin;
 	QSize s(size());
 
 	hr = CoCreateInstance(CLSID_FilterGraph, NULL, CLSCTX_INPROC,
@@ -319,8 +349,7 @@ bool VideoOutput::open()
 		return false;
 	}
 
-	hr = _capbuilder->SetFiltergraph(_graphbuilder);
-	if (FAILED(hr)) {
+	if (FAILED(_capbuilder->SetFiltergraph(_graphbuilder))) {
 		_errorString = "Failed to attach filter graph to the capture graph builder";
 		_capbuilder->Release();
 		_graphbuilder->Release();
@@ -339,8 +368,7 @@ bool VideoOutput::open()
 		return false;
 	}
 
-	hr = _graphbuilder->AddFilter(_frameBuffer, L"Camera");
-	if (FAILED(hr)) {
+	if (FAILED(_graphbuilder->AddFilter(_frameBuffer, L"Camera"))) {
 		_errorString = "Failed to add camera filter to filter graph";
 		_frameBuffer->Release();
 		_capbuilder->Release();
@@ -349,8 +377,7 @@ bool VideoOutput::open()
 		return false;
 	}
 
-	hr = _graphbuilder->AddFilter(_dev->filter(), L"Renderer");
-	if (FAILED(hr)) {
+	if (FAILED(_graphbuilder->AddFilter(_dev->filter(), L"Renderer"))) {
 		_errorString = "Failed to add renderer filter to filter graph";
 		_frameBuffer->Release();
 		_capbuilder->Release();
@@ -359,10 +386,7 @@ bool VideoOutput::open()
 		return false;
 	}
 
-	_frameBuffer->EnumPins(&pEnum);
-	hr = pEnum->Next(1, &CamPIN, NULL);
-	pEnum->Release();
-	if (FAILED(hr)) {
+	if (FAILED(GetPin(_frameBuffer, PINDIR_OUTPUT, &pCamPin))) {
 		_errorString = "Cannot obtain output pin from camera";
 		_frameBuffer->Release();
 		_capbuilder->Release();
@@ -371,27 +395,29 @@ bool VideoOutput::open()
 		return false;
 	}
 
-	_dev->filter()->EnumPins(&pEnum);
-	hr = pEnum->Next(1, &RenderPIN, NULL);
-	pEnum->Release();
-	if (FAILED(hr)) {
-		_errorString = "Cannot obtain output pin from renderer";
+	if (FAILED(GetPin(_dev->filter(), PINDIR_INPUT, &pRenderPin))) {
+		_errorString = "Cannot obtain input pin from renderer";
 		_frameBuffer->Release();
 		_capbuilder->Release();
 		_graphbuilder->Release();
 		_graph->Release();
+		pCamPin->Release();
 		return false;
 	}
 
-	hr = _graphbuilder->Connect(CamPIN, RenderPIN);
-	if (FAILED(hr)) {
+	if (FAILED(_graphbuilder->Connect(pCamPin, pRenderPin))) {
 		_errorString = "Cannot connect renderer with grabber";
 		_frameBuffer->Release();
 		_capbuilder->Release();
 		_graphbuilder->Release();
 		_graph->Release();
+		pCamPin->Release();
+		pRenderPin->Release();
 		return false;
 	}
+
+	pCamPin->Release();
+	pRenderPin->Release();
 
 	return true;
 }
