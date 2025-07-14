@@ -15,7 +15,7 @@
 /* The amount of frames (VLC callbacks) we must accept without blocking to not
    jerk the playback (VLC decodes the frames in bursts and the sound gets
    distorted if not enaugh callbacks are processed). */
-#define FRAME_BUFFERS 64
+#define FRAME_BUFFERS 32
 
 #if defined(Q_OS_LINUX)
 
