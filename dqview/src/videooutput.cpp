@@ -28,7 +28,7 @@ void VideoOutput::_prerenderCb(void *data, uint8_t **buffer, size_t size)
 	buf.type = V4L2_BUF_TYPE_VIDEO_OUTPUT;
 	buf.memory = V4L2_MEMORY_MMAP;
 
-	if (display->_usedBuffers < display->_availableBuffers) {
+	if (display->_usedBuffers < display->_buffers.size()) {
 		const Buffer &b = display->_buffers.at(display->_usedBuffers);
 		Q_ASSERT(b.length >= size);
 		display->_bufferIndex = display->_usedBuffers;
@@ -82,8 +82,7 @@ bool VideoOutput::mapBuffers()
 	if (req.count < 2) {
 		_errorString = "VIDIOC_REQBUFS: invalid buffer count";
 		return false;
-	} else
-		_availableBuffers = req.count;
+	}
 
 	for (int i = 0; i < (int)req.count; i++) {
 		struct v4l2_buffer buf;
@@ -218,13 +217,13 @@ void VideoOutput::close()
 }
 
 VideoOutput::VideoOutput()
-  : _dev(0), _fd(-1), _bufferIndex(-1), _usedBuffers(-1), _availableBuffers(-1)
+  : _dev(0), _fd(-1), _bufferIndex(-1), _usedBuffers(-1)
 {
 
 }
 
 VideoOutput::VideoOutput(Device *dev)
-  : _dev(dev), _fd(-1), _bufferIndex(-1), _usedBuffers(-1), _availableBuffers(-1)
+  : _dev(dev), _fd(-1), _bufferIndex(-1), _usedBuffers(-1)
 {
 
 }

@@ -56,7 +56,7 @@ private:
 	bool mapBuffers();
 	void unmapBuffers();
 
-	int _fd, _bufferIndex, _usedBuffers, _availableBuffers;
+	int _fd, _bufferIndex, _usedBuffers;
 	QVector<Buffer> _buffers;
 
 #elif defined(Q_OS_WIN32) || defined(Q_OS_CYGWIN)
