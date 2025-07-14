@@ -5,7 +5,7 @@
 EXE="dqview.exe"
 LIB_DIR="/mingw64/bin"
 VLC_PLUGINS_DIR="/mingw64/lib/vlc/plugins"
-VLC_PLUGINS="access access_output audio_output codec d3d9 d3d11 demux mux packetizer stream_filter stream_out video_filter video_chroma video_output"
+VLC_PLUGINS="access access_output audio_filter audio_output codec d3d9 d3d11 demux mux packetizer stream_filter stream_out video_filter video_chroma video_output"
 QT_PLUGINS_DIR="/mingw64/share/qt5/plugins"
 QT_PLUGINS="platforms/qwindows.dll styles/qwindowsvistastyle.dll"
 OUT_DIR="."
