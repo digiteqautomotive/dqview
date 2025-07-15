@@ -33,7 +33,7 @@ QT_DLLS=$(qt_plugins_dlls)
 mkdir -p "$OUT_DIR/plugins"
 for i in $VLC_PLUGINS; do
 	mkdir "$OUT_DIR/plugins/$i"
-	cp "$VLC_PLUGINS_DIR/$i/*.dll" "$OUT_DIR/plugins/$i"
+	cp "$VLC_PLUGINS_DIR/$i/"*.dll "$OUT_DIR/plugins/$i"
 done
 
 for i in $QT_PLUGINS; do
