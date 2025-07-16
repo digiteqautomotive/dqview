@@ -14,7 +14,6 @@ public:
 	HRESULT FillBuffer(IMediaSample *pMediaSample);
 	HRESULT DecideBufferSize(IMemAllocator *pIMemAlloc,
 	  ALLOCATOR_PROPERTIES *pProperties);
-	HRESULT SetMediaType(const CMediaType *pMediaType);
 	HRESULT CheckMediaType(const CMediaType *pMediaType);
 	HRESULT GetMediaType(int iPosition, CMediaType *pmt);
 
@@ -146,20 +145,6 @@ HRESULT FrameBufferStream::DecideBufferSize(IMemAllocator *pAlloc,
 		return E_FAIL;
 
 	return S_OK;
-}
-
-HRESULT FrameBufferStream::SetMediaType(const CMediaType *pMediaType)
-{
-	CAutoLock cAutoLock(m_pFilter->pStateLock());
-
-	HRESULT hr = CSourceStream::SetMediaType(pMediaType);
-	if (SUCCEEDED(hr)) {
-		VIDEOINFO *pvi = (VIDEOINFO *)m_mt.Format();
-		return (!pvi || pvi->bmiHeader.biBitCount != 32)
-		  ? E_UNEXPECTED : S_OK;
-	}
-
-	return hr;
 }
 
 FrameBuffer::FrameBuffer(int iWidth, int iHeight, int iCapacity, HRESULT *phr)
