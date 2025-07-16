@@ -14,8 +14,7 @@ public:
 	HRESULT FillBuffer(IMediaSample *pMediaSample);
 	HRESULT DecideBufferSize(IMemAllocator *pIMemAlloc,
 	  ALLOCATOR_PROPERTIES *pProperties);
-	HRESULT CheckMediaType(const CMediaType *pMediaType);
-	HRESULT GetMediaType(int iPosition, CMediaType *pmt);
+	HRESULT GetMediaType(CMediaType *pMediaType);
 
 private:
 	FrameBuffer::Queue *m_pQueue;
@@ -61,18 +60,13 @@ HRESULT FrameBufferStream::FillBuffer(IMediaSample *pMediaSample)
 	return S_OK;
 }
 
-HRESULT FrameBufferStream::GetMediaType(int iPosition, CMediaType *pmt)
+HRESULT FrameBufferStream::GetMediaType(CMediaType *pMediaType)
 {
-	CheckPointer(pmt, E_POINTER);
-
-	if (iPosition < 0)
-		return E_INVALIDARG;
-	if (iPosition > 0)
-		return VFW_S_NO_MORE_ITEMS;
+	CheckPointer(pMediaType, E_POINTER);
 
 	CAutoLock cAutoLock(m_pFilter->pStateLock());
 
-	VIDEOINFO *pvi = (VIDEOINFO *)pmt->AllocFormatBuffer(sizeof(VIDEOINFO));
+	VIDEOINFO *pvi = (VIDEOINFO *)pMediaType->AllocFormatBuffer(sizeof(VIDEOINFO));
 	if (!pvi)
 		return(E_OUTOFMEMORY);
 
@@ -88,38 +82,13 @@ HRESULT FrameBufferStream::GetMediaType(int iPosition, CMediaType *pmt)
 	SetRectEmpty(&(pvi->rcSource));
 	SetRectEmpty(&(pvi->rcTarget));
 
-	pmt->SetType(&MEDIATYPE_Video);
-	pmt->SetFormatType(&FORMAT_VideoInfo);
-	pmt->SetTemporalCompression(FALSE);
+	pMediaType->SetType(&MEDIATYPE_Video);
+	pMediaType->SetFormatType(&FORMAT_VideoInfo);
+	pMediaType->SetTemporalCompression(FALSE);
 
 	const GUID SubTypeGUID = GetBitmapSubtype(&pvi->bmiHeader);
-	pmt->SetSubtype(&SubTypeGUID);
-	pmt->SetSampleSize(pvi->bmiHeader.biSizeImage);
-
-	return S_OK;
-}
-
-HRESULT FrameBufferStream::CheckMediaType(const CMediaType *pMediaType)
-{
-	CheckPointer(pMediaType, E_POINTER);
-
-	if ((*(pMediaType->Type()) != MEDIATYPE_Video)
-	  || !(pMediaType->IsFixedSize()))
-		return E_INVALIDARG;
-
-	const GUID *pSubType = pMediaType->Subtype();
-	if (pSubType == NULL)
-		return E_INVALIDARG;
-	if (*pSubType != MEDIASUBTYPE_RGB32)
-		return E_INVALIDARG;
-
-	VIDEOINFO *pFormat = (VIDEOINFO *) pMediaType->Format();
-	if (pFormat == NULL)
-		return E_INVALIDARG;
-
-	if (pFormat->bmiHeader.biWidth != m_pQueue->Width()
-	  || abs(pFormat->bmiHeader.biHeight) != m_pQueue->Height())
-		return E_INVALIDARG;
+	pMediaType->SetSubtype(&SubTypeGUID);
+	pMediaType->SetSampleSize(pvi->bmiHeader.biSizeImage);
 
 	return S_OK;
 }
