@@ -35,14 +35,11 @@ HRESULT FrameBufferStream::FillBuffer(IMediaSample *pMediaSample)
 	if (FAILED(hr))
 		return hr;
 
-	while (true) {
-		m_pQueue->Lock();
-		if (m_pQueue->IsEmpty()) {
-			m_pQueue->Unlock();
-			Sleep(10);
-		} else
-			break;
-	};
+	m_pQueue->Lock();
+	if (m_pQueue->IsEmpty()) {
+		m_pQueue->Unlock();
+		return S_OK;
+	}
 
 	FrameBuffer::Queue::Frame *pFrame = m_pQueue->Read();
 	// verticaly flip the image
