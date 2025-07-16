@@ -273,16 +273,6 @@ void VideoOutput::_prerenderCb(void *data, uint8_t **buffer, size_t size)
 	FrameBuffer::Queue *queue = display->_frameBuffer->FrameQueue();
 
 	Q_ASSERT((size_t)(queue->Width() *  queue->Height() * 4) >= size);
-
-	while (true) {
-		queue->Lock();
-		if (queue->IsFull()) {
-			queue->Unlock();
-			Sleep(10);
-		} else
-			break;
-	};
-
 	*buffer = (uint8_t*)queue->Write()->Buffer();
 }
 
@@ -298,7 +288,8 @@ void VideoOutput::_postrenderCb(void *data, uint8_t *buffer,
 	FrameBuffer::Queue *queue = display->_frameBuffer->FrameQueue();
 
 	queue->Write()->SetTimeStamp(pts);
-	queue->Push();
+	if (!queue->IsFull())
+		queue->Push();
 	queue->Unlock();
 }
 
