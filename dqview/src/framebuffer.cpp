@@ -48,6 +48,8 @@ HRESULT FrameBufferStream::FillBuffer(IMediaSample *pMediaSample)
 		  + ((m_pQueue->Height() - 1 - i) * m_pQueue->Width() * 4),
 		  m_pQueue->Width() * 4);
 
+	pMediaSample->SetMediaTime(0, 0);
+
 	if (pFrame->TimeStamp() <= libvlc_clock())
 		m_pQueue->Pop();
 
