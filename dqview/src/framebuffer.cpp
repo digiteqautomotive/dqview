@@ -296,20 +296,3 @@ FrameBuffer::~FrameBuffer()
 	m_pStream->Release();
 	delete m_pQueue;
 }
-
-HRESULT FrameBuffer::Run(REFERENCE_TIME tStart)
-{
-	m_pStream->Run();
-	return CBaseFilter::Run(tStart);
-}
-
-HRESULT FrameBuffer::Pause(void)
-{
-	return CBaseFilter::Pause();
-}
-
-HRESULT FrameBuffer::Stop(void)
-{
-	m_pStream->Stop();
-	return CBaseFilter::Stop();
-}

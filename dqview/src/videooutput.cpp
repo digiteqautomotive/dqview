@@ -451,15 +451,15 @@ bool VideoOutput::start(unsigned num, unsigned den)
 	Q_UNUSED(num);
 	Q_UNUSED(den);
 
-	_frameBuffer->Run(0);
 	_dev->filter()->Run(0);
+	_frameBuffer->Run(0);
 
 	return true;
 }
 
 void VideoOutput::stop()
 {
-	_dev->filter()->Stop();
 	_frameBuffer->Stop();
+	_dev->filter()->Stop();
 }
 #endif

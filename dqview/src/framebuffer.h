@@ -79,11 +79,6 @@ public:
 
 	Queue *FrameQueue() {return m_pQueue;}
 
-	// IMediaFilter
-	STDMETHODIMP Run(REFERENCE_TIME tStart);
-	STDMETHODIMP Pause(void);
-	STDMETHODIMP Stop(void);
-
 private:
 	Queue *m_pQueue;
 	FrameBufferStream *m_pStream;
