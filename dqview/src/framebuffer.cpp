@@ -29,8 +29,7 @@ FrameBufferStream::FrameBufferStream(FrameBuffer::Queue *pQueue,
 HRESULT FrameBufferStream::FillBuffer(IMediaSample *pMediaSample)
 {
 	BYTE *pData;
-	long lDataLen = pMediaSample->GetSize();
-	if (m_pQueue->Width() * m_pQueue->Height() * 4 != lDataLen)
+	if (m_pQueue->Width() * m_pQueue->Height() * 4 != pMediaSample->GetSize())
 		return E_INVALIDARG;
 	HRESULT hr = pMediaSample->GetPointer(&pData);
 	if (FAILED(hr))
@@ -102,7 +101,7 @@ HRESULT FrameBufferStream::DecideBufferSize(IMemAllocator *pAlloc,
 	CAutoLock cAutoLock(m_pFilter->pStateLock());
 	HRESULT hr;
 
-	VIDEOINFO *pvi = (VIDEOINFO *)m_mt.Format();
+	const VIDEOINFO *pvi = (VIDEOINFO *)m_mt.Format();
 	pProperties->cBuffers = 1;
 	pProperties->cbBuffer = pvi->bmiHeader.biSizeImage;
 
