@@ -273,6 +273,8 @@ void VideoOutput::_prerenderCb(void *data, uint8_t **buffer, size_t size)
 	FrameBuffer::Queue *queue = display->_frameBuffer->FrameQueue();
 
 	Q_ASSERT((size_t)(queue->Width() *  queue->Height() * 4) >= size);
+
+	queue->Lock();
 	*buffer = (uint8_t*)queue->Write()->Buffer();
 }
 
