@@ -5,6 +5,7 @@
 #include <mutex>
 #include <queue>
 #include "streams.h"
+#include "pixelformat.h"
 
 DEFINE_GUID(CLSID_FrameBuffer, 0xfd501041, 0x8ebe, 0x11ce, 0x81, 0x83, 0x00,
   0xaa, 0x00, 0x57, 0x7d, 0xa1);
@@ -19,17 +20,19 @@ public:
 	struct Frame
 	{
 	public:
-		Frame(size_t size) : m_ts(0)
+		Frame(size_t size) : m_size(size), m_ts(0)
 		{
 			m_pBuffer = new char[size];
 		}
 		~Frame() {delete[] m_pBuffer;}
 
+		size_t size() const {return m_size;}
 		int64_t TimeStamp() const {return m_ts;}
 		void SetTimeStamp(int64_t ts) {m_ts = ts;}
 		char *Buffer() {return m_pBuffer;}
 
 	private:
+		size_t m_size;
 		int64_t m_ts;
 		char *m_pBuffer;
 	};
@@ -68,15 +71,18 @@ public:
 		std::mutex _mutex;
 	};
 
-	FrameBuffer(int iWidth, int iHeight, int iCapacity, HRESULT *phr);
+	FrameBuffer(PixelFormat Format, int iWidth, int iHeight, int iCapacity,
+	  HRESULT *phr);
 	~FrameBuffer();
 
 	int Width() const {return m_iWidth;}
 	int Height() const {return m_iHeight;}
+	PixelFormat Format() const {return m_Format;}
 	Queue &FrameQueue() {return m_pQueue;}
 
 private:
 	int m_iWidth, m_iHeight;
+	PixelFormat m_Format;
 	Queue m_pQueue;
 	FrameBufferStream *m_pStream;
 };

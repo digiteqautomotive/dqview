@@ -270,12 +270,10 @@ static HRESULT GetPin(IBaseFilter *pFilter, PIN_DIRECTION PinDir, IPin **ppPin)
 void VideoOutput::_prerenderCb(void *data, uint8_t **buffer, size_t size)
 {
 	VideoOutput *display = (VideoOutput *)data;
-
-	Q_ASSERT((size_t)(display->_frameBuffer->Width()
-	  * display->_frameBuffer->Height() * 4) >= size);
-
 	FrameBuffer::Frame *f = display->_buffers[display->_bufferIndex];
-	*buffer = (uint8_t*)f->Buffer();
+
+    Q_ASSERT(f->size() >= size);
+    *buffer = (uint8_t*)f->Buffer();
 }
 
 void VideoOutput::_postrenderCb(void *data, uint8_t *buffer,
@@ -319,6 +317,7 @@ bool VideoOutput::open()
 	IPin *pCamPin;
 	IPin *pRenderPin;
 	QSize s(size());
+	PixelFormat f(format());
 
 	hr = CoCreateInstance(CLSID_FilterGraph, NULL, CLSCTX_INPROC,
 	  IID_IMediaControl, reinterpret_cast<void**>(&_graph));
@@ -352,7 +351,7 @@ bool VideoOutput::open()
 		return false;
 	}
 
-	_frameBuffer = new FrameBuffer(s.width(), s.height(), FRAME_BUFFERS, &hr);
+	_frameBuffer = new FrameBuffer(f, s.width(), s.height(), FRAME_BUFFERS, &hr);
 	_frameBuffer->AddRef();
 	if (FAILED(hr)) {
 		_errorString = "Error creating renderer filter";
@@ -414,8 +413,9 @@ bool VideoOutput::open()
 	pCamPin->Release();
 	pRenderPin->Release();
 
+	int ps = (f == RGB ? 4 : 2);
 	for (int i = 0; i < FRAME_BUFFERS; i++)
-		_buffers.append(new FrameBuffer::Frame(s.width() * s.height() * 4));
+		_buffers.append(new FrameBuffer::Frame(s.width() * s.height() * ps));
 
 	return true;
 }
@@ -444,7 +444,7 @@ QSize VideoOutput::size()
 
 PixelFormat VideoOutput::format()
 {
-	return RGB;
+	return YUV;
 }
 
 bool VideoOutput::start(unsigned num, unsigned den)

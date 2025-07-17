@@ -16,13 +16,11 @@ public:
 	HRESULT GetMediaType(CMediaType *pMediaType);
 
 private:
-	FrameBuffer::Queue *m_pQueue;
 	FrameBuffer::Frame *m_pLastFrame;
 };
 
 FrameBufferStream::FrameBufferStream(FrameBuffer *pParent, HRESULT *phr)
-  : CSourceStream(NAME("Stream"), phr, pParent, NAME("Pin")),
-  m_pQueue(&pParent->FrameQueue()), m_pLastFrame(0)
+  : CSourceStream(NAME("Stream"), phr, pParent, NAME("Pin")), m_pLastFrame(0)
 {
 }
 
@@ -32,14 +30,12 @@ HRESULT FrameBufferStream::FillBuffer(IMediaSample *pMediaSample)
 	FrameBuffer *pFilter = static_cast<FrameBuffer*>(m_pFilter);
 	BYTE *pData;
 
-	if (pFilter->Width() * pFilter->Height() * 4 != pMediaSample->GetSize())
-		return E_INVALIDARG;
 	HRESULT hr = pMediaSample->GetPointer(&pData);
 	if (FAILED(hr))
 		return hr;
 
 	pFrame = (!m_pLastFrame || libvlc_clock() > m_pLastFrame->TimeStamp())
-	  ? m_pQueue->pop() : m_pLastFrame;
+	  ? pFilter->FrameQueue().pop() : m_pLastFrame;
 	// Try to provide at least an old image on queue underflow
 	if (!pFrame) {
 		if (!m_pLastFrame)
@@ -47,12 +43,17 @@ HRESULT FrameBufferStream::FillBuffer(IMediaSample *pMediaSample)
 		else
 			pFrame = m_pLastFrame;
 	}
+	if ((LONG)pFrame->size() != pMediaSample->GetSize())
+		return E_INVALIDARG;
 
-	// Copy & verticaly flip the image
-	for (int i = 0; i < pFilter->Height(); i++)
-		memcpy(pData + (i * pFilter->Width() * 4), pFrame->Buffer()
-		  + ((pFilter->Height() - 1 - i) * pFilter->Width() * 4),
-		  pFilter->Width() * 4);
+	if (pFilter->Format() == RGB) {
+		// verticaly flip the image
+		for (int i = 0; i < pFilter->Height(); i++)
+			memcpy(pData + (i * pFilter->Width() * 4), pFrame->Buffer()
+			  + ((pFilter->Height() - 1 - i) * pFilter->Width() * 4),
+			  pFilter->Width() * 4);
+	} else
+		memcpy(pData, pFrame->Buffer(), pFilter->Width() * pFilter->Height() * 2);
 
 	m_pLastFrame = pFrame;
 
@@ -71,8 +72,13 @@ HRESULT FrameBufferStream::GetMediaType(CMediaType *pMediaType)
 		return(E_OUTOFMEMORY);
 
 	ZeroMemory(pvi, sizeof(VIDEOINFO));
-	pvi->bmiHeader.biCompression = BI_RGB;
-	pvi->bmiHeader.biBitCount = 32;
+	if (pFilter->Format() == RGB) {
+		pvi->bmiHeader.biCompression = BI_RGB;
+		pvi->bmiHeader.biBitCount = 32;
+	} else {
+		pvi->bmiHeader.biCompression = mmioFOURCC('Y', 'U', 'Y', '2');
+		pvi->bmiHeader.biBitCount = 16;
+	}
 	pvi->bmiHeader.biSize = sizeof(BITMAPINFOHEADER);
 	pvi->bmiHeader.biWidth = pFilter->Width();
 	pvi->bmiHeader.biHeight = pFilter->Height();
@@ -116,9 +122,10 @@ HRESULT FrameBufferStream::DecideBufferSize(IMemAllocator *pAlloc,
 	return S_OK;
 }
 
-FrameBuffer::FrameBuffer(int iWidth, int iHeight, int iCapacity, HRESULT *phr)
+FrameBuffer::FrameBuffer(PixelFormat Format, int iWidth, int iHeight,
+  int iCapacity, HRESULT *phr)
   : CSource(NAME("Frame Buffer"), NULL, CLSID_FrameBuffer), m_iWidth(iWidth),
-  m_iHeight(iHeight), m_pQueue(iCapacity)
+    m_iHeight(iHeight), m_Format(Format), m_pQueue(iCapacity)
 {
 	CAutoLock cAutoLock(&m_cStateLock);
 
