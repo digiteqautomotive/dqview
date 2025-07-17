@@ -2,6 +2,8 @@
 #define FRAMEBUFFER_H
 
 #include <cstdint>
+#include <mutex>
+#include <queue>
 #include "streams.h"
 
 DEFINE_GUID(CLSID_FrameBuffer, 0xfd501041, 0x8ebe, 0x11ce, 0x81, 0x83, 0x00,
@@ -14,73 +16,68 @@ class FrameBuffer: public CSource
 public:
 	DECLARE_IUNKNOWN;
 
-	struct Queue
+	struct Frame
 	{
 	public:
-		struct Frame
+		Frame(size_t size) : m_ts(0)
 		{
-		public:
-			Frame(int iWidth, int iHeight) : m_ts(0)
-			{
-				m_pBuffer = new char[iWidth * iHeight * 4];
-			}
-			~Frame() {delete[] m_pBuffer;}
-
-			int64_t TimeStamp() const {return m_ts;}
-			void SetTimeStamp(int64_t ts) {m_ts = ts;}
-			char *Buffer() {return m_pBuffer;}
-
-		private:
-			int64_t m_ts;
-			char *m_pBuffer;
-		};
-
-		Queue(int iWidth, int iHeight, int iCapacity)
-		  : m_iWidth(iWidth), m_iHeight(iHeight), m_iPush(0), m_iPop(0),
-		  m_iSize(0), m_iCapacity(iCapacity)
-		{
-			m_pData = new Frame*[m_iCapacity];
-			for (int i = 0; i < m_iCapacity; i++)
-				m_pData[i] = new Frame(iWidth, iHeight);
-
-			m_hMutex = CreateMutex(NULL, FALSE, NULL);
+			m_pBuffer = new char[size];
 		}
-		~Queue()
-		{
-			for (int i = 0; i < m_iCapacity; i++)
-				delete m_pData[i];
-			delete[] m_pData;
+		~Frame() {delete[] m_pBuffer;}
 
-			CloseHandle(m_hMutex);
-		}
-
-		int Width() const {return m_iWidth;}
-		int Height() const {return m_iHeight;}
-		Frame *Read() {return m_pData[m_iPop];}
-		void Pop() {m_iPop = (m_iPop + 1) % m_iCapacity; m_iSize--;}
-		Frame *Write() {return m_pData[m_iPush];}
-		void Push() {m_iPush = (m_iPush + 1) % m_iCapacity; m_iSize++;}
-		void Lock() {WaitForSingleObject(m_hMutex, INFINITE);}
-		void Unlock() {ReleaseMutex(m_hMutex);}
-		bool IsEmpty() const {return m_iSize == 0;}
-		bool IsFull() const {return m_iSize == m_iCapacity;}
-		int Size() const {return m_iSize;}
+		int64_t TimeStamp() const {return m_ts;}
+		void SetTimeStamp(int64_t ts) {m_ts = ts;}
+		char *Buffer() {return m_pBuffer;}
 
 	private:
-		int m_iWidth, m_iHeight;
-		Frame **m_pData;
-		int m_iPush, m_iPop;
-		int m_iSize, m_iCapacity;
-		HANDLE m_hMutex;
+		int64_t m_ts;
+		char *m_pBuffer;
+	};
+
+	class Queue {
+	public:
+		inline Queue(size_t capacity) : _capacity(capacity) {}
+
+		void push(Frame *elem)
+		{
+			_mutex.lock();
+			if (_queue.size() < _capacity)
+				_queue.push(elem);
+			_mutex.unlock();
+		}
+
+		Frame *pop()
+		{
+			Frame *ret;
+
+			_mutex.lock();
+			if (_queue.size() == 0)
+				ret = 0;
+			else {
+				ret = _queue.front();
+				_queue.pop();
+			}
+			_mutex.unlock();
+
+			return ret;
+		}
+
+	private:
+		size_t _capacity;
+		std::queue<Frame*> _queue;
+		std::mutex _mutex;
 	};
 
 	FrameBuffer(int iWidth, int iHeight, int iCapacity, HRESULT *phr);
 	~FrameBuffer();
 
-	Queue *FrameQueue() {return m_pQueue;}
+	int Width() const {return m_iWidth;}
+	int Height() const {return m_iHeight;}
+	Queue &FrameQueue() {return m_pQueue;}
 
 private:
-	Queue *m_pQueue;
+	int m_iWidth, m_iHeight;
+	Queue m_pQueue;
 	FrameBufferStream *m_pStream;
 };
 

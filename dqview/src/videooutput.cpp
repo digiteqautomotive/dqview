@@ -270,12 +270,12 @@ static HRESULT GetPin(IBaseFilter *pFilter, PIN_DIRECTION PinDir, IPin **ppPin)
 void VideoOutput::_prerenderCb(void *data, uint8_t **buffer, size_t size)
 {
 	VideoOutput *display = (VideoOutput *)data;
-	FrameBuffer::Queue *queue = display->_frameBuffer->FrameQueue();
 
-	Q_ASSERT((size_t)(queue->Width() *  queue->Height() * 4) >= size);
+	Q_ASSERT((size_t)(display->_frameBuffer->Width()
+	  * display->_frameBuffer->Height() * 4) >= size);
 
-	queue->Lock();
-	*buffer = (uint8_t*)queue->Write()->Buffer();
+	FrameBuffer::Frame *f = display->_buffers[display->_bufferIndex];
+	*buffer = (uint8_t*)f->Buffer();
 }
 
 void VideoOutput::_postrenderCb(void *data, uint8_t *buffer,
@@ -287,22 +287,24 @@ void VideoOutput::_postrenderCb(void *data, uint8_t *buffer,
 	Q_UNUSED(height);
 	Q_UNUSED(pixel_pitch);
 	VideoOutput *display = (VideoOutput *)data;
-	FrameBuffer::Queue *queue = display->_frameBuffer->FrameQueue();
+	FrameBuffer::Queue &queue = display->_frameBuffer->FrameQueue();
+	FrameBuffer::Frame *f = display->_buffers[display->_bufferIndex];
 
-	queue->Write()->SetTimeStamp(pts);
-	if (!queue->IsFull())
-		queue->Push();
-	queue->Unlock();
+	f->SetTimeStamp(pts);
+	queue.push(f);
+	display->_bufferIndex = (display->_bufferIndex + 1) % display->_buffers.size();
 }
 
 VideoOutput::VideoOutput()
-  : _dev(0), _frameBuffer(0), _graph(0), _graphbuilder(0), _capbuilder(0)
+  : _dev(0), _frameBuffer(0), _graph(0), _graphbuilder(0), _capbuilder(0),
+  _bufferIndex(-1)
 {
 
 }
 
 VideoOutput::VideoOutput(Device *output)
-  : _dev(output), _frameBuffer(0), _graph(0), _graphbuilder(0), _capbuilder(0)
+  : _dev(output), _frameBuffer(0), _graph(0), _graphbuilder(0), _capbuilder(0),
+  _bufferIndex(-1)
 {
 }
 
@@ -412,6 +414,9 @@ bool VideoOutput::open()
 	pCamPin->Release();
 	pRenderPin->Release();
 
+	for (int i = 0; i < FRAME_BUFFERS; i++)
+		_buffers.append(new FrameBuffer::Frame(s.width() * s.height() * 4));
+
 	return true;
 }
 
@@ -421,6 +426,9 @@ void VideoOutput::close()
 	_capbuilder->Release();
 	_graphbuilder->Release();
 	_graph->Release();
+
+	qDeleteAll(_buffers);
+	_buffers.clear();
 }
 
 QSize VideoOutput::size()
@@ -446,6 +454,8 @@ bool VideoOutput::start(unsigned num, unsigned den)
 
 	_dev->filter()->Run(0);
 	_frameBuffer->Run(0);
+
+	_bufferIndex = 0;
 
 	return true;
 }

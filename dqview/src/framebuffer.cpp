@@ -8,8 +8,7 @@ class FrameBufferStream : public CSourceStream
 public:
 	DECLARE_IUNKNOWN;
 
-	FrameBufferStream(FrameBuffer::Queue *pQueue, FrameBuffer *pParent,
-	  HRESULT *phr);
+	FrameBufferStream(FrameBuffer *pParent, HRESULT *phr);
 
 	HRESULT FillBuffer(IMediaSample *pMediaSample);
 	HRESULT DecideBufferSize(IMemAllocator *pIMemAlloc,
@@ -18,42 +17,44 @@ public:
 
 private:
 	FrameBuffer::Queue *m_pQueue;
+	FrameBuffer::Frame *m_pLastFrame;
 };
 
-FrameBufferStream::FrameBufferStream(FrameBuffer::Queue *pQueue,
-  FrameBuffer *pParent, HRESULT *phr)
-  : CSourceStream(NAME("Stream"), phr, pParent, NAME("Pin")), m_pQueue(pQueue)
+FrameBufferStream::FrameBufferStream(FrameBuffer *pParent, HRESULT *phr)
+  : CSourceStream(NAME("Stream"), phr, pParent, NAME("Pin")),
+  m_pQueue(&pParent->FrameQueue()), m_pLastFrame(0)
 {
 }
 
 HRESULT FrameBufferStream::FillBuffer(IMediaSample *pMediaSample)
 {
+	FrameBuffer::Frame *pFrame;
+	FrameBuffer *pFilter = static_cast<FrameBuffer*>(m_pFilter);
 	BYTE *pData;
-	if (m_pQueue->Width() * m_pQueue->Height() * 4 != pMediaSample->GetSize())
+
+	if (pFilter->Width() * pFilter->Height() * 4 != pMediaSample->GetSize())
 		return E_INVALIDARG;
 	HRESULT hr = pMediaSample->GetPointer(&pData);
 	if (FAILED(hr))
 		return hr;
 
-	m_pQueue->Lock();
-	if (m_pQueue->IsEmpty()) {
-		m_pQueue->Unlock();
-		return S_OK;
+	pFrame = (!m_pLastFrame || libvlc_clock() > m_pLastFrame->TimeStamp())
+	  ? m_pQueue->pop() : m_pLastFrame;
+	// Try to provide at least an old image on queue underflow
+	if (!pFrame) {
+		if (!m_pLastFrame)
+			return S_OK;
+		else
+			pFrame = m_pLastFrame;
 	}
 
-	FrameBuffer::Queue::Frame *pFrame = m_pQueue->Read();
-	// verticaly flip the image
-	for (int i = 0; i < m_pQueue->Height(); i++)
-		memcpy(pData + (i * m_pQueue->Width() * 4), pFrame->Buffer()
-		  + ((m_pQueue->Height() - 1 - i) * m_pQueue->Width() * 4),
-		  m_pQueue->Width() * 4);
+	// Copy & verticaly flip the image
+	for (int i = 0; i < pFilter->Height(); i++)
+		memcpy(pData + (i * pFilter->Width() * 4), pFrame->Buffer()
+		  + ((pFilter->Height() - 1 - i) * pFilter->Width() * 4),
+		  pFilter->Width() * 4);
 
-	pMediaSample->SetMediaTime(0, 0);
-
-	if (pFrame->TimeStamp() <= libvlc_clock())
-		m_pQueue->Pop();
-
-	m_pQueue->Unlock();
+	m_pLastFrame = pFrame;
 
 	return S_OK;
 }
@@ -62,6 +63,7 @@ HRESULT FrameBufferStream::GetMediaType(CMediaType *pMediaType)
 {
 	CheckPointer(pMediaType, E_POINTER);
 
+	FrameBuffer *pFilter = static_cast<FrameBuffer*>(m_pFilter);
 	CAutoLock cAutoLock(m_pFilter->pStateLock());
 
 	VIDEOINFO *pvi = (VIDEOINFO *)pMediaType->AllocFormatBuffer(sizeof(VIDEOINFO));
@@ -72,8 +74,8 @@ HRESULT FrameBufferStream::GetMediaType(CMediaType *pMediaType)
 	pvi->bmiHeader.biCompression = BI_RGB;
 	pvi->bmiHeader.biBitCount = 32;
 	pvi->bmiHeader.biSize = sizeof(BITMAPINFOHEADER);
-	pvi->bmiHeader.biWidth = m_pQueue->Width();
-	pvi->bmiHeader.biHeight = m_pQueue->Height();
+	pvi->bmiHeader.biWidth = pFilter->Width();
+	pvi->bmiHeader.biHeight = pFilter->Height();
 	pvi->bmiHeader.biPlanes = 1;
 	pvi->bmiHeader.biSizeImage = GetBitmapSize(&pvi->bmiHeader);
 	pvi->bmiHeader.biClrImportant = 0;
@@ -115,12 +117,12 @@ HRESULT FrameBufferStream::DecideBufferSize(IMemAllocator *pAlloc,
 }
 
 FrameBuffer::FrameBuffer(int iWidth, int iHeight, int iCapacity, HRESULT *phr)
-  : CSource(NAME("Frame Buffer"), NULL, CLSID_FrameBuffer)
+  : CSource(NAME("Frame Buffer"), NULL, CLSID_FrameBuffer), m_iWidth(iWidth),
+  m_iHeight(iHeight), m_pQueue(iCapacity)
 {
 	CAutoLock cAutoLock(&m_cStateLock);
 
-	m_pQueue = new Queue(iWidth, iHeight, iCapacity);
-	m_pStream = new FrameBufferStream(m_pQueue, this, phr);
+	m_pStream = new FrameBufferStream(this, phr);
 	m_pStream->AddRef();
 
 	if (SUCCEEDED(*phr))
@@ -130,5 +132,4 @@ FrameBuffer::FrameBuffer(int iWidth, int iHeight, int iCapacity, HRESULT *phr)
 FrameBuffer::~FrameBuffer()
 {
 	m_pStream->Release();
-	delete m_pQueue;
 }
