@@ -459,7 +459,7 @@ void GUI::openStream()
 void GUI::selectOutputFile()
 {
 	QString file(QFileDialog::getOpenFileName(this, tr("Open file"), QString(),
-	  tr("Video files") + " (*.avi *.mkv *.mp4 *.mpeg *.mov *.mpg *.ts *.wmv);;"
+	  tr("Video files") + " (*.avi *.mkv *.mp4 *.mpeg *.mov *.mpg *.ts *.webm *.wmv);;"
 	  + tr("Image files") + " (*.jpg *.jpeg *.png);;"
 	  + tr("All files") + " (*)"));
 
