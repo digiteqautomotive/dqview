@@ -14,35 +14,24 @@ public:
 	HRESULT DecideBufferSize(IMemAllocator *pIMemAlloc,
 	  ALLOCATOR_PROPERTIES *pProperties);
 	HRESULT GetMediaType(CMediaType *pMediaType);
-
-private:
-	FrameBuffer::Frame *m_pLastFrame;
 };
 
 FrameBufferStream::FrameBufferStream(FrameBuffer *pParent, HRESULT *phr)
-  : CSourceStream(NAME("Stream"), phr, pParent, NAME("Pin")), m_pLastFrame(0)
+  : CSourceStream(NAME("Stream"), phr, pParent, NAME("Pin"))
 {
 }
 
 HRESULT FrameBufferStream::FillBuffer(IMediaSample *pMediaSample)
 {
-	FrameBuffer::Frame *pFrame;
 	FrameBuffer *pFilter = static_cast<FrameBuffer*>(m_pFilter);
 	BYTE *pData;
 
 	HRESULT hr = pMediaSample->GetPointer(&pData);
 	if (FAILED(hr))
 		return hr;
-
-	pFrame = (!m_pLastFrame || libvlc_clock() > m_pLastFrame->TimeStamp())
-	  ? pFilter->FrameQueue().pop() : m_pLastFrame;
-	// Try to provide at least an old image on queue underflow
-	if (!pFrame) {
-		if (!m_pLastFrame)
-			return S_OK;
-		else
-			pFrame = m_pLastFrame;
-	}
+	FrameBuffer::Frame *pFrame = pFilter->FrameQueue().top();
+	if (!pFrame)
+		return S_OK;
 	if ((LONG)pFrame->size() != pMediaSample->GetSize())
 		return E_INVALIDARG;
 
@@ -55,7 +44,8 @@ HRESULT FrameBufferStream::FillBuffer(IMediaSample *pMediaSample)
 	} else
 		memcpy(pData, pFrame->Buffer(), pFilter->Width() * pFilter->Height() * 2);
 
-	m_pLastFrame = pFrame;
+	if (pFrame->TimeStamp() < libvlc_clock())
+		pFilter->FrameQueue().pop();
 
 	return S_OK;
 }

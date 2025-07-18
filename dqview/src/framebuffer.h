@@ -49,17 +49,20 @@ public:
 			_mutex.unlock();
 		}
 
-		Frame *pop()
+		void pop()
+		{
+			_mutex.lock();
+			if (_queue.size())
+				_queue.pop();
+			_mutex.unlock();
+		}
+
+		Frame *top()
 		{
 			Frame *ret;
 
 			_mutex.lock();
-			if (_queue.size() == 0)
-				ret = 0;
-			else {
-				ret = _queue.front();
-				_queue.pop();
-			}
+			ret = (_queue.size()) ? _queue.front() : 0;
 			_mutex.unlock();
 
 			return ret;
