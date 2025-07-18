@@ -359,6 +359,8 @@ void GUI::streamError(const QString &error)
 	_playAction->setEnabled(true);
 	_deviceActionGroup->setEnabled(true);
 	_openStreamAction->setEnabled(true);
+	_selectOutputFileAction->setEnabled(true);
+	_selectOutputDesktopAction->setEnabled(true);
 }
 
 void GUI::stateChanged(bool playing)
