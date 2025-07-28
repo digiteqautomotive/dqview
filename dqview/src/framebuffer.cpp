@@ -30,8 +30,6 @@ HRESULT FrameBufferStream::FillBuffer(IMediaSample *pMediaSample)
 	if (FAILED(hr))
 		return hr;
 	FrameBuffer::Frame *pFrame = pFilter->FrameQueue().top();
-	if (!pFrame)
-		return S_OK;
 	if ((LONG)pFrame->size() != pMediaSample->GetSize())
 		return E_INVALIDARG;
 

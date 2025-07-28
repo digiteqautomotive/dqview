@@ -272,8 +272,8 @@ void VideoOutput::_prerenderCb(void *data, uint8_t **buffer, size_t size)
 	VideoOutput *display = (VideoOutput *)data;
 	FrameBuffer::Frame *f = display->_buffers[display->_bufferIndex];
 
-    Q_ASSERT(f->size() >= size);
-    *buffer = (uint8_t*)f->Buffer();
+	Q_ASSERT(f->size() >= size);
+	*buffer = (uint8_t*)f->Buffer();
 }
 
 void VideoOutput::_postrenderCb(void *data, uint8_t *buffer,
@@ -289,9 +289,9 @@ void VideoOutput::_postrenderCb(void *data, uint8_t *buffer,
 	FrameBuffer::Frame *f = display->_buffers[display->_bufferIndex];
 
 	f->SetTimeStamp(pts);
-	if (queue.push(f))
-		display->_bufferIndex = (display->_bufferIndex + 1)
-		  % display->_buffers.size();
+	queue.push(f);
+	display->_bufferIndex = (display->_bufferIndex + 1)
+	  % display->_buffers.size();
 }
 
 VideoOutput::VideoOutput()

@@ -4,6 +4,7 @@
 #include <cstdint>
 #include <mutex>
 #include <queue>
+#include <condition_variable>
 #include "streams.h"
 #include "pixelformat.h"
 
@@ -41,49 +42,42 @@ public:
 	public:
 		inline Queue(size_t capacity) : _capacity(capacity) {}
 
-		bool push(Frame *elem)
+		void push(Frame *elem)
 		{
-			bool ret = false;
+			std::unique_lock<std::mutex> lock(_mutex);
 
-			_mutex.lock();
-			if (_queue.size() < _capacity) {
-				_queue.push(elem);
-				ret = true;
-			}
-			_mutex.unlock();
+			while (_queue.size() >= _capacity)
+				_write.wait(lock);
 
-			return ret;
-		}
-
-		bool pop()
-		{
-			bool ret = false;
-
-			_mutex.lock();
-			if (_queue.size()) {
-				_queue.pop();
-				ret = true;
-			}
-			_mutex.unlock();
-
-			return ret;
+			_queue.push(elem);
+			_read.notify_one();
 		}
 
 		Frame *top()
 		{
-			Frame *ret;
+			std::unique_lock<std::mutex> lock(_mutex);
 
-			_mutex.lock();
-			ret = (_queue.size()) ? _queue.front() : 0;
-			_mutex.unlock();
+			while (_queue.empty())
+				_read.wait(lock);
 
-			return ret;
+			return _queue.front();
+		}
+
+		void pop()
+		{
+			std::unique_lock<std::mutex> lock(_mutex);
+
+			while (_queue.empty())
+				_read.wait(lock);
+			_queue.pop();
+			_write.notify_one();
 		}
 
 	private:
 		size_t _capacity;
 		std::queue<Frame*> _queue;
 		std::mutex _mutex;
+		std::condition_variable _read, _write;
 	};
 
 	FrameBuffer(PixelFormat Format, int iWidth, int iHeight, int iCapacity,
