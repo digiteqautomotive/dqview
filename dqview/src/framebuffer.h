@@ -41,20 +41,32 @@ public:
 	public:
 		inline Queue(size_t capacity) : _capacity(capacity) {}
 
-		void push(Frame *elem)
+		bool push(Frame *elem)
 		{
+			bool ret = false;
+
 			_mutex.lock();
-			if (_queue.size() < _capacity)
+			if (_queue.size() < _capacity) {
 				_queue.push(elem);
+				ret = true;
+			}
 			_mutex.unlock();
+
+			return ret;
 		}
 
-		void pop()
+		bool pop()
 		{
+			bool ret = false;
+
 			_mutex.lock();
-			if (_queue.size())
+			if (_queue.size()) {
 				_queue.pop();
+				ret = true;
+			}
 			_mutex.unlock();
+
+			return ret;
 		}
 
 		Frame *top()

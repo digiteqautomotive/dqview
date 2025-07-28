@@ -289,8 +289,9 @@ void VideoOutput::_postrenderCb(void *data, uint8_t *buffer,
 	FrameBuffer::Frame *f = display->_buffers[display->_bufferIndex];
 
 	f->SetTimeStamp(pts);
-	queue.push(f);
-	display->_bufferIndex = (display->_bufferIndex + 1) % display->_buffers.size();
+	if (queue.push(f))
+		display->_bufferIndex = (display->_bufferIndex + 1)
+		  % display->_buffers.size();
 }
 
 VideoOutput::VideoOutput()
