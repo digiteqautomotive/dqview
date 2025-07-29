@@ -24,12 +24,19 @@ FrameBufferStream::FrameBufferStream(FrameBuffer *pParent, HRESULT *phr)
 HRESULT FrameBufferStream::FillBuffer(IMediaSample *pMediaSample)
 {
 	FrameBuffer *pFilter = static_cast<FrameBuffer*>(m_pFilter);
+	int64_t clock(libvlc_clock());
 	BYTE *pData;
 
 	HRESULT hr = pMediaSample->GetPointer(&pData);
 	if (FAILED(hr))
 		return hr;
+
 	FrameBuffer::Frame *pFrame = pFilter->FrameQueue().top();
+	while (pFrame->TimeStamp() < clock) {
+		pFilter->FrameQueue().pop();
+		pFrame = pFilter->FrameQueue().top();
+	}
+
 	if ((LONG)pFrame->size() != pMediaSample->GetSize())
 		return E_INVALIDARG;
 
@@ -41,9 +48,6 @@ HRESULT FrameBufferStream::FillBuffer(IMediaSample *pMediaSample)
 			  pFilter->Width() * 4);
 	} else
 		memcpy(pData, pFrame->Buffer(), pFilter->Width() * pFilter->Height() * 2);
-
-	if (pFrame->TimeStamp() < libvlc_clock())
-		pFilter->FrameQueue().pop();
 
 	return S_OK;
 }
