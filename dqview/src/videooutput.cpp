@@ -298,15 +298,13 @@ void VideoOutput::_postrenderCb(void *data, uint8_t *buffer,
 }
 
 VideoOutput::VideoOutput()
-  : _dev(0), _frameBuffer(0), _graph(0), _graphbuilder(0), _capbuilder(0),
-  _bufferIndex(-1)
+  : _dev(0), _frameBuffer(0), _graph(0), _bufferIndex(-1)
 {
 
 }
 
 VideoOutput::VideoOutput(Device *output)
-  : _dev(output), _frameBuffer(0), _graph(0), _graphbuilder(0), _capbuilder(0),
-  _bufferIndex(-1)
+  : _dev(output), _frameBuffer(0), _graph(0), _bufferIndex(-1)
 {
 }
 
@@ -320,6 +318,7 @@ bool VideoOutput::open(unsigned int num, unsigned int den)
 	HRESULT hr;
 	IPin *pCamPin;
 	IPin *pRenderPin;
+	IGraphBuilder *graphbuilder;
 	QSize s(size());
 	PixelFormat f(format());
 
@@ -331,26 +330,9 @@ bool VideoOutput::open(unsigned int num, unsigned int den)
 	}
 
 	hr = _graph->QueryInterface(IID_IGraphBuilder,
-	  reinterpret_cast<void**>(&_graphbuilder));
-	if (FAILED(hr) || !_graphbuilder) {
+	  reinterpret_cast<void**>(&graphbuilder));
+	if (FAILED(hr) || !graphbuilder) {
 		_errorString = "Failed to get graph builder interface";
-		_graph->Release();
-		return false;
-	}
-
-	hr = CoCreateInstance(CLSID_CaptureGraphBuilder2, NULL, CLSCTX_INPROC,
-	  IID_ICaptureGraphBuilder2, reinterpret_cast<void**>(&_capbuilder));
-	if (FAILED(hr) || !_capbuilder) {
-		_errorString = "Failed to create capture graph builder";
-		_graphbuilder->Release();
-		_graph->Release();
-		return false;
-	}
-
-	if (FAILED(_capbuilder->SetFiltergraph(_graphbuilder))) {
-		_errorString = "Failed to attach filter graph to the capture graph builder";
-		_capbuilder->Release();
-		_graphbuilder->Release();
 		_graph->Release();
 		return false;
 	}
@@ -361,26 +343,23 @@ bool VideoOutput::open(unsigned int num, unsigned int den)
 	if (FAILED(hr)) {
 		_errorString = "Error creating renderer filter";
 		_frameBuffer->Release();
-		_capbuilder->Release();
-		_graphbuilder->Release();
+		graphbuilder->Release();
 		_graph->Release();
 		return false;
 	}
 
-	if (FAILED(_graphbuilder->AddFilter(_frameBuffer, L"Camera"))) {
+	if (FAILED(graphbuilder->AddFilter(_frameBuffer, L"Camera"))) {
 		_errorString = "Failed to add camera filter to filter graph";
 		_frameBuffer->Release();
-		_capbuilder->Release();
-		_graphbuilder->Release();
+		graphbuilder->Release();
 		_graph->Release();
 		return false;
 	}
 
-	if (FAILED(_graphbuilder->AddFilter(_dev->filter(), L"Renderer"))) {
+	if (FAILED(graphbuilder->AddFilter(_dev->filter(), L"Renderer"))) {
 		_errorString = "Failed to add renderer filter to filter graph";
 		_frameBuffer->Release();
-		_capbuilder->Release();
-		_graphbuilder->Release();
+		graphbuilder->Release();
 		_graph->Release();
 		return false;
 	}
@@ -388,8 +367,7 @@ bool VideoOutput::open(unsigned int num, unsigned int den)
 	if (FAILED(GetPin(_frameBuffer, PINDIR_OUTPUT, &pCamPin))) {
 		_errorString = "Cannot obtain output pin from camera";
 		_frameBuffer->Release();
-		_capbuilder->Release();
-		_graphbuilder->Release();
+		graphbuilder->Release();
 		_graph->Release();
 		return false;
 	}
@@ -397,18 +375,16 @@ bool VideoOutput::open(unsigned int num, unsigned int den)
 	if (FAILED(GetPin(_dev->filter(), PINDIR_INPUT, &pRenderPin))) {
 		_errorString = "Cannot obtain input pin from renderer";
 		_frameBuffer->Release();
-		_capbuilder->Release();
-		_graphbuilder->Release();
+		graphbuilder->Release();
 		_graph->Release();
 		pCamPin->Release();
 		return false;
 	}
 
-	if (FAILED(_graphbuilder->Connect(pCamPin, pRenderPin))) {
+	if (FAILED(graphbuilder->Connect(pCamPin, pRenderPin))) {
 		_errorString = "Cannot connect renderer with grabber";
 		_frameBuffer->Release();
-		_capbuilder->Release();
-		_graphbuilder->Release();
+		graphbuilder->Release();
 		_graph->Release();
 		pCamPin->Release();
 		pRenderPin->Release();
@@ -417,6 +393,7 @@ bool VideoOutput::open(unsigned int num, unsigned int den)
 
 	pCamPin->Release();
 	pRenderPin->Release();
+	graphbuilder->Release();
 
 	int ps = (f == RGB ? 4 : 2);
 	for (int i = 0; i < FRAME_BUFFERS; i++)
@@ -428,8 +405,6 @@ bool VideoOutput::open(unsigned int num, unsigned int den)
 void VideoOutput::close()
 {
 	_frameBuffer->Release();
-	_capbuilder->Release();
-	_graphbuilder->Release();
 	_graph->Release();
 
 	qDeleteAll(_buffers);
@@ -454,17 +429,14 @@ PixelFormat VideoOutput::format()
 
 bool VideoOutput::start()
 {
-	_dev->filter()->Run(0);
-	_frameBuffer->Run(0);
-
 	_bufferIndex = 0;
+	_graph->Run();
 
 	return true;
 }
 
 void VideoOutput::stop()
 {
-	_frameBuffer->Stop();
-	_dev->filter()->Stop();
+	_graph->Stop();
 }
 #endif

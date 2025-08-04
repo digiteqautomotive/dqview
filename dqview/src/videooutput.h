@@ -63,9 +63,6 @@ private:
 
 	FrameBuffer *_frameBuffer;
 	IMediaControl *_graph;
-	IGraphBuilder *_graphbuilder;
-	ICaptureGraphBuilder2 *_capbuilder;
-
 	int _bufferIndex;
 	QVector<FrameBuffer::Frame*> _buffers;
 
