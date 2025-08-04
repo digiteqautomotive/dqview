@@ -32,7 +32,7 @@ HRESULT FrameBufferStream::FillBuffer(IMediaSample *pMediaSample)
 		return hr;
 
 	FrameBuffer::Frame *pFrame = pFilter->FrameQueue().top();
-	if (pFrame->TimeStamp() > clock)
+	if (pFrame->TimeStamp() > clock + 1000)
 		Sleep((pFrame->TimeStamp() - clock) / 1000);
 
 	if ((LONG)pFrame->size() != pMediaSample->GetSize())
