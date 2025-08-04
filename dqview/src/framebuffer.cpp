@@ -125,9 +125,6 @@ FrameBuffer::FrameBuffer(PixelFormat Format, int iWidth, int iHeight, int iTPF,
 
 	m_pStream = new FrameBufferStream(this, phr);
 	m_pStream->AddRef();
-
-	if (SUCCEEDED(*phr))
-		*phr = AddPin(m_pStream);
 }
 
 FrameBuffer::~FrameBuffer()
