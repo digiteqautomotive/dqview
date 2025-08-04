@@ -118,21 +118,8 @@ void VideoOutput::unmapBuffers()
 	_buffers.clear();
 }
 
-bool VideoOutput::start(unsigned num, unsigned den)
+bool VideoOutput::start()
 {
-	struct v4l2_streamparm parm;
-
-	memset(&parm, 0, sizeof(parm));
-	parm.type = V4L2_BUF_TYPE_VIDEO_OUTPUT;
-	parm.parm.output.capability = V4L2_CAP_TIMEPERFRAME;
-	parm.parm.output.timeperframe.numerator = num;
-	parm.parm.output.timeperframe.denominator = den;
-
-	if (ioctl(_fd, VIDIOC_S_PARM, &parm) < 0) {
-		_errorString = "VIDIOC_S_PARM: " + QString(strerror(errno));
-		return false;
-	}
-
 	enum v4l2_buf_type type = V4L2_BUF_TYPE_VIDEO_OUTPUT;
 
 	if (ioctl(_fd, VIDIOC_STREAMON, &type) < 0) {
@@ -187,7 +174,7 @@ PixelFormat VideoOutput::format()
 	}
 }
 
-bool VideoOutput::open()
+bool VideoOutput::open(unsigned int num, unsigned int den)
 {
 	Q_ASSERT(_fd < 0);
 
@@ -198,6 +185,22 @@ bool VideoOutput::open()
 	}
 
 	if (!mapBuffers()) {
+		::close(_fd);
+		_fd = -1;
+		unmapBuffers();
+		return false;
+	}
+
+	struct v4l2_streamparm parm;
+
+	memset(&parm, 0, sizeof(parm));
+	parm.type = V4L2_BUF_TYPE_VIDEO_OUTPUT;
+	parm.parm.output.capability = V4L2_CAP_TIMEPERFRAME;
+	parm.parm.output.timeperframe.numerator = num;
+	parm.parm.output.timeperframe.denominator = den;
+
+	if (ioctl(_fd, VIDIOC_S_PARM, &parm) < 0) {
+		_errorString = "VIDIOC_S_PARM: " + QString(strerror(errno));
 		::close(_fd);
 		_fd = -1;
 		unmapBuffers();
@@ -312,7 +315,7 @@ VideoOutput::~VideoOutput()
 
 }
 
-bool VideoOutput::open()
+bool VideoOutput::open(unsigned int num, unsigned int den)
 {
 	HRESULT hr;
 	IPin *pCamPin;
@@ -352,7 +355,8 @@ bool VideoOutput::open()
 		return false;
 	}
 
-	_frameBuffer = new FrameBuffer(f, s.width(), s.height(), FRAME_BUFFERS, &hr);
+	_frameBuffer = new FrameBuffer(f, s.width(), s.height(),
+	  den ? (((uint64_t)num * 10000000)/den) : 0, FRAME_BUFFERS, &hr);
 	_frameBuffer->AddRef();
 	if (FAILED(hr)) {
 		_errorString = "Error creating renderer filter";
@@ -448,11 +452,8 @@ PixelFormat VideoOutput::format()
 	return YUV;
 }
 
-bool VideoOutput::start(unsigned num, unsigned den)
+bool VideoOutput::start()
 {
-	Q_UNUSED(num);
-	Q_UNUSED(den);
-
 	_dev->filter()->Run(0);
 	_frameBuffer->Run(0);
 

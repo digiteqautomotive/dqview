@@ -159,50 +159,11 @@ libvlc_media_t *VideoPlayer::createMedia()
 
 void VideoPlayer::startStreamingOut()
 {
-	if (!_display.open()) {
-		emit error(tr("Error opening output device: ")
-		  + _display.errorString());
-		return;
-	}
-	QSize size(_display.size());
-	if (!size.isValid()) {
-		_display.close();
-		emit error(tr("Error fetching output device resolution: ")
-		  + _display.errorString());
-		return;
-	}
-	PixelFormat format(_display.format());
-	if (format == UnknownFormat) {
-		_display.close();
-		emit error(tr("Error fetching output pixel format: ")
-		  + _display.errorString());
-		return;
-	}
-
-	QString codec = (format == RGB) ? "RV32" : "YUYV";
-	QString rec = _video->show() ? QString("sout=#duplicate{dst=display,dst='"
-	  "transcode{vcodec=%1,acodec=null,width=%2,height=%3}:smem{"
-	  "video-prerender-callback=%4,video-postrender-callback=%5,video-data=%6}'}")
-	  .arg(codec, QString::number(size.width()), QString::number(size.height()),
-		QString::number((long long int)(intptr_t)(void*)VideoOutput::prerender()),
-		QString::number((long long int)(intptr_t)(void*)VideoOutput::postrender()),
-		QString::number((long long int)(intptr_t)(void*)&_display))
-	  : QString("sout=#transcode{vcodec=%1,acodec=null,width=%2,height=%3}:smem{"
-		"video-prerender-callback=%4,video-postrender-callback=%5,video-data=%6}'}")
-		.arg(codec, QString::number(size.width()), QString::number(size.height()),
-		  QString::number((long long int)(intptr_t)(void*)VideoOutput::prerender()),
-		  QString::number((long long int)(intptr_t)(void*)VideoOutput::postrender()),
-		  QString::number((long long int)(intptr_t)(void*)&_display));
-
-	libvlc_media_t *media = createMedia();
-	libvlc_media_add_option(media, rec.toUtf8().constData());
-	libvlc_video_set_aspect_ratio(_mediaPlayer, _aspectRatio.isEmpty()
-	  ? "Default" : _aspectRatio.constData());
-	libvlc_media_player_set_media(_mediaPlayer, media);
-
 	unsigned den = 0, num = 0;
 	libvlc_media_track_t **tracks;
+	libvlc_media_t *media = createMedia();
 	libvlc_media_parse(media);
+
 	unsigned tn = libvlc_media_tracks_get(media, &tracks);
 	for (unsigned i = 0; i < tn; i++) {
 		const libvlc_media_track_t *t = tracks[i];
@@ -214,17 +175,61 @@ void VideoPlayer::startStreamingOut()
 		}
 	}
 	libvlc_media_tracks_release(tracks, tn);
+
+	if (!_display.open(num, den)) {
+		emit error(tr("Error opening output device: ")
+		  + _display.errorString());
+		libvlc_media_release(media);
+		return;
+	}
+	QSize size(_display.size());
+	if (!size.isValid()) {
+		_display.close();
+		emit error(tr("Error fetching output device resolution: ")
+		  + _display.errorString());
+		libvlc_media_release(media);
+		return;
+	}
+	PixelFormat format(_display.format());
+	if (format == UnknownFormat) {
+		_display.close();
+		emit error(tr("Error fetching output pixel format: ")
+		  + _display.errorString());
+		libvlc_media_release(media);
+		return;
+	}
+
+	QString codec = (format == RGB) ? "RV32" : "YUYV";
+	QString rec = _video->show()
+	  ? QString("sout=#duplicate{dst=display,dst='"
+	  "transcode{vcodec=%1,acodec=null,width=%2,height=%3}:smem{"
+	  "video-prerender-callback=%4,video-postrender-callback=%5,video-data=%6}'}")
+	    .arg(codec, QString::number(size.width()), QString::number(size.height()),
+	    QString::number((long long int)(intptr_t)(void*)VideoOutput::prerender()),
+	    QString::number((long long int)(intptr_t)(void*)VideoOutput::postrender()),
+	    QString::number((long long int)(intptr_t)(void*)&_display))
+	  : QString("sout=#transcode{vcodec=%1,acodec=null,width=%2,height=%3}:smem{"
+	  "video-prerender-callback=%4,video-postrender-callback=%5,video-data=%6}'}")
+	    .arg(codec, QString::number(size.width()), QString::number(size.height()),
+	    QString::number((long long int)(intptr_t)(void*)VideoOutput::prerender()),
+	    QString::number((long long int)(intptr_t)(void*)VideoOutput::postrender()),
+	    QString::number((long long int)(intptr_t)(void*)&_display));
+
+	libvlc_media_add_option(media, rec.toUtf8().constData());
+	libvlc_video_set_aspect_ratio(_mediaPlayer, _aspectRatio.isEmpty()
+	  ? "Default" : _aspectRatio.constData());
+	libvlc_media_player_set_media(_mediaPlayer, media);
 	libvlc_media_release(media);
 
-	_outputActive = _display.start(num, den);
+	libvlc_media_player_play(_mediaPlayer);
+
+	_outputActive = _display.start();
 	if (!_outputActive) {
 		_display.close();
 		emit error(tr("Error starting output device: ")
 		  + _display.errorString());
 		return;
 	}
-
-	libvlc_media_player_play(_mediaPlayer);
 }
 
 void VideoPlayer::startStreaming(bool record)

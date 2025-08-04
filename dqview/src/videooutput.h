@@ -23,11 +23,11 @@ public:
 
 	Device *device() {return _dev;}
 
-	bool open();
+	bool open(unsigned num = 0, unsigned den = 0);
 	void close();
 	QSize size();
 	PixelFormat format();
-	bool start(unsigned num = 0, unsigned den = 0);
+	bool start();
 	void stop();
 
 	static PrerenderCallback prerender() {return _prerenderCb;}

@@ -80,17 +80,19 @@ public:
 		std::condition_variable _read, _write;
 	};
 
-	FrameBuffer(PixelFormat Format, int iWidth, int iHeight, int iCapacity,
-	  HRESULT *phr);
+	FrameBuffer(PixelFormat Format, int iWidth, int iHeight, int iTPF,
+	  int iCapacity, HRESULT *phr);
 	~FrameBuffer();
 
 	int Width() const {return m_iWidth;}
 	int Height() const {return m_iHeight;}
 	PixelFormat Format() const {return m_Format;}
+	int TimePerFrame() const {return m_iTimePerFrame;}
 	Queue &FrameQueue() {return m_pQueue;}
 
 private:
 	int m_iWidth, m_iHeight;
+	int m_iTimePerFrame;
 	PixelFormat m_Format;
 	Queue m_pQueue;
 	FrameBufferStream *m_pStream;

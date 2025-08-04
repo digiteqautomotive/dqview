@@ -77,6 +77,7 @@ HRESULT FrameBufferStream::GetMediaType(CMediaType *pMediaType)
 	pvi->bmiHeader.biPlanes = 1;
 	pvi->bmiHeader.biSizeImage = GetBitmapSize(&pvi->bmiHeader);
 	pvi->bmiHeader.biClrImportant = 0;
+	pvi->AvgTimePerFrame = pFilter->TimePerFrame();
 	SetRectEmpty(&(pvi->rcSource));
 	SetRectEmpty(&(pvi->rcTarget));
 
@@ -114,10 +115,11 @@ HRESULT FrameBufferStream::DecideBufferSize(IMemAllocator *pAlloc,
 	return S_OK;
 }
 
-FrameBuffer::FrameBuffer(PixelFormat Format, int iWidth, int iHeight,
+FrameBuffer::FrameBuffer(PixelFormat Format, int iWidth, int iHeight, int iTPF,
   int iCapacity, HRESULT *phr)
   : CSource(NAME("Frame Buffer"), NULL, CLSID_FrameBuffer), m_iWidth(iWidth),
-    m_iHeight(iHeight), m_Format(Format), m_pQueue(iCapacity)
+    m_iHeight(iHeight), m_iTimePerFrame(iTPF), m_Format(Format),
+    m_pQueue(iCapacity)
 {
 	CAutoLock cAutoLock(&m_cStateLock);
 
