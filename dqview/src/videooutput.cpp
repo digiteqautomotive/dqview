@@ -273,6 +273,8 @@ static HRESULT GetPin(IBaseFilter *pFilter, PIN_DIRECTION PinDir, IPin **ppPin)
 void VideoOutput::_prerenderCb(void *data, uint8_t **buffer, size_t size)
 {
 	VideoOutput *display = (VideoOutput *)data;
+	FrameBuffer::Queue &queue = display->_frameBuffer->FrameQueue();
+	queue.waitReady();
 	FrameBuffer::Frame *f = display->_buffers[display->_bufferIndex];
 
 	Q_ASSERT(f->size() >= size);

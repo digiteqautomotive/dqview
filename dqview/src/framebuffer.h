@@ -73,6 +73,14 @@ public:
 			_write.notify_one();
 		}
 
+		void waitReady()
+		{
+			std::unique_lock<std::mutex> lock(_mutex);
+
+			while (_queue.size() >= _capacity)
+				_write.wait(lock);
+		}
+
 	private:
 		size_t _capacity;
 		std::queue<Frame*> _queue;
