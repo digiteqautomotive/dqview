@@ -32,10 +32,8 @@ HRESULT FrameBufferStream::FillBuffer(IMediaSample *pMediaSample)
 		return hr;
 
 	FrameBuffer::Frame *pFrame = pFilter->FrameQueue().top();
-	while (pFrame->TimeStamp() < clock) {
-		pFilter->FrameQueue().pop();
-		pFrame = pFilter->FrameQueue().top();
-	}
+	if (pFrame->TimeStamp() > clock)
+		Sleep((pFrame->TimeStamp() - clock) / 1000);
 
 	if ((LONG)pFrame->size() != pMediaSample->GetSize())
 		return E_INVALIDARG;
@@ -48,6 +46,8 @@ HRESULT FrameBufferStream::FillBuffer(IMediaSample *pMediaSample)
 			  pFilter->Width() * 4);
 	} else
 		memcpy(pData, pFrame->Buffer(), pFilter->Width() * pFilter->Height() * 2);
+
+	pFilter->FrameQueue().pop();
 
 	return S_OK;
 }
