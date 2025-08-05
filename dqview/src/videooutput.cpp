@@ -207,6 +207,15 @@ bool VideoOutput::open(unsigned int num, unsigned int den)
 		return false;
 	}
 
+	struct v4l2_format fmt;
+	fmt.type = V4L2_BUF_TYPE_VIDEO_OUTPUT;
+
+	if (!ioctl(_fd, VIDIOC_G_FMT, &fmt)) {
+		fmt.pix.pixelformat = (_dev->format() == YUV)
+		  ? V4L2_PIX_FMT_YUYV : V4L2_PIX_FMT_ABGR32;
+		ioctl(_fd, VIDIOC_S_FMT, &fmt);
+	}
+
 	return true;
 }
 
@@ -426,7 +435,7 @@ QSize VideoOutput::size()
 
 PixelFormat VideoOutput::format()
 {
-	return YUV;
+	return _dev->format();
 }
 
 bool VideoOutput::start()
