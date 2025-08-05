@@ -428,13 +428,9 @@ bool VideoOutput::open(unsigned int num, unsigned int den)
 
 void VideoOutput::close()
 {
-	HRESULT hr;
 	OAFilterState fs;
-
-	do {
-		hr = _graph->GetState(100, &fs);
-	} while (hr == VFW_S_STATE_INTERMEDIATE);
-	Q_ASSERT(fs == State_Stopped);
+	HRESULT hr = _graph->GetState(INFINITE, &fs);
+	Q_ASSERT(hr == S_OK && fs == State_Stopped);
 
 	_frameBuffer->Release();
 	_graph->Release();
