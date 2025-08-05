@@ -129,5 +129,7 @@ FrameBuffer::FrameBuffer(PixelFormat Format, int iWidth, int iHeight, int iTPF,
 
 FrameBuffer::~FrameBuffer()
 {
+	CAutoLock cAutoLock(&m_cStateLock);
+
 	m_pStream->Release();
 }
