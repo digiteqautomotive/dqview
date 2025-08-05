@@ -40,7 +40,8 @@ public:
 
 	class Queue {
 	public:
-		inline Queue(size_t capacity) : _capacity(capacity) {}
+		inline Queue(size_t capacity, unsigned timeout)
+		  : _capacity(capacity), _timeout(timeout) {}
 
 		void push(Frame *elem)
 		{
@@ -50,17 +51,20 @@ public:
 				_write.wait(lock);
 
 			_queue.push(elem);
+			lock.unlock();
+
 			_read.notify_one();
 		}
 
 		Frame *top()
 		{
+			std::cv_status status = std::cv_status::no_timeout;
 			std::unique_lock<std::mutex> lock(_mutex);
 
-			while (_queue.empty())
-				_read.wait(lock);
+			while (_queue.empty() && status != std::cv_status::timeout)
+				status = _read.wait_for(lock, _timeout);
 
-			return _queue.front();
+			return (status == std::cv_status::timeout) ? 0 : _queue.front();
 		}
 
 		void pop()
@@ -69,20 +73,28 @@ public:
 
 			while (_queue.empty())
 				_read.wait(lock);
+
 			_queue.pop();
+			lock.unlock();
+
 			_write.notify_one();
 		}
 
-		void waitReady()
+		bool ready()
 		{
+			std::cv_status status = std::cv_status::no_timeout;
 			std::unique_lock<std::mutex> lock(_mutex);
 
-			while (_queue.size() >= _capacity)
-				_write.wait(lock);
+			while (_queue.size() >= _capacity
+			  && status != std::cv_status::timeout)
+				status = _write.wait_for(lock, _timeout);
+
+			return (status == std::cv_status::timeout) ? false : true;
 		}
 
 	private:
 		size_t _capacity;
+		std::chrono::milliseconds _timeout;
 		std::queue<Frame*> _queue;
 		std::mutex _mutex;
 		std::condition_variable _read, _write;

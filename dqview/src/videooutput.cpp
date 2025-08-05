@@ -292,29 +292,33 @@ void VideoOutput::_prerenderCb(void *data, uint8_t **buffer, size_t size)
 {
 	VideoOutput *display = (VideoOutput *)data;
 	FrameBuffer::Queue &queue = display->_frameBuffer->FrameQueue();
-	queue.waitReady();
-	FrameBuffer::Frame *f = display->_buffers[display->_bufferIndex];
 
-	Q_ASSERT(f->size() >= size);
-	*buffer = (uint8_t*)f->Buffer();
+	if (queue.ready()) {
+		FrameBuffer::Frame *f = display->_buffers[display->_bufferIndex];
+		Q_ASSERT(f->size() >= size);
+		*buffer = (uint8_t*)f->Buffer();
+	} else
+		*buffer = 0;
 }
 
 void VideoOutput::_postrenderCb(void *data, uint8_t *buffer,
   int width, int height, int pixel_pitch, size_t size, int64_t pts)
 {
-	Q_UNUSED(buffer);
 	Q_UNUSED(size);
 	Q_UNUSED(width);
 	Q_UNUSED(height);
 	Q_UNUSED(pixel_pitch);
-	VideoOutput *display = (VideoOutput *)data;
-	FrameBuffer::Queue &queue = display->_frameBuffer->FrameQueue();
-	FrameBuffer::Frame *f = display->_buffers[display->_bufferIndex];
 
-	f->SetTimeStamp(pts);
-	queue.push(f);
-	display->_bufferIndex = (display->_bufferIndex + 1)
-	  % display->_buffers.size();
+	if (buffer) {
+		VideoOutput *display = (VideoOutput *)data;
+		FrameBuffer::Queue &queue = display->_frameBuffer->FrameQueue();
+		FrameBuffer::Frame *f = display->_buffers[display->_bufferIndex];
+
+		f->SetTimeStamp(pts);
+		queue.push(f);
+		display->_bufferIndex = (display->_bufferIndex + 1)
+		  % display->_buffers.size();
+	}
 }
 
 VideoOutput::VideoOutput()
@@ -424,6 +428,14 @@ bool VideoOutput::open(unsigned int num, unsigned int den)
 
 void VideoOutput::close()
 {
+	HRESULT hr;
+	OAFilterState fs;
+
+	do {
+		hr = _graph->GetState(100, &fs);
+	} while (hr == VFW_S_STATE_INTERMEDIATE);
+	Q_ASSERT(fs == State_Stopped);
+
 	_frameBuffer->Release();
 	_graph->Release();
 

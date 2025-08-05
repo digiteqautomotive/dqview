@@ -32,6 +32,8 @@ HRESULT FrameBufferStream::FillBuffer(IMediaSample *pMediaSample)
 		return hr;
 
 	FrameBuffer::Frame *pFrame = pFilter->FrameQueue().top();
+	if (!pFrame)
+		return S_OK;
 	if (pFrame->TimeStamp() > clock + 1000)
 		Sleep((pFrame->TimeStamp() - clock) / 1000);
 
@@ -119,7 +121,7 @@ FrameBuffer::FrameBuffer(PixelFormat Format, int iWidth, int iHeight, int iTPF,
   int iCapacity, HRESULT *phr)
   : CSource(NAME("Frame Buffer"), NULL, CLSID_FrameBuffer), m_iWidth(iWidth),
     m_iHeight(iHeight), m_iTimePerFrame(iTPF), m_Format(Format),
-    m_pQueue(iCapacity)
+    m_pQueue(iCapacity, (iTPF * 10) / 10000)
 {
 	CAutoLock cAutoLock(&m_cStateLock);
 
