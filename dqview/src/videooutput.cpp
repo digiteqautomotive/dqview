@@ -300,13 +300,13 @@ void VideoOutput::_postrenderCb(void *data, uint8_t *buffer,
 }
 
 VideoOutput::VideoOutput()
-  : _dev(0), _frameBuffer(0), _graph(0), _bufferIndex(-1)
+  : _dev(0), _frameBuffer(0), _graph(0), _bufferIndex(0)
 {
 
 }
 
 VideoOutput::VideoOutput(Device *output)
-  : _dev(output), _frameBuffer(0), _graph(0), _bufferIndex(-1)
+  : _dev(output), _frameBuffer(0), _graph(0), _bufferIndex(0)
 {
 }
 
@@ -431,7 +431,6 @@ PixelFormat VideoOutput::format()
 
 bool VideoOutput::start()
 {
-	_bufferIndex = 0;
 	_graph->Run();
 
 	return true;
