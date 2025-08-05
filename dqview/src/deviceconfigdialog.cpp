@@ -1416,6 +1416,11 @@ OutputConfigDialog::OutputConfigDialog(Device *device, QWidget *parent)
 	statusLayout->addWidget(deviceStatus);
 	statusLayout->addWidget(outputStatus);
 
+	_pixelFormat = new QComboBox();
+	_pixelFormat->addItem(tr("RGB"), QVariant(RGB));
+	_pixelFormat->addItem(tr("YUV"), QVariant(YUV));
+	_pixelFormat->setCurrentIndex(_pixelFormat->findData((int)_device->format()));
+
 	unsigned val;
 	_displayWidth = new QSpinBox();
 	_displayWidth->setMaximum(8192);
@@ -1487,6 +1492,7 @@ OutputConfigDialog::OutputConfigDialog(Device *device, QWidget *parent)
 	QGroupBox *commonConfig = new QGroupBox(tr("Common"));
 	QHBoxLayout *commonConfigLayout = new QHBoxLayout();
 	QFormLayout *commonConfigLayout1 = new QFormLayout();
+	commonConfigLayout1->addRow(tr("Pixel Format:"), _pixelFormat);
 	commonConfigLayout1->addRow(tr("Display Width:"), _displayWidth);
 	commonConfigLayout1->addRow(tr("Display Height:"), _displayHeight);
 	commonConfigLayout1->addRow(tr("Frame Rate:"), _frameRate);
@@ -1557,6 +1563,8 @@ OutputConfigDialog::OutputConfigDialog(Device *device, QWidget *parent)
 void OutputConfigDialog::accept()
 {
 	bool ret = true;
+
+	_device->setFormat((PixelFormat)_pixelFormat->currentData().toUInt());
 
 	ret &= setDisplayWidth(_displayWidth->value());
 	ret &= setDisplayHeight(_displayHeight->value());

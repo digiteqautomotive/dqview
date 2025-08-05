@@ -165,6 +165,7 @@ private:
 	bool setVFrontPorch(unsigned porch);
 	bool setFPDL3OutputWidth(FPDL3Width width);
 
+	QComboBox *_pixelFormat;
 	QSpinBox *_displayWidth;
 	QSpinBox *_displayHeight;
 	QSpinBox *_frameRate;
