@@ -428,10 +428,6 @@ bool VideoOutput::open(unsigned int num, unsigned int den)
 
 void VideoOutput::close()
 {
-	OAFilterState fs;
-	HRESULT hr = _graph->GetState(INFINITE, &fs);
-	Q_ASSERT(hr == S_OK && fs == State_Stopped);
-
 	_frameBuffer->Release();
 	_graph->Release();
 
@@ -459,11 +455,18 @@ bool VideoOutput::start()
 {
 	_graph->Run();
 
-	return true;
+	OAFilterState fs;
+	HRESULT hr = _graph->GetState(INFINITE, &fs);
+
+	return (hr == S_OK && fs == State_Running);
 }
 
 void VideoOutput::stop()
 {
 	_graph->Stop();
+
+	OAFilterState fs;
+	HRESULT hr = _graph->GetState(INFINITE, &fs);
+	Q_ASSERT(hr == S_OK && fs == State_Stopped);
 }
 #endif
