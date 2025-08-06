@@ -27,7 +27,7 @@ jobs:
         run: |
           cd dqview
           cp release/dqview.exe .
-          scripts/mingw-libs.sh
+          scripts/mingw-libs.sh qt6
           makensis.exe dqview.nsi
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
