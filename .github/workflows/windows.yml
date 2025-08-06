@@ -18,10 +18,10 @@ jobs:
         uses: msys2/setup-msys2@v2
         with:
           update: true
-          install: base-devel mingw-w64-x86_64-gcc mingw-w64-x86_64-tools-git mingw-w64-x86_64-qt5-base mingw-w64-x86_64-vlc mingw-w64-x86_64-nsis
+          install: base-devel mingw-w64-x86_64-gcc mingw-w64-x86_64-tools-git mingw-w64-x86_64-qt6-base mingw-w64-x86_64-vlc mingw-w64-x86_64-nsis
       - name: Build project
         run: |
-          qmake dqview.pro
+          qmake6 dqview.pro
           make -j4
       - name: Create installer
         run: |
