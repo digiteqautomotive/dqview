@@ -166,8 +166,10 @@ static IBaseFilter *outputFilter(int id)
 Device::Device(Type type, int id, const QString &name)
   : _type(type), _id(id), _name(name), _config(0), _filter(0)
 {
-	_format = (type == Unknown || _id < 0)
-	  ? PixelFormat::UnknownFormat : PixelFormat::RGB;
+	if (type == Unknown || _id < 0)
+		_format = PixelFormat::UnknownFormat;
+	else
+		_format = (type == Output) ? PixelFormat::YUV : PixelFormat::RGB;
 }
 
 Device::~Device()
@@ -219,8 +221,11 @@ IBaseFilter *Device::filter()
 Device::Device(Type type, int id, const QString &name)
   : _type(type), _id(id), _name(name)
 {
-	_format = (type == Unknown || _id < 0)
-	  ? PixelFormat::UnknownFormat : PixelFormat::RGB;
+
+	if (type == Unknown || _id < 0)
+		_format = PixelFormat::UnknownFormat;
+	else
+		_format = (type == Output) ? PixelFormat::YUV : PixelFormat::RGB;
 }
 
 #endif
