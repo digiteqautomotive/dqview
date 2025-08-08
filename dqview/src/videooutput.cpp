@@ -288,6 +288,74 @@ static HRESULT GetPin(IBaseFilter *pFilter, PIN_DIRECTION PinDir, IPin **ppPin)
 	return E_FAIL;
 }
 
+static HRESULT GetPinMediaType(IPin *pPin, REFGUID majorType, REFGUID subType,
+  REFGUID formatType, AM_MEDIA_TYPE **ppmt)
+{
+	IEnumMediaTypes *pEnum = NULL;
+	AM_MEDIA_TYPE *pmt = NULL;
+	*ppmt = NULL;
+
+	HRESULT hr = pPin->EnumMediaTypes(&pEnum);
+	if (FAILED(hr))
+		return hr;
+
+	while (hr = pEnum->Next(1, &pmt, NULL), hr == S_OK) {
+		if ((majorType == GUID_NULL) || (majorType == pmt->majortype)) {
+			if ((subType == GUID_NULL) || (subType == pmt->subtype)) {
+				if ((formatType == GUID_NULL) || (formatType == pmt->formattype)) {
+					*ppmt = pmt;
+					pEnum->Release();
+					return S_OK;
+				}
+			}
+		}
+		DeleteMediaType(pmt);
+	}
+
+	pEnum->Release();
+
+	return VFW_E_NOT_FOUND;
+}
+
+HRESULT VideoOutput::FG4MediaType(REFGUID subType, AM_MEDIA_TYPE **ppmt)
+{
+	long resolution;
+
+	IFG4OutputConfig *config = (IFG4OutputConfig*)_dev->config();
+	if (!config)
+		return S_FALSE;
+	if (FAILED(config->GetResolution(&resolution)))
+		return S_FALSE;
+
+	*ppmt = (AM_MEDIA_TYPE *)CoTaskMemAlloc(sizeof(AM_MEDIA_TYPE));
+	if (*ppmt == NULL)
+		return E_OUTOFMEMORY;
+	ZeroMemory(*ppmt, sizeof(AM_MEDIA_TYPE));
+	(*ppmt)->majortype = MEDIATYPE_Video;
+	(*ppmt)->subtype = subType;
+	(*ppmt)->formattype = FORMAT_VideoInfo;
+	(*ppmt)->cbFormat = sizeof(VIDEOINFO);
+	(*ppmt)->pbFormat = (PBYTE)CoTaskMemAlloc((*ppmt)->cbFormat);
+	if ((*ppmt)->pbFormat == NULL) {
+		CoTaskMemFree(*ppmt);
+		return E_OUTOFMEMORY;
+	}
+
+	VIDEOINFO *pVI = reinterpret_cast<VIDEOINFO*>((*ppmt)->pbFormat);
+	ZeroMemory(pVI, sizeof(VIDEOINFO));
+	pVI->bmiHeader.biWidth = resolution >> 16;
+	pVI->bmiHeader.biHeight = resolution & 0xFFFF;
+	if (IsEqualGUID(subType, MEDIASUBTYPE_RGB32)) {
+		pVI->bmiHeader.biCompression = BI_RGB;
+		pVI->bmiHeader.biBitCount = 32;
+	} else {
+		pVI->bmiHeader.biCompression = mmioFOURCC('Y', 'U', 'Y', '2');
+		pVI->bmiHeader.biBitCount = 16;
+	}
+
+	return S_OK;
+}
+
 void VideoOutput::_prerenderCb(void *data, uint8_t **buffer, size_t size)
 {
 	VideoOutput *display = (VideoOutput *)data;
@@ -343,13 +411,37 @@ bool VideoOutput::open(unsigned int num, unsigned int den)
 	IPin *pCamPin;
 	IPin *pRenderPin;
 	IGraphBuilder *graphbuilder;
-	QSize s(size());
-	PixelFormat f(format());
+	AM_MEDIA_TYPE *pMT;
+	REFGUID subType = (_dev->format() == RGB)
+	  ? MEDIASUBTYPE_RGB32 : MEDIASUBTYPE_YUY2;
+
+	if (FAILED(GetPin(_dev->filter(), PINDIR_INPUT, &pRenderPin))) {
+		_errorString = "Cannot obtain input pin from renderer";
+		return false;
+	}
+
+	// The FG4 output device is broken and does not provide any media info
+	// using the standard API. Use the FG4-specific properties instead when
+	// working with FG4 devices.
+	hr = (_dev->id() < 0)
+	  ? GetPinMediaType(pRenderPin, MEDIATYPE_Video, subType,
+	    FORMAT_VideoInfo, &pMT)
+	  : FG4MediaType(subType, &pMT);
+	if (FAILED(hr)) {
+		_errorString = "Unsupported renderer media type";
+		pRenderPin->Release();
+		return false;
+	}
+
+	VIDEOINFO *vi = reinterpret_cast<VIDEOINFO*>(pMT->pbFormat);
+	vi->AvgTimePerFrame = den ? (((uint64_t)num * 10000000) / den) : 0;
 
 	hr = CoCreateInstance(CLSID_FilterGraph, NULL, CLSCTX_INPROC,
 	  IID_IMediaControl, reinterpret_cast<void**>(&_graph));
 	if (FAILED(hr) || !_graph) {
 		_errorString = "Failed to create filter graph";
+		pRenderPin->Release();
+		DeleteMediaType(pMT);
 		return false;
 	}
 
@@ -357,71 +449,73 @@ bool VideoOutput::open(unsigned int num, unsigned int den)
 	  reinterpret_cast<void**>(&graphbuilder));
 	if (FAILED(hr) || !graphbuilder) {
 		_errorString = "Failed to get graph builder interface";
+		pRenderPin->Release();
+		DeleteMediaType(pMT);
 		_graph->Release();
 		return false;
 	}
 
-	_frameBuffer = new FrameBuffer(f, s.width(), s.height(),
-	  den ? (((uint64_t)num * 10000000)/den) : 0, FRAME_BUFFERS, &hr);
+	_frameBuffer = new FrameBuffer(pMT, FRAME_BUFFERS, &hr);
 	_frameBuffer->AddRef();
 	if (FAILED(hr)) {
 		_errorString = "Error creating renderer filter";
-		_frameBuffer->Release();
-		graphbuilder->Release();
+		pRenderPin->Release();
+		DeleteMediaType(pMT);
 		_graph->Release();
+		graphbuilder->Release();
+		_frameBuffer->Release();
 		return false;
 	}
 
 	if (FAILED(graphbuilder->AddFilter(_frameBuffer, L"Camera"))) {
 		_errorString = "Failed to add camera filter to filter graph";
-		_frameBuffer->Release();
-		graphbuilder->Release();
+		pRenderPin->Release();
+		DeleteMediaType(pMT);
 		_graph->Release();
+		graphbuilder->Release();
+		_frameBuffer->Release();
 		return false;
 	}
 
 	if (FAILED(graphbuilder->AddFilter(_dev->filter(), L"Renderer"))) {
 		_errorString = "Failed to add renderer filter to filter graph";
-		_frameBuffer->Release();
-		graphbuilder->Release();
+		pRenderPin->Release();
+		DeleteMediaType(pMT);
 		_graph->Release();
+		graphbuilder->Release();
+		_frameBuffer->Release();
 		return false;
 	}
 
 	if (FAILED(GetPin(_frameBuffer, PINDIR_OUTPUT, &pCamPin))) {
 		_errorString = "Cannot obtain output pin from camera";
-		_frameBuffer->Release();
-		graphbuilder->Release();
+		pRenderPin->Release();
+		DeleteMediaType(pMT);
 		_graph->Release();
-		return false;
-	}
-
-	if (FAILED(GetPin(_dev->filter(), PINDIR_INPUT, &pRenderPin))) {
-		_errorString = "Cannot obtain input pin from renderer";
-		_frameBuffer->Release();
 		graphbuilder->Release();
-		_graph->Release();
-		pCamPin->Release();
+		_frameBuffer->Release();
 		return false;
 	}
 
 	if (FAILED(graphbuilder->Connect(pCamPin, pRenderPin))) {
 		_errorString = "Cannot connect renderer with grabber";
-		_frameBuffer->Release();
-		graphbuilder->Release();
-		_graph->Release();
-		pCamPin->Release();
 		pRenderPin->Release();
+		DeleteMediaType(pMT);
+		_graph->Release();
+		graphbuilder->Release();
+		_frameBuffer->Release();
+		pCamPin->Release();
 		return false;
 	}
 
+	for (int i = 0; i < FRAME_BUFFERS; i++)
+		_buffers.append(new FrameBuffer::Frame(vi->bmiHeader.biWidth
+		  * vi->bmiHeader.biHeight * (vi->bmiHeader.biBitCount / 8)));
+
+	DeleteMediaType(pMT);
 	pCamPin->Release();
 	pRenderPin->Release();
 	graphbuilder->Release();
-
-	int ps = (f == RGB ? 4 : 2);
-	for (int i = 0; i < FRAME_BUFFERS; i++)
-		_buffers.append(new FrameBuffer::Frame(s.width() * s.height() * ps));
 
 	return true;
 }
@@ -437,18 +531,59 @@ void VideoOutput::close()
 
 QSize VideoOutput::size()
 {
-	long resolution;
-	IFG4OutputConfig *config = (IFG4OutputConfig*)_dev->config();
-	if (!config)
-		return QSize();
+	IPin *pPin;
+	AM_MEDIA_TYPE mt;
+	QSize s;
 
-	config->GetResolution(&resolution);
-	return QSize(resolution >> 16, resolution & 0xFFFF);
+	if (FAILED(GetPin(_dev->filter(), PINDIR_INPUT, &pPin))) {
+		_errorString = "Cannot obtain input pin from renderer";
+		return QSize();
+	}
+
+	pPin->ConnectionMediaType(&mt);
+	if (!IsEqualGUID(mt.formattype, FORMAT_VideoInfo)) {
+		_errorString = "Invalid media format";
+		pPin->Release();
+		return QSize();
+	}
+
+	VIDEOINFO *vi = reinterpret_cast<VIDEOINFO*>(mt.pbFormat);
+	s.setWidth(vi->bmiHeader.biWidth);
+	s.setHeight(vi->bmiHeader.biHeight);
+
+	FreeMediaType(mt);
+	pPin->Release();
+
+	return s;
 }
 
 PixelFormat VideoOutput::format()
 {
-	return _dev->format();
+	IPin *pPin;
+	AM_MEDIA_TYPE mt;
+	PixelFormat f = UnknownFormat;
+
+	if (FAILED(GetPin(_dev->filter(), PINDIR_INPUT, &pPin))) {
+		_errorString = "Cannot obtain input pin from renderer";
+		return f;
+	}
+
+	pPin->ConnectionMediaType(&mt);
+	if (!IsEqualGUID(mt.formattype, FORMAT_VideoInfo)) {
+		_errorString = "Invalid media format";
+		pPin->Release();
+		return f;
+	}
+
+	if (IsEqualGUID(mt.subtype, MEDIASUBTYPE_RGB32))
+		f = RGB;
+	else if (IsEqualGUID(mt.subtype, MEDIASUBTYPE_YUY2))
+		f = YUV;
+
+	FreeMediaType(mt);
+	pPin->Release();
+
+	return f;
 }
 
 bool VideoOutput::start()

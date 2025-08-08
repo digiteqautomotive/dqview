@@ -6,7 +6,6 @@
 #include <queue>
 #include <condition_variable>
 #include "streams.h"
-#include "pixelformat.h"
 
 DEFINE_GUID(CLSID_FrameBuffer, 0xfd501041, 0x8ebe, 0x11ce, 0x81, 0x83, 0x00,
   0xaa, 0x00, 0x57, 0x7d, 0xa1);
@@ -100,20 +99,19 @@ public:
 		std::condition_variable _read, _write;
 	};
 
-	FrameBuffer(PixelFormat Format, int iWidth, int iHeight, int iTPF,
-	  int iCapacity, HRESULT *phr);
+	FrameBuffer(AM_MEDIA_TYPE *pMT, int iCapacity, HRESULT *phr);
 	~FrameBuffer();
 
-	int Width() const {return m_iWidth;}
-	int Height() const {return m_iHeight;}
-	PixelFormat Format() const {return m_Format;}
+	LONG Width() const {return m_iWidth;}
+	LONG Height() const {return m_iHeight;}
+	REFGUID Format() const {return m_Format;}
 	int TimePerFrame() const {return m_iTimePerFrame;}
 	Queue &FrameQueue() {return m_pQueue;}
 
 private:
-	int m_iWidth, m_iHeight;
+	LONG m_iWidth, m_iHeight;
 	int m_iTimePerFrame;
-	PixelFormat m_Format;
+	GUID m_Format;
 	Queue m_pQueue;
 	FrameBufferStream *m_pStream;
 };

@@ -40,7 +40,7 @@ HRESULT FrameBufferStream::FillBuffer(IMediaSample *pMediaSample)
 	if ((LONG)pFrame->size() != pMediaSample->GetSize())
 		return E_INVALIDARG;
 
-	if (pFilter->Format() == RGB) {
+	if (IsEqualGUID(pFilter->Format(), MEDIASUBTYPE_RGB32)) {
 		// verticaly flip the image
 		for (int i = 0; i < pFilter->Height(); i++)
 			memcpy(pData + (i * pFilter->Width() * 4), pFrame->Buffer()
@@ -61,35 +61,36 @@ HRESULT FrameBufferStream::GetMediaType(CMediaType *pMediaType)
 	FrameBuffer *pFilter = static_cast<FrameBuffer*>(m_pFilter);
 	CAutoLock cAutoLock(m_pFilter->pStateLock());
 
-	VIDEOINFO *pvi = (VIDEOINFO *)pMediaType->AllocFormatBuffer(sizeof(VIDEOINFO));
-	if (!pvi)
+	VIDEOINFO *pVI = (VIDEOINFO *)pMediaType->AllocFormatBuffer(sizeof(VIDEOINFO));
+	if (!pVI)
 		return(E_OUTOFMEMORY);
 
-	ZeroMemory(pvi, sizeof(VIDEOINFO));
-	if (pFilter->Format() == RGB) {
-		pvi->bmiHeader.biCompression = BI_RGB;
-		pvi->bmiHeader.biBitCount = 32;
+	ZeroMemory(pVI, sizeof(VIDEOINFO));
+	if (IsEqualGUID(pFilter->Format(), MEDIASUBTYPE_RGB32)) {
+		pVI->bmiHeader.biCompression = BI_RGB;
+		pVI->bmiHeader.biBitCount = 32;
 	} else {
-		pvi->bmiHeader.biCompression = mmioFOURCC('Y', 'U', 'Y', '2');
-		pvi->bmiHeader.biBitCount = 16;
+		pVI->bmiHeader.biCompression = mmioFOURCC('Y', 'U', 'Y', '2');
+		pVI->bmiHeader.biBitCount = 16;
 	}
-	pvi->bmiHeader.biSize = sizeof(BITMAPINFOHEADER);
-	pvi->bmiHeader.biWidth = pFilter->Width();
-	pvi->bmiHeader.biHeight = pFilter->Height();
-	pvi->bmiHeader.biPlanes = 1;
-	pvi->bmiHeader.biSizeImage = GetBitmapSize(&pvi->bmiHeader);
-	pvi->bmiHeader.biClrImportant = 0;
-	pvi->AvgTimePerFrame = pFilter->TimePerFrame();
-	SetRectEmpty(&(pvi->rcSource));
-	SetRectEmpty(&(pvi->rcTarget));
+	pVI->bmiHeader.biSize = sizeof(BITMAPINFOHEADER);
+	pVI->bmiHeader.biWidth = pFilter->Width();
+	pVI->bmiHeader.biHeight = pFilter->Height();
+	pVI->bmiHeader.biPlanes = 1;
+	pVI->bmiHeader.biSizeImage = GetBitmapSize(&pVI->bmiHeader);
+	pVI->bmiHeader.biClrImportant = 0;
+	pVI->AvgTimePerFrame = pFilter->TimePerFrame();
+	SetRectEmpty(&(pVI->rcSource));
+	SetRectEmpty(&(pVI->rcTarget));
 
 	pMediaType->SetType(&MEDIATYPE_Video);
+	pMediaType->SetSubtype(&(pFilter->Format()));
 	pMediaType->SetFormatType(&FORMAT_VideoInfo);
 	pMediaType->SetTemporalCompression(FALSE);
 
-	const GUID SubTypeGUID = GetBitmapSubtype(&pvi->bmiHeader);
+	const GUID SubTypeGUID = GetBitmapSubtype(&pVI->bmiHeader);
 	pMediaType->SetSubtype(&SubTypeGUID);
-	pMediaType->SetSampleSize(pvi->bmiHeader.biSizeImage);
+	pMediaType->SetSampleSize(pVI->bmiHeader.biSizeImage);
 
 	return S_OK;
 }
@@ -117,13 +118,19 @@ HRESULT FrameBufferStream::DecideBufferSize(IMemAllocator *pAlloc,
 	return S_OK;
 }
 
-FrameBuffer::FrameBuffer(PixelFormat Format, int iWidth, int iHeight, int iTPF,
-  int iCapacity, HRESULT *phr)
-  : CSource(NAME("Frame Buffer"), NULL, CLSID_FrameBuffer), m_iWidth(iWidth),
-    m_iHeight(iHeight), m_iTimePerFrame(iTPF), m_Format(Format),
-    m_pQueue(iCapacity, (iTPF * 10) / 10000)
+FrameBuffer::FrameBuffer(AM_MEDIA_TYPE *pMT, int iCapacity, HRESULT *phr)
+  : CSource(NAME("Frame Buffer"), NULL, CLSID_FrameBuffer),
+    m_pQueue(iCapacity, (((VIDEOINFO*)(pMT->pbFormat))->AvgTimePerFrame * 10)
+      / 10000)
 {
 	CAutoLock cAutoLock(&m_cStateLock);
+
+	m_Format = pMT->formattype;
+
+	VIDEOINFO *vi = reinterpret_cast<VIDEOINFO*>(pMT->pbFormat);
+	m_iWidth = vi->bmiHeader.biWidth;
+	m_iHeight = vi->bmiHeader.biHeight;
+	m_iTimePerFrame = vi->AvgTimePerFrame;
 
 	m_pStream = new FrameBufferStream(this, phr);
 	m_pStream->AddRef();
