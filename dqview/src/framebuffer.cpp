@@ -3,22 +3,35 @@
 #include <vlc/vlc.h>
 #include "framebuffer.h"
 
+#define FRAME_DROP_LIMIT 10
+
 class FrameBufferStream : public CSourceStream
 {
 public:
 	DECLARE_IUNKNOWN;
 
-	FrameBufferStream(FrameBuffer *pParent, HRESULT *phr);
+	FrameBufferStream(FrameBuffer *pParent, AM_MEDIA_TYPE *pMT, HRESULT *phr);
 
 	HRESULT FillBuffer(IMediaSample *pMediaSample);
 	HRESULT DecideBufferSize(IMemAllocator *pIMemAlloc,
 	  ALLOCATOR_PROPERTIES *pProperties);
 	HRESULT GetMediaType(CMediaType *pMediaType);
+
+private:
+	LONG m_iWidth, m_iHeight;
+	int m_iTimePerFrame;
+	GUID m_Format;
 };
 
-FrameBufferStream::FrameBufferStream(FrameBuffer *pParent, HRESULT *phr)
-  : CSourceStream(NAME("Stream"), phr, pParent, NAME("Pin"))
+FrameBufferStream::FrameBufferStream(FrameBuffer *pParent, AM_MEDIA_TYPE *pMT,
+  HRESULT *phr) : CSourceStream(NAME("Stream"), phr, pParent, NAME("Pin"))
 {
+	m_Format = pMT->formattype;
+
+	VIDEOINFO *vi = reinterpret_cast<VIDEOINFO*>(pMT->pbFormat);
+	m_iWidth = vi->bmiHeader.biWidth;
+	m_iHeight = vi->bmiHeader.biHeight;
+	m_iTimePerFrame = vi->AvgTimePerFrame;
 }
 
 HRESULT FrameBufferStream::FillBuffer(IMediaSample *pMediaSample)
@@ -40,14 +53,14 @@ HRESULT FrameBufferStream::FillBuffer(IMediaSample *pMediaSample)
 	if ((LONG)pFrame->size() != pMediaSample->GetSize())
 		return E_INVALIDARG;
 
-	if (IsEqualGUID(pFilter->Format(), MEDIASUBTYPE_RGB32)) {
+	if (IsEqualGUID(m_Format, MEDIASUBTYPE_RGB32)) {
 		// verticaly flip the image
-		for (int i = 0; i < pFilter->Height(); i++)
-			memcpy(pData + (i * pFilter->Width() * 4), pFrame->Buffer()
-			  + ((pFilter->Height() - 1 - i) * pFilter->Width() * 4),
-			  pFilter->Width() * 4);
+		for (int i = 0; i < m_iHeight; i++)
+			memcpy(pData + (i * m_iWidth * 4), pFrame->Buffer()
+			  + ((m_iHeight - 1 - i) * m_iWidth * 4),
+			  m_iWidth * 4);
 	} else
-		memcpy(pData, pFrame->Buffer(), pFilter->Width() * pFilter->Height() * 2);
+		memcpy(pData, pFrame->Buffer(), m_iWidth * m_iHeight * 2);
 
 	pFilter->FrameQueue().pop();
 
@@ -57,8 +70,6 @@ HRESULT FrameBufferStream::FillBuffer(IMediaSample *pMediaSample)
 HRESULT FrameBufferStream::GetMediaType(CMediaType *pMediaType)
 {
 	CheckPointer(pMediaType, E_POINTER);
-
-	FrameBuffer *pFilter = static_cast<FrameBuffer*>(m_pFilter);
 	CAutoLock cAutoLock(m_pFilter->pStateLock());
 
 	VIDEOINFO *pVI = (VIDEOINFO *)pMediaType->AllocFormatBuffer(sizeof(VIDEOINFO));
@@ -66,7 +77,7 @@ HRESULT FrameBufferStream::GetMediaType(CMediaType *pMediaType)
 		return(E_OUTOFMEMORY);
 
 	ZeroMemory(pVI, sizeof(VIDEOINFO));
-	if (IsEqualGUID(pFilter->Format(), MEDIASUBTYPE_RGB32)) {
+	if (IsEqualGUID(m_Format, MEDIASUBTYPE_RGB32)) {
 		pVI->bmiHeader.biCompression = BI_RGB;
 		pVI->bmiHeader.biBitCount = 32;
 	} else {
@@ -74,17 +85,17 @@ HRESULT FrameBufferStream::GetMediaType(CMediaType *pMediaType)
 		pVI->bmiHeader.biBitCount = 16;
 	}
 	pVI->bmiHeader.biSize = sizeof(BITMAPINFOHEADER);
-	pVI->bmiHeader.biWidth = pFilter->Width();
-	pVI->bmiHeader.biHeight = pFilter->Height();
+	pVI->bmiHeader.biWidth = m_iWidth;
+	pVI->bmiHeader.biHeight = m_iHeight;
 	pVI->bmiHeader.biPlanes = 1;
 	pVI->bmiHeader.biSizeImage = GetBitmapSize(&pVI->bmiHeader);
 	pVI->bmiHeader.biClrImportant = 0;
-	pVI->AvgTimePerFrame = pFilter->TimePerFrame();
+	pVI->AvgTimePerFrame = m_iTimePerFrame;
 	SetRectEmpty(&(pVI->rcSource));
 	SetRectEmpty(&(pVI->rcTarget));
 
 	pMediaType->SetType(&MEDIATYPE_Video);
-	pMediaType->SetSubtype(&(pFilter->Format()));
+	pMediaType->SetSubtype(&(m_Format));
 	pMediaType->SetFormatType(&FORMAT_VideoInfo);
 	pMediaType->SetTemporalCompression(FALSE);
 
@@ -120,19 +131,12 @@ HRESULT FrameBufferStream::DecideBufferSize(IMemAllocator *pAlloc,
 
 FrameBuffer::FrameBuffer(AM_MEDIA_TYPE *pMT, int iCapacity, HRESULT *phr)
   : CSource(NAME("Frame Buffer"), NULL, CLSID_FrameBuffer),
-    m_pQueue(iCapacity, (((VIDEOINFO*)(pMT->pbFormat))->AvgTimePerFrame * 10)
-      / 10000)
+    m_pQueue(iCapacity, (((VIDEOINFO*)(pMT->pbFormat))->AvgTimePerFrame
+      * FRAME_DROP_LIMIT) / 10000)
 {
 	CAutoLock cAutoLock(&m_cStateLock);
 
-	m_Format = pMT->formattype;
-
-	VIDEOINFO *vi = reinterpret_cast<VIDEOINFO*>(pMT->pbFormat);
-	m_iWidth = vi->bmiHeader.biWidth;
-	m_iHeight = vi->bmiHeader.biHeight;
-	m_iTimePerFrame = vi->AvgTimePerFrame;
-
-	m_pStream = new FrameBufferStream(this, phr);
+	m_pStream = new FrameBufferStream(this, pMT, phr);
 	m_pStream->AddRef();
 }
 

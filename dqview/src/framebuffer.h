@@ -102,16 +102,9 @@ public:
 	FrameBuffer(AM_MEDIA_TYPE *pMT, int iCapacity, HRESULT *phr);
 	~FrameBuffer();
 
-	LONG Width() const {return m_iWidth;}
-	LONG Height() const {return m_iHeight;}
-	REFGUID Format() const {return m_Format;}
-	int TimePerFrame() const {return m_iTimePerFrame;}
 	Queue &FrameQueue() {return m_pQueue;}
 
 private:
-	LONG m_iWidth, m_iHeight;
-	int m_iTimePerFrame;
-	GUID m_Format;
 	Queue m_pQueue;
 	FrameBufferStream *m_pStream;
 };
