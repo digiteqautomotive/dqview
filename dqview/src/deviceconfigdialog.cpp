@@ -1417,6 +1417,7 @@ OutputConfigDialog::OutputConfigDialog(Device *device, QWidget *parent)
 	statusLayout->addWidget(outputStatus);
 
 	_pixelFormat = new QComboBox();
+	_pixelFormat->addItem(tr("Default"), QVariant(UnknownFormat));
 	_pixelFormat->addItem(tr("RGB"), QVariant(RGB));
 	_pixelFormat->addItem(tr("YUV"), QVariant(YUV));
 	_pixelFormat->setCurrentIndex(_pixelFormat->findData((int)_device->format()));

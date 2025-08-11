@@ -332,7 +332,10 @@ HRESULT VideoOutput::FG4MediaType(REFGUID subType, AM_MEDIA_TYPE **ppmt)
 		return E_OUTOFMEMORY;
 	ZeroMemory(*ppmt, sizeof(AM_MEDIA_TYPE));
 	(*ppmt)->majortype = MEDIATYPE_Video;
-	(*ppmt)->subtype = subType;
+	if (IsEqualGUID(subType, MEDIASUBTYPE_RGB32))
+		(*ppmt)->subtype = MEDIASUBTYPE_RGB32;
+	else
+		(*ppmt)->subtype = MEDIASUBTYPE_YUY2;
 	(*ppmt)->formattype = FORMAT_VideoInfo;
 	(*ppmt)->cbFormat = sizeof(VIDEOINFO);
 	(*ppmt)->pbFormat = (PBYTE)CoTaskMemAlloc((*ppmt)->cbFormat);
@@ -412,8 +415,18 @@ bool VideoOutput::open(unsigned int num, unsigned int den)
 	IPin *pRenderPin;
 	IGraphBuilder *graphbuilder;
 	AM_MEDIA_TYPE *pMT;
-	REFGUID subType = (_dev->format() == RGB)
-	  ? MEDIASUBTYPE_RGB32 : MEDIASUBTYPE_YUY2;
+	const GUID *pSubType;
+
+	switch (_dev->format()) {
+		case RGB:
+			pSubType = &MEDIASUBTYPE_RGB32;
+			break;
+		case YUV:
+			pSubType = &MEDIASUBTYPE_YUY2;
+			break;
+		default:
+			pSubType = &GUID_NULL;
+	}
 
 	if (FAILED(GetPin(_dev->filter(), PINDIR_INPUT, &pRenderPin))) {
 		_errorString = "Cannot obtain input pin from renderer";
@@ -424,9 +437,9 @@ bool VideoOutput::open(unsigned int num, unsigned int den)
 	// using the standard API. Use the FG4-specific properties instead when
 	// working with FG4 devices.
 	hr = (_dev->id() < 0)
-	  ? GetPinMediaType(pRenderPin, MEDIATYPE_Video, subType,
+	  ? GetPinMediaType(pRenderPin, MEDIATYPE_Video, *pSubType,
 	    FORMAT_VideoInfo, &pMT)
-	  : FG4MediaType(subType, &pMT);
+	  : FG4MediaType(*pSubType, &pMT);
 	if (FAILED(hr)) {
 		_errorString = "Unsupported renderer media type";
 		pRenderPin->Release();
