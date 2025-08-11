@@ -20,13 +20,13 @@ public:
 private:
 	LONG m_iWidth, m_iHeight;
 	int m_iTimePerFrame;
-	GUID m_Format;
+	GUID m_SubType;
 };
 
 FrameBufferStream::FrameBufferStream(FrameBuffer *pParent, AM_MEDIA_TYPE *pMT,
   HRESULT *phr) : CSourceStream(NAME("Stream"), phr, pParent, NAME("Pin"))
 {
-	m_Format = pMT->formattype;
+	m_SubType = pMT->subtype;
 
 	VIDEOINFO *vi = reinterpret_cast<VIDEOINFO*>(pMT->pbFormat);
 	m_iWidth = vi->bmiHeader.biWidth;
@@ -53,7 +53,7 @@ HRESULT FrameBufferStream::FillBuffer(IMediaSample *pMediaSample)
 	if ((LONG)pFrame->size() != pMediaSample->GetSize())
 		return E_INVALIDARG;
 
-	if (IsEqualGUID(m_Format, MEDIASUBTYPE_RGB32)) {
+	if (IsEqualGUID(m_SubType, MEDIASUBTYPE_RGB32)) {
 		// verticaly flip the image
 		for (int i = 0; i < m_iHeight; i++)
 			memcpy(pData + (i * m_iWidth * 4), pFrame->Buffer()
@@ -77,7 +77,7 @@ HRESULT FrameBufferStream::GetMediaType(CMediaType *pMediaType)
 		return(E_OUTOFMEMORY);
 
 	ZeroMemory(pVI, sizeof(VIDEOINFO));
-	if (IsEqualGUID(m_Format, MEDIASUBTYPE_RGB32)) {
+	if (IsEqualGUID(m_SubType, MEDIASUBTYPE_RGB32)) {
 		pVI->bmiHeader.biCompression = BI_RGB;
 		pVI->bmiHeader.biBitCount = 32;
 	} else {
@@ -95,7 +95,7 @@ HRESULT FrameBufferStream::GetMediaType(CMediaType *pMediaType)
 	SetRectEmpty(&(pVI->rcTarget));
 
 	pMediaType->SetType(&MEDIATYPE_Video);
-	pMediaType->SetSubtype(&(m_Format));
+	pMediaType->SetSubtype(&(m_SubType));
 	pMediaType->SetFormatType(&FORMAT_VideoInfo);
 	pMediaType->SetTemporalCompression(FALSE);
 
