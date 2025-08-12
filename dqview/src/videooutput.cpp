@@ -317,7 +317,7 @@ static HRESULT GetPinMediaType(IPin *pPin, REFGUID majorType, REFGUID subType,
 	return VFW_E_NOT_FOUND;
 }
 
-HRESULT VideoOutput::FG4MediaType(REFGUID subType, AM_MEDIA_TYPE **ppmt)
+HRESULT VideoOutput::FG4MediaType(AM_MEDIA_TYPE **ppmt)
 {
 	long resolution;
 
@@ -332,7 +332,7 @@ HRESULT VideoOutput::FG4MediaType(REFGUID subType, AM_MEDIA_TYPE **ppmt)
 		return E_OUTOFMEMORY;
 	ZeroMemory(*ppmt, sizeof(AM_MEDIA_TYPE));
 	(*ppmt)->majortype = MEDIATYPE_Video;
-	if (IsEqualGUID(subType, MEDIASUBTYPE_RGB32))
+	if (_dev->format() == RGB)
 		(*ppmt)->subtype = MEDIASUBTYPE_RGB32;
 	else
 		(*ppmt)->subtype = MEDIASUBTYPE_YUY2;
@@ -348,7 +348,7 @@ HRESULT VideoOutput::FG4MediaType(REFGUID subType, AM_MEDIA_TYPE **ppmt)
 	ZeroMemory(pVI, sizeof(VIDEOINFO));
 	pVI->bmiHeader.biWidth = resolution >> 16;
 	pVI->bmiHeader.biHeight = resolution & 0xFFFF;
-	if (IsEqualGUID(subType, MEDIASUBTYPE_RGB32)) {
+	if (_dev->format() == RGB) {
 		pVI->bmiHeader.biCompression = BI_RGB;
 		pVI->bmiHeader.biBitCount = 32;
 	} else {
@@ -415,31 +415,33 @@ bool VideoOutput::open(unsigned int num, unsigned int den)
 	IPin *pRenderPin;
 	IGraphBuilder *graphbuilder;
 	AM_MEDIA_TYPE *pMT;
-	const GUID *pSubType;
-
-	switch (_dev->format()) {
-		case RGB:
-			pSubType = &MEDIASUBTYPE_RGB32;
-			break;
-		case YUV:
-			pSubType = &MEDIASUBTYPE_YUY2;
-			break;
-		default:
-			pSubType = &GUID_NULL;
-	}
 
 	if (FAILED(GetPin(_dev->filter(), PINDIR_INPUT, &pRenderPin))) {
 		_errorString = "Cannot obtain input pin from renderer";
 		return false;
 	}
 
-	// The FG4 output device is broken and does not provide any media info
-	// using the standard API. Use the FG4-specific properties instead when
-	// working with FG4 devices.
-	hr = (_dev->id() < 0)
-	  ? GetPinMediaType(pRenderPin, MEDIATYPE_Video, *pSubType,
-	    FORMAT_VideoInfo, &pMT)
-	  : FG4MediaType(*pSubType, &pMT);
+	if (_dev->id() >= 0) {
+		// The FG4 output device is broken and does not provide any media info
+		// using the standard API. Use the FG4-specific properties instead when
+		// working with FG4 devices.
+		hr = FG4MediaType(&pMT);
+	} else {
+		if (_dev->format() == RGB)
+			hr = GetPinMediaType(pRenderPin, MEDIATYPE_Video, MEDIASUBTYPE_RGB32,
+			  FORMAT_VideoInfo, &pMT);
+		else if (_dev->format() == YUV)
+			hr = GetPinMediaType(pRenderPin, MEDIATYPE_Video, MEDIASUBTYPE_YUY2,
+			  FORMAT_VideoInfo, &pMT);
+		else {
+			hr = GetPinMediaType(pRenderPin, MEDIATYPE_Video, MEDIASUBTYPE_RGB32,
+			  FORMAT_VideoInfo, &pMT);
+			if (FAILED(hr)) {
+				hr = GetPinMediaType(pRenderPin, MEDIATYPE_Video,
+				  MEDIASUBTYPE_YUY2, FORMAT_VideoInfo, &pMT);
+			}
+		}
+	}
 	if (FAILED(hr)) {
 		_errorString = "Unsupported renderer media type";
 		pRenderPin->Release();

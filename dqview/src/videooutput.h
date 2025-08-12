@@ -61,7 +61,7 @@ private:
 
 #elif defined(Q_OS_WIN32) || defined(Q_OS_CYGWIN)
 
-	HRESULT FG4MediaType(REFGUID subType, AM_MEDIA_TYPE **ppmt);
+	HRESULT FG4MediaType(AM_MEDIA_TYPE **ppmt);
 
 	FrameBuffer *_frameBuffer;
 	IMediaControl *_graph;
