@@ -435,14 +435,9 @@ bool VideoOutput::open(unsigned int num, unsigned int den)
 		else if (_dev->format() == YUV)
 			hr = GetPinMediaType(pRenderPin, MEDIATYPE_Video, MEDIASUBTYPE_YUY2,
 			  FORMAT_VideoInfo, &pMT);
-		else {
-			hr = GetPinMediaType(pRenderPin, MEDIATYPE_Video, MEDIASUBTYPE_YUY2,
+		else
+			hr = GetPinMediaType(pRenderPin, MEDIATYPE_Video, GUID_NULL,
 			  FORMAT_VideoInfo, &pMT);
-			if (FAILED(hr)) {
-				hr = GetPinMediaType(pRenderPin, MEDIATYPE_Video,
-				  MEDIASUBTYPE_RGB32, FORMAT_VideoInfo, &pMT);
-			}
-		}
 	}
 	if (FAILED(hr)) {
 		_errorString = "Unsupported renderer media type";
