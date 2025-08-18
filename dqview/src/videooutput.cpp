@@ -202,19 +202,21 @@ bool VideoOutput::open(unsigned int num, unsigned int den)
 	struct v4l2_format fmt;
 	fmt.type = V4L2_BUF_TYPE_VIDEO_OUTPUT;
 
-	if (ioctl(_fd, VIDIOC_G_FMT, &fmt) < 0) {
-		_errorString = "VIDIOC_G_FMT: " + QString(strerror(errno));
-		::close(_fd);
-		_fd = -1;
-		return false;
-	} else {
-		fmt.fmt.pix.pixelformat = (_dev->format() == YUV)
-		  ? V4L2_PIX_FMT_YUYV : V4L2_PIX_FMT_ABGR32;
-		if (ioctl(_fd, VIDIOC_S_FMT, &fmt) < 0) {
-			_errorString = "VIDIOC_S_FMT: " + QString(strerror(errno));
+	if (_dev->format()) {
+		if (ioctl(_fd, VIDIOC_G_FMT, &fmt) < 0) {
+			_errorString = "VIDIOC_G_FMT: " + QString(strerror(errno));
 			::close(_fd);
 			_fd = -1;
 			return false;
+		} else {
+			fmt.fmt.pix.pixelformat = (_dev->format() == RGB)
+			  ? V4L2_PIX_FMT_ABGR32 : V4L2_PIX_FMT_YUYV;
+			if (ioctl(_fd, VIDIOC_S_FMT, &fmt) < 0) {
+				_errorString = "VIDIOC_S_FMT: " + QString(strerror(errno));
+				::close(_fd);
+				_fd = -1;
+				return false;
+			}
 		}
 	}
 
