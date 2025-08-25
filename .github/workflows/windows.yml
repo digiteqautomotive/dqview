@@ -21,14 +21,14 @@ jobs:
           install: base-devel mingw-w64-x86_64-gcc mingw-w64-x86_64-tools-git mingw-w64-x86_64-qt6-base mingw-w64-x86_64-vlc mingw-w64-x86_64-nsis
       - name: Build project
         run: |
-          qmake6 dqview.pro /DBUILD="${{github.run_number}}"
+          qmake6 dqview.pro BUILD=${{github.run_number}}
           make -j4
       - name: Create installer
         run: |
           cd dqview
           cp release/dqview.exe .
           scripts/mingw-libs.sh qt6
-          makensis.exe dqview.nsi
+          makensis.exe /DBUILD="${{github.run_number}}" dqview.nsi
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
         with:
