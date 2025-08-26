@@ -115,7 +115,7 @@ Section "DQ Viewer" SEC_APP
   WriteRegStr HKLM "${REGENTRY}" "QuietUninstallString" "$\"$INSTDIR\uninstall.exe$\" /S"
   WriteRegStr HKLM "${REGENTRY}" "DisplayIcon" '"$INSTDIR\dqview.exe"'
   WriteRegStr HKLM "${REGENTRY}" "InstallLocation" '"$INSTDIR"'
-  WriteRegStr HKLM "${REGENTRY}" "URLInfoAbout" "https://www.digiteqautomotive.com"
+  WriteRegStr HKLM "${REGENTRY}" "URLInfoAbout" "https://github.com/digiteqautomotive/dqview"
   WriteRegDWORD HKLM "${REGENTRY}" "NoModify" 1
   WriteRegDWORD HKLM "${REGENTRY}" "NoRepair" 1
 
