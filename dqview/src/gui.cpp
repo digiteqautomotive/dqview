@@ -28,7 +28,7 @@
 
 #define COMPANY_NAME "Digiteq Automotive"
 #define APP_NAME "DQ Viewer"
-#define APP_HOMEPAGE "https://www.digiteqautomotive.com"
+#define APP_HOMEPAGE "https://github.com/digiteqautomotive/dqview"
 
 static QString timeSpan(int time)
 {
@@ -558,8 +558,7 @@ void GUI::about()
 	  + tr("DQ Viewer is distributed under the terms of the GNU General Public "
 	  "License version 3. For more info about DQ Viewer visit the project "
 	  "homepage at %1.").arg("<a href=\"" + homepage.toString() + "\">"
-	  + homepage.toString(QUrl::RemoveScheme).mid(2) + "</a>")
-	  + "</td></tr></table>");
+	  + homepage.host() + "</a>") + "</td></tr></table>");
 
 	QIcon icon = msgBox.windowIcon();
 	QSize size = icon.actualSize(QSize(64, 64));
