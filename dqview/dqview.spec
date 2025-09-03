@@ -1,5 +1,5 @@
 Name:           dqview
-Version:        4.3
+Version:        4.4
 Release:        1
 Summary:        Digiteq Automotive video player
 License:        GPL-3.0-only

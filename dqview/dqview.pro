@@ -2,7 +2,7 @@ TARGET = dqview
 TEMPLATE = app
 
 QT      += core gui widgets
-VERSION = 4.3
+VERSION = 4.4
 
 isEmpty(BUILD) {
 DEFINES += APP_VERSION=\\\"$$VERSION\\\"
