@@ -83,6 +83,14 @@ Function .onInit
   ${EndIf}
 !endif
 
+  ${If} ${RunningX64}
+    SetRegView 64
+  ${Else}
+    MessageBox MB_OK "DQ Viewer can not be run on 32b systems."
+    Abort
+  ${EndIf}
+FunctionEnd
+
 ; The stuff to install
 Section "DQ Viewer" SEC_APP
 
