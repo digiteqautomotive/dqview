@@ -25,7 +25,7 @@ Build requirements:
 
 Build steps:
 ```shell
-qmake gpxsee.pro
+qmake dqview.pro
 make
 ```
 
