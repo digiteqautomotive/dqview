@@ -71,11 +71,17 @@ Var StartMenuFolder
 !insertmacro MUI_LANGUAGE "English"
 
 Function .onInit
-  ${IfNot} ${AtLeastWin7}
-    MessageBox MB_OK "DQ Viewer can only be installed on Windows 7 or later."
+!ifdef QT6
+  ${IfNot} ${AtLeastWin10}
+    MessageBox MB_OK "GPXSee can only be installed on Windows 10 or later."
     Abort
   ${EndIf}
-FunctionEnd 
+!else
+  ${IfNot} ${AtLeastWin7}
+    MessageBox MB_OK "GPXSee can only be installed on Windows 7 or later."
+    Abort
+  ${EndIf}
+!endif
 
 ; The stuff to install
 Section "DQ Viewer" SEC_APP

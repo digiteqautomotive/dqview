@@ -28,7 +28,7 @@ jobs:
           cd dqview
           cp release/dqview.exe .
           scripts/mingw-libs.sh qt6
-          MSYS_NO_PATHCONV=1 makensis.exe /DBUILD="${{github.run_number}}" dqview.nsi
+          MSYS_NO_PATHCONV=1 makensis.exe /DBUILD="${{github.run_number}}" /DQT6 dqview.nsi
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
         with:
