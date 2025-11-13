@@ -32,9 +32,12 @@ Stream::Stream(const StreamInfo &streamInfo, QObject *parent)
 			  QString::number(_streamInfo.port())));
 			QByteArray ba(sdp.toLatin1());
 
-			tmp->open();
-			tmp->write(ba);
-			tmp->close();
+			if (tmp->open()) {
+				tmp->write(ba);
+				tmp->close();
+			} else
+				qWarning("%s: %s", qUtf8Printable(tmp->fileName()),
+				  qUtf8Printable(tmp->errorString()));
 
 			_sdp = tmp->fileName();
 
