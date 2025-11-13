@@ -979,6 +979,8 @@ QString DeviceConfigDialog::moduleTypeStr(ModuleType type)
 			return "FPDL3";
 		case ModuleType::GMSL1:
 			return "GMSL1";
+		case ModuleType::GMSL3c:
+			return "GMSL3 coax";
 		default:
 			return tr("N/A");
 	}

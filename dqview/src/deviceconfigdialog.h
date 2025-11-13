@@ -18,7 +18,8 @@ public:
 
 protected:
 	enum class FWType {None, FPDL3, GMSL3, GMSL1};
-	enum class ModuleType {None, FPDL3, GMSL3v1, GMSL3v2, GMSL3v3, GMSL1 = 6};
+	enum class ModuleType
+	  {None, FPDL3, GMSL3v1, GMSL3v2, GMSL3v3, GMSL1 = 6, GMSL3c = 8};
 	enum SyncType {ActiveLow, ActiveHigh, NotAvailable};
 	enum FPDL3Width {FPDL3Auto, FPDL3Single, FPDL3Dual};
 
