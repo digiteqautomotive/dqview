@@ -281,6 +281,16 @@ bool OutputConfigDialog::setDisplayHeight(unsigned int height)
 	return writeSysfsInt(_device->name(), "display_height", height);
 }
 
+bool OutputConfigDialog::getColorMapping(ColorMapping *mapping)
+{
+	return readSysfsInt(_device->name(), "color_mapping", (unsigned*)mapping);
+}
+
+bool OutputConfigDialog::setColorMapping(ColorMapping mapping)
+{
+	return writeSysfsInt(_device->name(), "color_mapping", mapping);
+}
+
 bool OutputConfigDialog::getFrameRate(unsigned *frameRate)
 {
 	return readSysfsInt(_device->name(), "frame_rate", frameRate);
@@ -806,6 +816,16 @@ bool OutputConfigDialog::setDisplayHeight(unsigned int height)
 	return (config && SUCCEEDED(config->SetResolution(width << 16 | height)));
 }
 
+bool OutputConfigDialog::getColorMapping(ColorMapping *mapping)
+{
+	return false;
+}
+
+bool OutputConfigDialog::setColorMapping(ColorMapping mapping)
+{
+	return false;
+}
+
 bool OutputConfigDialog::getFrameRate(unsigned *frameRate)
 {
 	IFG4OutputConfig *config = (IFG4OutputConfig*)_device->config();
@@ -1185,6 +1205,7 @@ InputConfigDialog::InputConfigDialog(Device *device, QWidget *parent)
 	_colorMapping = new QComboBox();
 	_colorMapping->addItem(tr("OLDI/JEIDA"), QVariant(OLDI));
 	_colorMapping->addItem(tr("SPWG/VESA"), QVariant(SPWG));
+	_colorMapping->addItem(tr("ZDML"), QVariant(ZDML));
 	ColorMapping colorMapping;
 	if (getColorMapping(&colorMapping))
 		_colorMapping->setCurrentIndex(_colorMapping->findData((int)colorMapping));
@@ -1418,6 +1439,16 @@ OutputConfigDialog::OutputConfigDialog(Device *device, QWidget *parent)
 	statusLayout->addWidget(deviceStatus);
 	statusLayout->addWidget(outputStatus);
 
+	_colorMapping = new QComboBox();
+	_colorMapping->addItem(tr("OLDI/JEIDA"), QVariant(OLDI));
+	_colorMapping->addItem(tr("SPWG/VESA"), QVariant(SPWG));
+	_colorMapping->addItem(tr("ZDML"), QVariant(ZDML));
+	ColorMapping colorMapping;
+	if (getColorMapping(&colorMapping))
+		_colorMapping->setCurrentIndex(_colorMapping->findData((int)colorMapping));
+	else
+		_colorMapping->setCurrentIndex((int)SPWG);
+
 	_pixelFormat = new QComboBox();
 	_pixelFormat->addItem(tr("Default"), QVariant(UnknownFormat));
 	_pixelFormat->addItem(tr("RGB"), QVariant(RGB));
@@ -1498,6 +1529,7 @@ OutputConfigDialog::OutputConfigDialog(Device *device, QWidget *parent)
 	commonConfigLayout1->addRow(tr("Pixel Format:"), _pixelFormat);
 	commonConfigLayout1->addRow(tr("Display Width:"), _displayWidth);
 	commonConfigLayout1->addRow(tr("Display Height:"), _displayHeight);
+	commonConfigLayout1->addRow(tr("Color Mapping:"), _colorMapping);
 	commonConfigLayout1->addRow(tr("Frame Rate:"), _frameRate);
 	commonConfigLayout1->addRow(tr("Video Source:"), _videoSource);
 	commonConfigLayout1->addRow(tr("PCLK Frequency:"), _pclkFreq);
@@ -1583,6 +1615,8 @@ void OutputConfigDialog::accept()
 	ret &= setHFrontPorch(_hfrontPorch->value());
 	ret &= setVBackPorch(_vbackPorch->value());
 	ret &= setVFrontPorch(_vfrontPorch->value());
+	// Old drivers do not have the color mapping property so do not check it
+	setColorMapping((ColorMapping)_colorMapping->currentData().toUInt());
 
 	if (_fpdl3OutputWidth)
 		ret &= setFPDL3OutputWidth((FPDL3Width)_fpdl3OutputWidth->currentData()

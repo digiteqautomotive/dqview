@@ -22,6 +22,7 @@ protected:
 	  {None, FPDL3, GMSL3v1, GMSL3v2, GMSL3v3, GMSL1 = 6, GMSL3c = 8};
 	enum SyncType {ActiveLow, ActiveHigh, NotAvailable};
 	enum FPDL3Width {FPDL3Auto, FPDL3Single, FPDL3Dual};
+	enum ColorMapping {OLDI, SPWG, ZDML};
 
 #if defined(Q_OS_LINUX)
 	bool getModuleType(ModuleType *type);
@@ -47,7 +48,6 @@ public slots:
 
 private:
 	enum LinkStatus {Unlocked, Locked};
-	enum ColorMapping {OLDI, SPWG};
 	enum LineWidth {Single, Dual};
 	enum FreqRange {Under50MHz, Over50MHz};
 	enum GMSLMode {GMSL12Gb, GMSL6Gb, GMSL3Gb, GMSL1GB};
@@ -149,6 +149,7 @@ private:
 	bool getVBackPorch(unsigned *porch);
 	bool getVFrontPorch(unsigned *porch);
 	bool getFPDL3OutputWidth(FPDL3Width *width);
+	bool getColorMapping(ColorMapping *mapping);
 
 	bool setDisplayWidth(unsigned width);
 	bool setDisplayHeight(unsigned height);
@@ -165,8 +166,10 @@ private:
 	bool setVBackPorch(unsigned porch);
 	bool setVFrontPorch(unsigned porch);
 	bool setFPDL3OutputWidth(FPDL3Width width);
+	bool setColorMapping(ColorMapping mapping);
 
 	QComboBox *_pixelFormat;
+	QComboBox *_colorMapping;
 	QSpinBox *_displayWidth;
 	QSpinBox *_displayHeight;
 	QSpinBox *_frameRate;
