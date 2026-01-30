@@ -1446,8 +1446,10 @@ OutputConfigDialog::OutputConfigDialog(Device *device, QWidget *parent)
 	ColorMapping colorMapping;
 	if (getColorMapping(&colorMapping))
 		_colorMapping->setCurrentIndex(_colorMapping->findData((int)colorMapping));
-	else
+	else {
 		_colorMapping->setCurrentIndex((int)SPWG);
+		_colorMapping->setEnabled(false);
+	}
 
 	_pixelFormat = new QComboBox();
 	_pixelFormat->addItem(tr("Default"), QVariant(UnknownFormat));
@@ -1615,8 +1617,10 @@ void OutputConfigDialog::accept()
 	ret &= setHFrontPorch(_hfrontPorch->value());
 	ret &= setVBackPorch(_vbackPorch->value());
 	ret &= setVFrontPorch(_vfrontPorch->value());
-	// Old drivers do not have the color mapping property so do not check it
-	setColorMapping((ColorMapping)_colorMapping->currentData().toUInt());
+
+	if (_colorMapping->isEnabled())
+		ret &= setColorMapping((ColorMapping)_colorMapping->currentData()
+		  .toUInt());
 
 	if (_fpdl3OutputWidth)
 		ret &= setFPDL3OutputWidth((FPDL3Width)_fpdl3OutputWidth->currentData()
