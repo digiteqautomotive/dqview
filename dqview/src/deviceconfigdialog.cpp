@@ -818,12 +818,14 @@ bool OutputConfigDialog::setDisplayHeight(unsigned int height)
 
 bool OutputConfigDialog::getColorMapping(ColorMapping *mapping)
 {
-	return false;
+	IFG4OutputConfig *config = (IFG4OutputConfig*)_device->config();
+	return (config && SUCCEEDED(config->GetColorMapping((long*)mapping)));
 }
 
 bool OutputConfigDialog::setColorMapping(ColorMapping mapping)
 {
-	return false;
+	IFG4OutputConfig *config = (IFG4OutputConfig*)_device->config();
+	return (config && SUCCEEDED(config->SetColorMapping(mapping)));
 }
 
 bool OutputConfigDialog::getFrameRate(unsigned *frameRate)

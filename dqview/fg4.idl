@@ -105,4 +105,14 @@ interface IFG4OutputConfig: IUnknown
     HRESULT GetWidthVSYNC([out, retval] long *pPolVSYNC);
     HRESULT SetWidthVSYNC([in] long lPolVSYNC);
     HRESULT GetCoreTemp([out, retval] float *pCoreTemp);
+    HRESULT GetFrameRateFlt([out, retval] double *plFrameRate);
+    HRESULT SetFrameRateFlt([in] double lFrameRate);
+    HRESULT GetRealPclkFreq([out, retval] long* plPclkFreq);
+    HRESULT GetStatus([out, retval] long* plStatus);
+    HRESULT GetPinFramePeriod([out, retval] long* plFramePeriod);
+    HRESULT SetPinFramePeriod([in] long lFramePeriod);
+    HRESULT GetThrottling([out, retval] long* plFramePeriod);
+    HRESULT SetThrottling([in] long lFramePeriod);
+    HRESULT GetColorMapping([out, retval] long* plColorMapping);
+    HRESULT SetColorMapping([in] long lColorMapping);
 };
