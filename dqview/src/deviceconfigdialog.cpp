@@ -1534,9 +1534,9 @@ OutputConfigDialog::OutputConfigDialog(Device *device, QWidget *parent)
 	commonConfigLayout1->addRow(tr("Display Width:"), _displayWidth);
 	commonConfigLayout1->addRow(tr("Display Height:"), _displayHeight);
 	commonConfigLayout1->addRow(tr("Color Mapping:"), _colorMapping);
-	commonConfigLayout1->addRow(tr("Frame Rate:"), _frameRate);
 	commonConfigLayout1->addRow(tr("Video Source:"), _videoSource);
 	commonConfigLayout1->addRow(tr("PCLK Frequency:"), _pclkFreq);
+	commonConfigLayout1->addRow(tr("Frame Rate Limit:"), _frameRate);
 	QFormLayout *commonConfigLayout2 = new QFormLayout();
 	commonConfigLayout2->addRow(tr("HSYNC Polarity:"), _hsyncPolarity);
 	commonConfigLayout2->addRow(tr("VSYNC Polarity:"), _vsyncPolarity);
