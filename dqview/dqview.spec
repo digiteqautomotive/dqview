@@ -63,6 +63,10 @@ fi
 %{_sysconfdir}/udev/rules.d/99-mgb4.rules
 
 %changelog
+* Wed Feb 25 13:42:23 CET 2026 - martin.tuma@digiteqautomotive.com 4.4-1
+- Added support for GMSL3 coax modules.
+- Added zDML color mapping setting.
+
 * Mon Jul 14 14:24:54 CEST 2025 - martin.tuma@digiteqautomotive.com 4.3-1
 - Added screen capture -> output functionality.
 - Use V4L2_CAP_TIMEPERFRAME for playback speed throttling.
