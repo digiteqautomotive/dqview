@@ -30,8 +30,8 @@ jobs:
           scripts/mingw-libs.sh qt6
           MSYS_NO_PATHCONV=1 makensis.exe /DBUILD="${{github.run_number}}" /DQT6 dqview.nsi
       - name: Upload artifacts
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           path: dqview/DQView-*.exe
           name: DQView.exe
-          compression-level: 0
+          archive: false
