@@ -1,5 +1,12 @@
 name: Linux
-on: push
+
+permissions:
+  contents: read
+
+on:
+  push:
+    branches:
+      - master
 
 jobs:
   build:
