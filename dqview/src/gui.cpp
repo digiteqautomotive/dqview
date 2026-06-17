@@ -442,6 +442,7 @@ void GUI::openDevice(QObject *device)
 	}
 
 	_configureDeviceAction->setEnabled(_video->device()->isValid());
+	setWindowTitle(_video->device()->name() + " - " + APP_NAME);
 }
 
 void GUI::openStream()

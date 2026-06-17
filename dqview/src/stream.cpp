@@ -20,8 +20,8 @@ static struct {
 };
 
 Stream::Stream(const StreamInfo &streamInfo, QObject *parent)
-  : Video(parent), _device(Device::Input, -1, "Network stream"),
-  _streamInfo(streamInfo)
+  : Video(parent), _device(Device::Input, -1, streamInfo.address() + ":"
+  + QString::number(streamInfo.port())), _streamInfo(streamInfo)
 {
 	for (int i = 0; i < ARRAY_SIZE(formats); i++) {
 		if (_streamInfo.type() == formats[i].name && formats[i].sdp) {
