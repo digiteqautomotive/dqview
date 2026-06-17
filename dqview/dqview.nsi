@@ -7,7 +7,7 @@ Unicode true
 ; The name of the installer
 Name "DQ Viewer"
 ; Program version
-!define VERSION "4.4"
+!define VERSION "4.5"
 
 ; The file to write
 !ifndef BUILD

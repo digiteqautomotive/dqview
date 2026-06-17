@@ -1,5 +1,5 @@
 Name:           dqview
-Version:        4.4
+Version:        4.5
 Release:        1
 Summary:        Digiteq Automotive video player
 License:        GPL-3.0-only
@@ -61,6 +61,10 @@ fi
 %{_datadir}/applications/*
 %{_datadir}/icons/hicolor/*
 %{_sysconfdir}/udev/rules.d/99-mgb4.rules
+
+%changelog
+* Wed Jun 17 15:56:19 CEST 2026 - martin.tuma@digiteqautomotive.com 4.5-1
+- Added device/stream info to the window title.
 
 %changelog
 * Wed Feb 25 13:42:23 CET 2026 - martin.tuma@digiteqautomotive.com 4.4-1
