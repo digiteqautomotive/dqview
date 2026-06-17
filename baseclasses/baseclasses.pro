@@ -3,7 +3,7 @@ CONFIG -= qt
 CONFIG += staticlib
 TARGET = strmbase
 
-QMAKE_CXXFLAGS += -Wno-parentheses -Wno-overloaded-virtual
+QMAKE_CXXFLAGS += -Wno-parentheses -Wno-overloaded-virtual -Wno-volatile
 
 HEADERS += amextra.h \
     checkbmi.h \
