@@ -17,9 +17,9 @@ public:
 	DeviceConfigDialog(Device *device, QWidget *parent = 0);
 
 protected:
-	enum class FWType {None, FPDL3, GMSL3, GMSL1};
+	enum class FWType {None, FPDL3, GMSL3, GMSL1, FPDL4};
 	enum class ModuleType
-	  {None, FPDL3, GMSL3v1, GMSL3v2, GMSL3v3, GMSL1 = 6, GMSL3c = 8};
+	  {None, FPDL3, GMSL3v1, GMSL3v2, GMSL3v3, GMSL1 = 6, FPDL4 = 7, GMSL3c = 8};
 	enum SyncType {ActiveLow, ActiveHigh, NotAvailable};
 	enum FPDL3Width {FPDL3Auto, FPDL3Single, FPDL3Dual};
 	enum ColorMapping {OLDI, SPWG, ZDML};

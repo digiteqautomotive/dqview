@@ -999,6 +999,8 @@ QString DeviceConfigDialog::moduleTypeStr(ModuleType type)
 			return "GMSL3 v3";
 		case ModuleType::FPDL3:
 			return "FPDL3";
+		case ModuleType::FPDL4:
+			return "FPDL4";
 		case ModuleType::GMSL1:
 			return "GMSL1";
 		case ModuleType::GMSL3c:
@@ -1015,6 +1017,8 @@ QString DeviceConfigDialog::FWTypeStr(FWType type)
 			return "GMSL3";
 		case FWType::FPDL3:
 			return "FPDL3";
+		case FWType::FPDL4:
+			return "FPDL4";
 		case FWType::GMSL1:
 			return "GMSL1";
 		default:
