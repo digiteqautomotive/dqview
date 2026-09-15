@@ -1,6 +1,7 @@
 !include "MUI2.nsh"
 !include "x64.nsh"
 !include "WinVer.nsh"
+!include "FileFunc.nsh"
 
 Unicode true
 
@@ -132,6 +133,8 @@ Section "DQ Viewer" SEC_APP
   WriteRegStr HKLM "${REGENTRY}" "URLInfoAbout" "https://github.com/digiteqautomotive/dqview"
   WriteRegDWORD HKLM "${REGENTRY}" "NoModify" 1
   WriteRegDWORD HKLM "${REGENTRY}" "NoRepair" 1
+  ${GetSize} "$INSTDIR" "/S=0K" $0 $1 $2
+  WriteRegDWORD HKLM "${REGENTRY}" "EstimatedSize" $0
 
 SectionEnd
 
