@@ -4,7 +4,7 @@ Release:        1
 Summary:        Digiteq Automotive video player
 License:        GPL-3.0-only
 Group:          Productivity/Multimedia/Video/Players
-Url:            http://www.digiteqautomotive.com
+Url:            https://www.digiteqautomotive.com
 Source0:        dqview.tar.gz
 
 BuildRequires:  gcc-c++
