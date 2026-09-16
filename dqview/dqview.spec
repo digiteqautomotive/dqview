@@ -63,8 +63,9 @@ fi
 %{_sysconfdir}/udev/rules.d/99-mgb4.rules
 
 %changelog
-* Wed Jun 17 15:56:19 CEST 2026 - martin.tuma@digiteqautomotive.com 4.5-1
+* Wed Sep 16 11:10:00 CEST 2026 - martin.tuma@digiteqautomotive.com 4.5-1
 - Added device/stream info to the window title.
+- Added support for FPDL4 modules.
 
 * Wed Feb 25 13:42:23 CET 2026 - martin.tuma@digiteqautomotive.com 4.4-1
 - Added support for GMSL3 coax modules.
