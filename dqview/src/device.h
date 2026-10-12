@@ -4,7 +4,7 @@
 #include <QString>
 #include <QMetaType>
 #include "pixelformat.h"
-#if defined(Q_OS_WIN32) || defined(Q_OS_CYGWIN)
+#if defined(Q_OS_WIN32)
 #include <strmif.h>
 #endif
 
@@ -12,7 +12,7 @@ class Device {
 public:
 	enum Type {Unknown, Input, Output};
 
-#if defined(Q_OS_WIN32) || defined(Q_OS_CYGWIN)
+#if defined(Q_OS_WIN32)
 	Device() :
 	  _format(UnknownFormat), _type(Unknown), _id(-1), _config(0), _filter(0) {}
 	~Device();
@@ -36,7 +36,7 @@ public:
 
 	void setFormat(PixelFormat format) {_format = format;}
 
-#if defined(Q_OS_WIN32) || defined(Q_OS_CYGWIN)
+#if defined(Q_OS_WIN32)
 	void *config();
 	IBaseFilter *filter();
 #endif
@@ -48,7 +48,7 @@ private:
 	Type _type;
 	int _id;
 	QString _name;
-#if defined(Q_OS_WIN32) || defined(Q_OS_CYGWIN)
+#if defined(Q_OS_WIN32)
 	void *_config;
 	IBaseFilter *_filter;
 #endif

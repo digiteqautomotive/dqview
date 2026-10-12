@@ -421,7 +421,7 @@ bool OutputConfigDialog::setFPDL3OutputWidth(FPDL3Width width)
 	return writeSysfsInt(_device->name(), "fpdl3_output_width", width);
 }
 
-#elif defined(Q_OS_WIN32) || defined(Q_OS_CYGWIN)
+#elif defined(Q_OS_WIN32)
 
 bool InputConfigDialog::getModuleType(ModuleType *type)
 {
@@ -1246,7 +1246,7 @@ InputConfigDialog::InputConfigDialog(Device *device, QWidget *parent)
 	if (getFreqRange(&range))
 		_freqRange->setCurrentIndex(_freqRange->findData((int)range));
 
-#if defined(Q_OS_WIN32) || defined(Q_OS_CYGWIN)
+#if defined(Q_OS_WIN32)
 	unsigned color;
 	_defaultColor = new QLineEdit();
 	_defaultColor->setInputMask("\\#hhhhhhhH");
@@ -1265,7 +1265,7 @@ InputConfigDialog::InputConfigDialog(Device *device, QWidget *parent)
 	commonConfigLayout->addRow(tr("VSYNC Gap Length:"), _vsyncGapLength);
 	commonConfigLayout->addRow(tr("HSYNC Gap Length:"), _hsyncGapLength);
 	commonConfigLayout->addRow(tr("Frequency Range:"), _freqRange);
-#if defined(Q_OS_WIN32) || defined(Q_OS_CYGWIN)
+#if defined(Q_OS_WIN32)
 	commonConfigLayout->addRow(tr("Default Color:"), _defaultColor);
 #endif
 	commonConfig->setLayout(commonConfigLayout);
@@ -1364,7 +1364,7 @@ void InputConfigDialog::accept()
 		ret &= setGMSLStreamId(_gmslStreamId->currentData().toUInt());
 	if (_gmslFec)
 		ret &= setGMSLFEC((GMSLFEC)_gmslFec->currentData().toUInt());
-#if defined(Q_OS_WIN32) || defined(Q_OS_CYGWIN)
+#if defined(Q_OS_WIN32)
 	uint color = _defaultColor->text().remove(0, 1).toUInt(0, 16);
 	ret &= setDefaultColor(color);
 #endif
@@ -1663,7 +1663,7 @@ void OutputConfigDialog::setConfig(Device *dev)
 	ok &= readSysfsInt(dev->name(), "vfront_porch", &vfront);
 	ok &= readSysfsInt(dev->name(), "hsync_status", &hpol);
 	ok &= readSysfsInt(dev->name(), "vsync_status", &vpol);
-#elif defined(Q_OS_WIN32) || defined(Q_OS_CYGWIN)
+#elif defined(Q_OS_WIN32)
 	IFG4InputConfig *src = (IFG4InputConfig*)dev->config();
 	if (src) {
 		long resolution;

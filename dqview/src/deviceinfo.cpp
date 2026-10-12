@@ -85,7 +85,7 @@ QList<DeviceInfo*> DeviceInfo::outputDevices()
 	return devices(Device::Output);
 }
 
-#elif defined(Q_OS_WIN32) || defined(Q_OS_CYGWIN)
+#elif defined(Q_OS_WIN32)
 
 
 #include <dshow.h>

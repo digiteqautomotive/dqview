@@ -3,7 +3,7 @@
 
 #include <QDialog>
 #include "device.h"
-#if defined(Q_OS_WIN32) || defined(Q_OS_CYGWIN)
+#if defined(Q_OS_WIN32)
 #include "fg4.h"
 #endif
 
@@ -53,7 +53,7 @@ private:
 	enum GMSLMode {GMSL12Gb, GMSL6Gb, GMSL3Gb, GMSL1GB};
 	enum GMSLFEC {GMSLFECDisabled, GMSLFECEnabled};
 
-#if defined(Q_OS_WIN32) || defined(Q_OS_CYGWIN)
+#if defined(Q_OS_WIN32)
 	bool getModuleType(ModuleType *type);
 	bool getModuleVersion(unsigned *version);
 	bool getFwType(FWType *type);
@@ -106,7 +106,7 @@ private:
 	QComboBox *_gmslMode;
 	QComboBox *_gmslStreamId;
 	QComboBox *_gmslFec;
-#if defined(Q_OS_WIN32) || defined(Q_OS_CYGWIN)
+#if defined(Q_OS_WIN32)
 	QLineEdit *_defaultColor;
 #endif
 };
@@ -125,7 +125,7 @@ private slots:
 	void copyConfig();
 
 private:
-#if defined(Q_OS_WIN32) || defined(Q_OS_CYGWIN)
+#if defined(Q_OS_WIN32)
 	bool getModuleType(ModuleType *type);
 	bool getModuleVersion(unsigned *version);
 	bool getFwType(FWType *type);

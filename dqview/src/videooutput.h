@@ -6,7 +6,7 @@
 #include <vlc/vlc.h>
 #include "device.h"
 #include "pixelformat.h"
-#if defined(Q_OS_WIN32) || defined(Q_OS_CYGWIN)
+#if defined(Q_OS_WIN32)
 #include "framebuffer.h"
 #endif
 
@@ -59,7 +59,7 @@ private:
 	int _fd, _bufferIndex, _usedBuffers;
 	QVector<Buffer> _buffers;
 
-#elif defined(Q_OS_WIN32) || defined(Q_OS_CYGWIN)
+#elif defined(Q_OS_WIN32)
 
 	HRESULT FG4MediaType(AM_MEDIA_TYPE **ppmt);
 

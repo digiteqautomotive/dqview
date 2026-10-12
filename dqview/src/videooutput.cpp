@@ -6,7 +6,7 @@
 #include <sys/ioctl.h>
 #include <sys/mman.h>
 #include <linux/videodev2.h>
-#elif defined(Q_OS_WIN32) || defined(Q_OS_CYGWIN)
+#elif defined(Q_OS_WIN32)
 #include <control.h>
 #include "fg4.h"
 #endif
@@ -256,7 +256,7 @@ VideoOutput::~VideoOutput()
 	close();
 }
 
-#elif defined(Q_OS_WIN32) || defined(Q_OS_CYGWIN)
+#elif defined(Q_OS_WIN32)
 
 static HRESULT GetPin(IBaseFilter *pFilter, PIN_DIRECTION PinDir, IPin **ppPin)
 {

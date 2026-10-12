@@ -15,7 +15,7 @@ public:
 	void setFile(const QString &path) {_path = path;}
 	bool isValid() const {return !_path.isEmpty();}
 
-#if defined(Q_OS_WIN32) || defined(Q_OS_CYGWIN)
+#if defined(Q_OS_WIN32)
 	QString url() {return "file:///" + _path;}
 #else
 	QString url() {return "file://" + _path;}

@@ -137,7 +137,7 @@ void VideoPlayer::createPlayer()
 
 #if defined(Q_OS_LINUX)
 	libvlc_media_player_set_xwindow(_mediaPlayer, winId());
-#elif defined(Q_OS_WIN32) || defined(Q_OS_CYGWIN)
+#elif defined(Q_OS_WIN32)
 	libvlc_media_player_set_hwnd(_mediaPlayer, reinterpret_cast<void*>(winId()));
 #else
 #error "unsupported platform"

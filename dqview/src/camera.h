@@ -4,7 +4,7 @@
 #include <QSize>
 #include "deviceinfo.h"
 #include "video.h"
-#if defined(Q_OS_WIN32) || defined(Q_OS_CYGWIN)
+#if defined(Q_OS_WIN32)
 #include "fg4.h"
 #endif
 
@@ -21,7 +21,7 @@ public:
 	Device *device() {return _cameraInfo->device();}
 
 private:
-#if defined(Q_OS_WIN32) || defined(Q_OS_CYGWIN)
+#if defined(Q_OS_WIN32)
 	QSize resolution() const;
 
 	IFG4InputConfig *_config;

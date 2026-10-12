@@ -1,6 +1,6 @@
 #include "device.h"
 
-#if defined(Q_OS_WIN32) || defined(Q_OS_CYGWIN)
+#if defined(Q_OS_WIN32)
 
 #include <Windows.h>
 #include <uuids.h>

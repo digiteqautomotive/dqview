@@ -1,7 +1,7 @@
 #include <QtGlobal>
 #include "camera.h"
 
-#if defined(Q_OS_WIN32) || defined(Q_OS_CYGWIN)
+#if defined(Q_OS_WIN32)
 QSize Camera::resolution() const
 {
 	long resolution;
@@ -26,7 +26,7 @@ QString Camera::url()
 
 	url = QString("v4l2://%1%2")
 	  .arg(_cameraInfo->device()->name(), chroma);
-#elif defined(Q_OS_WIN32) || defined(Q_OS_CYGWIN)
+#elif defined(Q_OS_WIN32)
 	QSize r(resolution());
 
 	if (device()->format() == RGB)
@@ -51,14 +51,14 @@ QString Camera::url()
 Camera::Camera(DeviceInfo *cameraInfo, QObject *parent)
   : Video(parent), _cameraInfo(cameraInfo)
 {
-#if defined(Q_OS_WIN32) || defined(Q_OS_CYGWIN)
+#if defined(Q_OS_WIN32)
 	_config = (IFG4InputConfig*)device()->config();
 #endif
 }
 
 Camera::~Camera()
 {
-#if defined(Q_OS_WIN32) || defined(Q_OS_CYGWIN)
+#if defined(Q_OS_WIN32)
 	if (_config)
 		_config->Release();
 #endif
